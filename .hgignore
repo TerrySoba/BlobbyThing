@@ -1,0 +1,13 @@
+# use glob syntax.
+syntax: glob
+
+*.o
+*.d
+*~
+
+# switch to regexp syntax.
+syntax: regexp
+src/latex
+src/html
+src/Eigen
+Debug/
