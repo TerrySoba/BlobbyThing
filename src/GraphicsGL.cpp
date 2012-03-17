@@ -39,38 +39,63 @@ void GraphicsGL::setupGLMatrices() {
 	glClearColor(0, 0, 0, 0);
 	glClearDepth(1.0f);
 
-	glViewport(0, 0, 1280, 720);
+	glViewport(0, 0, this->screenWidth, this->screenHeight);
 
-	glMatrixMode(GL_PROJECTION);
-	glLoadIdentity();
+	// set default values for camera
+	openGLCamera.fovy = 49;
+	openGLCamera.nearClipping = 0.1;
+	openGLCamera.farClipping = 100;
+	openGLCamera.eye[0] = 0;
+	openGLCamera.eye[1] = 0;
+	openGLCamera.eye[2] = 10;
+	openGLCamera.center[0] = 0;
+	openGLCamera.center[1] = 0;
+	openGLCamera.center[2] = 0;
+	openGLCamera.up[0] = 0;
+	openGLCamera.up[1] = 1;
+	openGLCamera.up[2] = 0;
 
-	// glOrtho(0, 640, 480, 0, 1, -1);
-	// glFrustum (-1.777, 1.777, -1.0, 1.0, 2, 20.0);
-	gluPerspective(49.134,  16.0 / 9.0,  0.1,  100);
+	this->updateCamera();
 
-	// now set camera
-	glTranslatef(0, 0, -10);
-//	glRotatef(59.575, 1,0,0);
-//	glRotatef(-1.666, 0,1,0);
-//	glRotatef(26.168, 0,0,1);
-//  glTranslatef(-3.801, -12.713, -8.46);
-
+	// init modelview matrix
 	glMatrixMode(GL_MODELVIEW);
-
 	glEnable(GL_TEXTURE_2D);
-
 	glLoadIdentity();
 }
 
-void GraphicsGL::setCamera(GLdouble fovy, GLfloat location[3], GLfloat rotationAngle, GLfloat rotationVector[3]) {
+void GraphicsGL::setCamera(GLdouble fovy, GLdouble nearClipping, GLdouble farClipping) {
+	openGLCamera.fovy = fovy;
+	openGLCamera.nearClipping = nearClipping;
+	openGLCamera.farClipping = farClipping;
+
+	updateCamera();
+}
+
+void GraphicsGL::lookAt(GLdouble eyex, GLdouble eyey, GLdouble eyez,
+		                GLdouble centerx, GLdouble centery, GLdouble centerz,
+		                GLdouble upx, GLdouble upy, GLdouble upz) {
+	openGLCamera.eye[0] = eyex;
+	openGLCamera.eye[1] = eyey;
+	openGLCamera.eye[2] = eyez;
+	openGLCamera.center[0] = centerx;
+	openGLCamera.center[1] = centery;
+	openGLCamera.center[2] = centerz;
+	openGLCamera.up[0] = upx;
+	openGLCamera.up[1] = upy;
+	openGLCamera.up[2] = upz;
+
+	updateCamera();
+}
+
+
+void GraphicsGL::updateCamera() {
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
-	gluPerspective(fovy,  (double)this->screenWidth / this->screenHeight,  0.1,  100);
-	//
+	gluPerspective(openGLCamera.fovy,  (double)this->screenWidth / this->screenHeight, openGLCamera.nearClipping, openGLCamera.farClipping);
 
-	glRotatef(-rotationAngle, rotationVector[0], rotationVector[1], rotationVector[2]);
-	glTranslatef(-location[0], -location[1], -location[2]);
-	// glTranslatef(0, 0, 10);
+	gluLookAt(openGLCamera.eye[0], openGLCamera.eye[1], openGLCamera.eye[2],
+			  openGLCamera.center[0], openGLCamera.center[1], openGLCamera.center[2],
+			  openGLCamera.up[0], openGLCamera.up[1], openGLCamera.up[2]);
 
 	glMatrixMode(GL_MODELVIEW);
 }

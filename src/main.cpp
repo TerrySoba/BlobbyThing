@@ -20,38 +20,11 @@
 #include "GameLoop.h"
 #include "GraphicsGL.h"
 
-
 using namespace std;
-
-void render(vector<boost::shared_ptr<ShadedModel>> models, float rotate, float move) {
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	glLoadIdentity();
-
-	// glTranslatef(0,0,-5 + move);
-	glTranslatef(0,0,move);
-	glRotatef(rotate, 1,0,0);
-
-
-	for (boost::shared_ptr<ShadedModel> &model : models) {
-		// bind texture
-		model->getTextureObject()->bindTexture();
-
-		// now set data arrays
-		MyGLVertex* data = model->getTriangleObject()->getGLVertexes();
-		glVertexPointer(3, GL_FLOAT, sizeof(MyGLVertex), &data->v);
-		glTexCoordPointer(2, GL_FLOAT, sizeof(MyGLVertex), &data->vt);
-		glNormalPointer(GL_FLOAT, sizeof(MyGLVertex), &data->n);
-
-		glDrawArrays(GL_TRIANGLES, 0, model->getTriangleObject()->getSize());
-		// LOG(fmt("Drawing: %1%") % model->getName());
-	}
-
-	SDL_GL_SwapBuffers();
-}
 
 int main(int argc, char* argv[]) {
 
-	vector<boost::shared_ptr<ShadedModel>> models =  WavefrontOBJLoader::load("../../blender/baum2.obj");
+	vector<boost::shared_ptr<ShadedModel>> models =  WavefrontOBJLoader::load("../../blender/baum.obj");
 
 	cout << "Starting TextureMapping" << endl;
 
@@ -66,21 +39,19 @@ int main(int argc, char* argv[]) {
 		exit(1);
 	}
 
-	GLfloat position[3] = {5, 5, 20};
-	GLfloat rotation[3] = {0, 1, 0};
+	gl.setCamera(49.134);
+	gl.lookAt(5,5,20,
+			  0,1,0,
+			  0,1,0);
 
-	gl.setCamera(49.134, position, 15, rotation);
 	gl.addGfxObjects(models);
 
 	// generate OpenGL textures
 	gl.generateGLTextures();
 
-
-	float rotateAngle = 0;
+	// float rotateAngle = 0;
 	float move = 0;
 	float angle = 0;
-	// std::function<void(void)> doRender = [&](){render(models, rotateAngle, move + sin(angle));};
-	// doRender();
 
 	GameLoop loop;
 	loop.setDrawTask([&](){
@@ -88,7 +59,7 @@ int main(int argc, char* argv[]) {
 		// doRender();
 	});
 
-	int monkey_id = gl.getGfxObjectHandleByName("Material.004_WallTexture");
+	int monkey_id = gl.getGfxObjectHandleByName("Material_BallTexture");
 
 	if (monkey_id == -1) {
 		ERR("monkey_id war not found");
@@ -97,8 +68,12 @@ int main(int argc, char* argv[]) {
 
 	LOG(fmt("Monkey has handle: %1%") % monkey_id);
 
-	// gl.getGfxObject(monkey_id).rotationVector[0] = 10.5;
-	// gl.getGfxObject(monkey_id).rotationVector[1] = 1;
+
+	gl.getGfxObject(monkey_id).translation[0] = 0;
+	gl.getGfxObject(monkey_id).translation[1] = 7;
+	gl.getGfxObject(monkey_id).translation[2] = 0;
+
+	double speed = 0;
 
 	loop.addCycleTask([&]() {
 		angle += 2 * M_PI / 1000 * 10;
@@ -107,8 +82,18 @@ int main(int argc, char* argv[]) {
 			angle -= 2*M_PI;
 		}
 
-		gl.getGfxObject(monkey_id).translation[2] = angle;
-		LOG(fmt("angle %1%") % angle);
+		// gl.getGfxObject(monkey_id).translation[2] = angle;
+		// LOG(fmt("angle %1%") % angle);
+
+		speed -= 0.01;
+
+		gl.getGfxObject(monkey_id).translation[1] += speed;
+
+		if (gl.getGfxObject(monkey_id).translation[1] < 1) {
+			gl.getGfxObject(monkey_id).translation[1] = 1;
+			speed = -speed;
+		}
+
 
 		return TaskReturnvalue::OK;
 	}, 100);
@@ -116,6 +101,8 @@ int main(int argc, char* argv[]) {
 	loop.addCycleTask([&]() {
 		bool done = false;
 		SDL_Event event;
+		uint16_t x,y;
+
 		while (SDL_PollEvent(&event)) {
 			// if (SDL_WaitEvent(&event)) {
 			switch (event.type) {
@@ -132,7 +119,14 @@ int main(int argc, char* argv[]) {
 					done = true;
 					break;
 				case SDL_MOUSEMOTION:
-					rotateAngle = event.motion.y;
+					x = event.motion.x;
+					y = event.motion.y;
+
+					gl.lookAt(5,5,20,
+							  -x / 30.0 +10,y / 30.0 - 10,0,
+							  0,1,0);
+
+
 					break;
 
 				case SDL_MOUSEBUTTONDOWN:
