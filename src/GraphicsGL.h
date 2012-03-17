@@ -45,7 +45,28 @@ public:
 	 */
 	bool init();
 
-	void setCamera(GLdouble fovy, GLfloat location[3], GLfloat rotationAngle, GLfloat rotationVector[3]);
+	/*! \brief Set camera field of view and clipping distances
+	 *
+	 *  \param fovy field of view in degree
+	 *  \param nearClipping distance from camera to near clipping plane
+	 *  \param farClipping distance from camera to far clipping plane
+	 */
+	void setCamera(GLdouble fovy, GLdouble nearClipping = 0.1, GLdouble farClipping = 100.0);
+
+
+	/*! \brief Set camera position and direction of camera
+	 *
+	 *  This is identical to gluLookAt()
+	 */
+	void lookAt(GLdouble eyex,
+			    GLdouble eyey,
+			    GLdouble eyez,
+			    GLdouble centerx,
+			    GLdouble centery,
+			    GLdouble centerz,
+			    GLdouble upx,
+			    GLdouble upy,
+			    GLdouble upz);
 
 	void addGfxObjects(std::vector<boost::shared_ptr<ShadedModel>>& gfxObjects);
 	void addGfxObjects(GraphicsObject& gfxObject);
@@ -82,6 +103,8 @@ private:
 	void initGL();
 	void setupGLMatrices();
 
+	void updateCamera();
+
 	uint32_t screenWidth;
 	uint32_t screenHeight;
 	uint32_t colorDepth;
@@ -89,6 +112,16 @@ private:
 	SDL_Surface* screen;
 
 	std::vector<GraphicsObject> objs;
+
+	struct OpenGLCamera_t {
+		GLdouble fovy;         // field of view in degree
+		GLdouble nearClipping;
+		GLdouble farClipping;
+		GLdouble eye[3];       // position of camera
+		GLdouble center[3];    // look at position
+		GLdouble up[3];        // up vector of camera
+	} openGLCamera;
+
 };
 
 #endif /* GRAPHICSGL_H_ */
