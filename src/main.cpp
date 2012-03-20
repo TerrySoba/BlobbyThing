@@ -5,26 +5,25 @@
  *      Author: yoshi252
  */
 
-#include <iostream>
+
 #include <SDL.h>
-#include <GL/gl.h>
-#include <GL/glu.h>
-#include "TriangleObject.h"
-#include "VectorTriangleObject.h"
-#include "SDLTextureObject.h"
+#include "PhysicsSimulation2D.h"
 #include "ErrorLogging.h"
 #include "WavefrontOBJLoader.h"
 #include <math.h>
-#include <vector>
 #include <functional>
 #include "GameLoop.h"
 #include "GraphicsGL.h"
+
+
 
 using namespace std;
 
 int main(int argc, char* argv[]) {
 
-	vector<boost::shared_ptr<ShadedModel>> models =  WavefrontOBJLoader::load("../../blender/baum.obj");
+	PhysicsSimulation2D physics(1e-2);
+
+	vector<boost::shared_ptr<ShadedModel>> models =  WavefrontOBJLoader::load("../../blender/baum3.obj");
 
 	cout << "Starting TextureMapping" << endl;
 
@@ -60,9 +59,15 @@ int main(int argc, char* argv[]) {
 	});
 
 	int monkey_id = gl.getGfxObjectHandleByName("Material_BallTexture");
+	int ball_id = gl.getGfxObjectHandleByName("Material.005_Ball2");
 
 	if (monkey_id == -1) {
 		ERR("monkey_id war not found");
+		return 1;
+	}
+
+	if (ball_id == -1) {
+		ERR("ball_id war not found");
 		return 1;
 	}
 
@@ -70,12 +75,13 @@ int main(int argc, char* argv[]) {
 
 
 	gl.getGfxObject(monkey_id).translation[0] = 0;
-	gl.getGfxObject(monkey_id).translation[1] = 7;
+	gl.getGfxObject(monkey_id).translation[1] = 3;
 	gl.getGfxObject(monkey_id).translation[2] = 0;
 
 	double speed = 0;
 
 	loop.addCycleTask([&]() {
+		physics.calc();
 		angle += 2 * M_PI / 1000 * 10;
 
 		if (angle > 2*M_PI) {
@@ -87,16 +93,26 @@ int main(int argc, char* argv[]) {
 
 		speed -= 0.01;
 
-		gl.getGfxObject(monkey_id).translation[1] += speed;
-
-		if (gl.getGfxObject(monkey_id).translation[1] < 1) {
-			gl.getGfxObject(monkey_id).translation[1] = 1;
-			speed = -speed;
-		}
+//		gl.getGfxObject(monkey_id).translation[1] += speed;
+//
+//		if (gl.getGfxObject(monkey_id).translation[1] < 1) {
+//			gl.getGfxObject(monkey_id).translation[1] = 1;
+//			speed = -speed;
+//		}
 
 
 		return TaskReturnvalue::OK;
 	}, 100);
+
+	physics.addCircle(0,5,1,10,5,10,[&](PhysicsCircle2D& circle) {
+		gl.getGfxObject(monkey_id).translation[0] = circle.position(0);
+		gl.getGfxObject(monkey_id).translation[1] = circle.position(1);
+	});
+
+	physics.addCircle(-3, 5, 1, 9, 7, 1, [&](PhysicsCircle2D& circle) {
+		gl.getGfxObject(ball_id).translation[0] = circle.position(0);
+		gl.getGfxObject(ball_id).translation[1] = circle.position(1);
+	});
 
 	loop.addCycleTask([&]() {
 		bool done = false;
@@ -122,8 +138,12 @@ int main(int argc, char* argv[]) {
 					x = event.motion.x;
 					y = event.motion.y;
 
-					gl.lookAt(5,5,20,
-							  -x / 30.0 +10,y / 30.0 - 10,0,
+//					gl.lookAt(5,5,20,
+//							  -x / 30.0 +10,y / 30.0 - 10,0,
+//							  0,1,0);
+
+					gl.lookAt(-x / 30.0 +10,y / 30.0 - 10,20,
+							  0,1,0,
 							  0,1,0);
 
 
