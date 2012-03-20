@@ -8,16 +8,19 @@
 #ifndef PHYSICSSIMULATION2D_H_
 #define PHYSICSSIMULATION2D_H_
 
-#include "Eigen/Dense"
+// #include "Eigen/Dense"
+#include "VectorMath.h"
 #include "ErrorLogging.h"
 #include <functional>
 
 // using namespace Eigen;
 
+typedef VectorMath<double, 2> Vector2d;
+
 struct PhysicsCircle2D {
-	Eigen::Vector2d position; // in [m]
+	Vector2d position; // in [m]
 	double radius;     // in [m]
-	Eigen::Vector2d speed;    // in [m/s]
+	Vector2d speed;    // in [m/s]
 	double mass;       // in [kg]
 
 	std::string toStr() {
@@ -34,7 +37,7 @@ enum {
 	UPPER_RIGHT = 1
 };
 struct PhysicsQuad2D {
-	Eigen::Vector2d corners[2]; //!< The lower left and upper right corner
+	Vector2d corners[2]; //!< The lower left and upper right corner
 };
 
 /*! \brief Does simulation of 2D objects

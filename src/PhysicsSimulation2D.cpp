@@ -8,36 +8,14 @@
 #include "PhysicsSimulation2D.h"
 #include "ErrorLogging.h"
 
-using namespace Eigen;
-
 PhysicsSimulation2D::PhysicsSimulation2D(double intervalTime) {
-//	PhysicsCircle2D circle1, circle2;
-//	circle1.mass = 1;
-//	circle1.position << 1, 0.5;
-//	circle1.radius = 1;
-//	circle1.speed << -1,0;
-//
-//	circle2.mass = 1;
-//	circle2.position << -2, 0;
-//	circle2.radius = 1;
-//	circle2.speed << 0,0;
-//
-//	LOG(circle1.toStr());
-//	LOG(circle2.toStr());
-//
-//	this->circleCollision(circle1, circle2);
-//
-//	LOG(circle1.toStr());
-//	LOG(circle2.toStr());
-
 	this->intervalTime = intervalTime;
 
-
+	// default domain
 	domain.corners[LOWER_LEFT](0) = -10;
 	domain.corners[LOWER_LEFT](1) =   0;
 	domain.corners[UPPER_RIGHT](0) = 10;
 	domain.corners[UPPER_RIGHT](1) = 10;
-
 }
 
 PhysicsSimulation2D::~PhysicsSimulation2D() {
@@ -68,15 +46,15 @@ void PhysicsSimulation2D::addCircle(double posX, double posY, double radius, dou
 void PhysicsSimulation2D::circleCollision(PhysicsCircle2D& circle1, PhysicsCircle2D& circle2) {
 	Vector2d line = circle1.position - circle2.position;
 	line /= line.norm();
-	Vector2d v1n = line.dot(circle1.speed) * line;
-	Vector2d v2n = line.dot(circle2.speed) * line;
+	Vector2d v1n = line * line.dot(circle1.speed);
+	Vector2d v2n = line * line.dot(circle2.speed);
 
-	LOG(fmt("Normal speeds: %1% and %2%") % v1n % v2n);
+	// LOG(fmt("Normal speeds: %1% and %2%") % v1n % v2n);
 
 	double v1 = v1n.norm() * sgn(v1n.dot(line));
 	double v2 = v2n.norm() * sgn(v2n.dot(line));
 
-	LOG(fmt("Normal speeds: %1% and %2%") % v1 % v2);
+	// LOG(fmt("Normal speeds: %1% and %2%") % v1 % v2);
 
 	// check if circles are moving toward each other
 	if (v1 - v2 >= 0) {
@@ -86,8 +64,8 @@ void PhysicsSimulation2D::circleCollision(PhysicsCircle2D& circle1, PhysicsCircl
 		double c1 = 2 * ( (circle1.mass * v1 + circle2.mass * v2) / (circle1.mass + circle2.mass)) - v1;
 		double c2 = 2 * ( (circle1.mass * v1 + circle2.mass * v2) / (circle1.mass + circle2.mass)) - v2;
 
-		Vector2d c1n = c1 * line;
-		Vector2d c2n = c2 * line;
+		Vector2d c1n = line * c1;
+		Vector2d c2n = line * c2;
 
 		circle1.speed = circle1.speed - v1n + c1n;
 		circle2.speed = circle2.speed - v2n + c2n;
@@ -101,10 +79,12 @@ void PhysicsSimulation2D::calc() {
 
 		// apply gravity
 		Vector2d g;
-		g << 0, -9.81; //!< usual gravity on earth in [m/s²]
+		// g << 0, -9.81; //!< usual gravity on earth in [m/s²]
+		g[0] = 0;
+		g[1] = -9.81;
 
 		circle.speed += this->intervalTime * g;
-		circle.position += this->intervalTime * circle.speed;
+		circle.position += circle.speed * this->intervalTime;
 
 		// check for collisions of circles
 		for (size_t j = n + 1; j < circles.size(); j++) {
