@@ -9,5 +9,4 @@ syntax: glob
 syntax: regexp
 src/latex
 src/html
-src/Eigen
 Debug/
