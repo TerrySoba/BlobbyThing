@@ -15,13 +15,13 @@
 #include "GameLoop.h"
 #include "GraphicsGL.h"
 
-
-
 using namespace std;
+
+
 
 int main(int argc, char* argv[]) {
 
-	PhysicsSimulation2D physics(1e-2);
+	PhysicsSimulation2D physics(1e-2 / 4);
 
 	vector<boost::shared_ptr<ShadedModel>> models =  WavefrontOBJLoader::load("../../blender/baum3.obj");
 
@@ -47,10 +47,6 @@ int main(int argc, char* argv[]) {
 
 	// generate OpenGL textures
 	gl.generateGLTextures();
-
-	// float rotateAngle = 0;
-	float move = 0;
-	float angle = 0;
 
 	GameLoop loop;
 	loop.setDrawTask([&](){
@@ -78,33 +74,13 @@ int main(int argc, char* argv[]) {
 	gl.getGfxObject(monkey_id).translation[1] = 3;
 	gl.getGfxObject(monkey_id).translation[2] = 0;
 
-	double speed = 0;
 
 	loop.addCycleTask([&]() {
 		physics.calc();
-		angle += 2 * M_PI / 1000 * 10;
-
-		if (angle > 2*M_PI) {
-			angle -= 2*M_PI;
-		}
-
-		// gl.getGfxObject(monkey_id).translation[2] = angle;
-		// LOG(fmt("angle %1%") % angle);
-
-		speed -= 0.01;
-
-//		gl.getGfxObject(monkey_id).translation[1] += speed;
-//
-//		if (gl.getGfxObject(monkey_id).translation[1] < 1) {
-//			gl.getGfxObject(monkey_id).translation[1] = 1;
-//			speed = -speed;
-//		}
-
-
 		return TaskReturnvalue::OK;
-	}, 100);
+	}, 400);
 
-	physics.addCircle(0,5,1,10,5,10,[&](PhysicsCircle2D& circle) {
+	physics.addCircle(0, 5, 3, 10, 5, 4,[&](PhysicsCircle2D& circle) {
 		gl.getGfxObject(monkey_id).translation[0] = circle.position(0);
 		gl.getGfxObject(monkey_id).translation[1] = circle.position(1);
 	});
@@ -152,10 +128,10 @@ int main(int argc, char* argv[]) {
 				case SDL_MOUSEBUTTONDOWN:
 					switch (event.button.button) {
 						case SDL_BUTTON_WHEELUP:
-							move += 0.1;
+							// move += 0.1;
 							break;
 						case SDL_BUTTON_WHEELDOWN:
-							move -= 0.1;
+							// move -= 0.1;
 							break;
 					}
 					break;
