@@ -10,6 +10,7 @@
 
 #include <cstring>
 #include <cmath>
+#include <initializer_list>
 
 template <typename T, size_t _size>
 class VectorMath {
@@ -25,6 +26,22 @@ public:
 		for (size_t n = 0; n < size(); n++) {
 			data[n] = other.data[n];
 		}
+	}
+
+	VectorMath(const std::initializer_list<T>& list) {
+		for (size_t i = list.size(); i < _size; i++) {
+			data[i] = 0;
+		}
+		*this = list;
+	}
+
+	VectorMath<T, _size> operator=(const std::initializer_list<T>& list) {
+		size_t i = 0;
+		for (const T& val : list) {
+			if (i >= _size) break;
+			data[i++] = val;
+		}
+		return *this;
 	}
 
 	VectorMath<T, _size> operator-(void) {
@@ -117,12 +134,12 @@ private:
 
 
 template <typename T, size_t _size>
-VectorMath<T, _size> operator*(T other, VectorMath<T, _size>self) {
+inline VectorMath<T, _size> operator*(T other, VectorMath<T, _size>self) {
 	return self*other;
 }
 
 template <typename T, size_t _size>
-VectorMath<T, _size> operator/(T other, VectorMath<T, _size>self) {
+inline VectorMath<T, _size> operator/(T other, VectorMath<T, _size>self) {
 	return self*other;
 }
 

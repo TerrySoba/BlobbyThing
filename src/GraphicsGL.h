@@ -56,7 +56,7 @@ public:
 
 	/*! \brief Set camera position and direction of camera
 	 *
-	 *  This is identical to gluLookAt()
+	 *  This is identical to gluLookAt(), see there for details.
 	 */
 	void lookAt(GLdouble eyex,
 			    GLdouble eyey,
@@ -68,8 +68,20 @@ public:
 			    GLdouble upy,
 			    GLdouble upz);
 
-	void addGfxObjects(std::vector<boost::shared_ptr<ShadedModel>>& gfxObjects);
+	/*! \brief add GraphicsObject to draw list
+	 *
+	 *  The added object is drawn by the class every time draw() is called.
+	 *
+	 *  \param gfxObject reference to the GraphicsObject to be added
+	 */
 	void addGfxObjects(GraphicsObject& gfxObject);
+
+	/*! \brief convenience function for addGfxObjects()
+	 *
+	 *  It adds multiple ShadedModels with empty translation and rotation.
+	 *  \gfxObjects ShadedModels to be added
+	 */
+	void addGfxObjects(std::vector<boost::shared_ptr<ShadedModel>>& gfxObjects);
 
 	/*! \brief get handle to gfx object by name.
 	 *
@@ -90,6 +102,13 @@ public:
 		return objs.at(handle);
 	}
 
+	/*! \brief Generates OpenGL textures from the textures in the models
+	 *
+	 *  You have to call this once before drawing for the first time.
+	 *  Currently there is no way to free already created OpenGL textures,
+	 *  so don't call this more than once. Additional calls will fill
+	 *  up the graphics card memory.
+	 */
 	void generateGLTextures();
 
 	/*! \brief draws the current screen

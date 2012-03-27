@@ -7,6 +7,7 @@
 
 #include "PhysicsSimulation2D.h"
 #include "ErrorLogging.h"
+#include "MathUtils.h"
 
 PhysicsSimulation2D::PhysicsSimulation2D(double intervalTime) {
 	this->intervalTime = intervalTime;
@@ -15,7 +16,7 @@ PhysicsSimulation2D::PhysicsSimulation2D(double intervalTime) {
 	domain.corners[LOWER_LEFT](0) = -10;
 	domain.corners[LOWER_LEFT](1) =   0;
 	domain.corners[UPPER_RIGHT](0) = 10;
-	domain.corners[UPPER_RIGHT](1) = 10;
+	domain.corners[UPPER_RIGHT](1) = 100;
 }
 
 PhysicsSimulation2D::~PhysicsSimulation2D() {
@@ -34,10 +35,6 @@ void PhysicsSimulation2D::addCircle(double posX, double posY, double radius, dou
 
 	this->circles.push_back(circle);
 }
-
-
-#define sgn(X) ((X >= 0)?1:-1)
-#define abs(X) ((X >= 0)?(X):-(X))
 
 /*! \brief Calculate collision between two circles
  *
@@ -78,10 +75,8 @@ void PhysicsSimulation2D::calc() {
 		PhysicsCircle2D &circle = circles[n];
 
 		// apply gravity
-		Vector2d g;
-		// g << 0, -9.81; //!< usual gravity on earth in [m/s²]
-		g[0] = 0;
-		g[1] = -9.81;
+		Vector2d g = {0, -9.81};
+		// g = {0, -9.81}; //!< usual gravity on earth in [m/s²]
 
 		circle.speed += this->intervalTime * g;
 		circle.position += circle.speed * this->intervalTime;
