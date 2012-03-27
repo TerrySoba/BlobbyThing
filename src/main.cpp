@@ -78,12 +78,15 @@ int main(int argc, char* argv[]) {
 	loop.addCycleTask([&]() {
 		physics.calc();
 		return TaskReturnvalue::OK;
-	}, 400);
+	}, 800);
 
-	physics.addCircle(0, 5, 3, 10, 5, 4,[&](PhysicsCircle2D& circle) {
+	std::function<void(PhysicsCircle2D& circle)> fun = [&](PhysicsCircle2D& circle) {
 		gl.getGfxObject(monkey_id).translation[0] = circle.position(0);
 		gl.getGfxObject(monkey_id).translation[1] = circle.position(1);
-	});
+	};
+
+	physics.addCircle(0, 10, 3, -3, 0, 3, fun);
+
 
 	physics.addCircle(-3, 5, 1, 9, 7, 1, [&](PhysicsCircle2D& circle) {
 		gl.getGfxObject(ball_id).translation[0] = circle.position(0);
@@ -119,7 +122,7 @@ int main(int argc, char* argv[]) {
 //							  0,1,0);
 
 					gl.lookAt(-x / 30.0 +10,y / 30.0 - 10,20,
-							  0,1,0,
+							  0,5,0,
 							  0,1,0);
 
 

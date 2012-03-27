@@ -31,7 +31,6 @@ private:
 	boost::shared_ptr<TriangleObject> triangleObject;
 	boost::shared_ptr<TextureObject> textureObject;
 	std::string name;
-
 };
 
 #endif /* SHADEDMODEL_H_ */
