@@ -16,12 +16,14 @@
 #include <map>
 #include <GL/gl.h>
 #include <GL/glu.h>
+#include "common.h"
+#include "VectorMath.h"
 
 
 struct GraphicsObject {
-	boost::shared_ptr<ShadedModel> model;
-	GLfloat translation[3];
-	GLfloat rotationVector[3];
+	shared_ptr<ShadedModel> model;
+	VectorMath<GLfloat, 3> translation;
+	VectorMath<GLfloat, 3> rotationVector;
 	GLfloat rotationAngle; // in degree
 };
 
@@ -82,6 +84,10 @@ public:
 	 *  \gfxObjects ShadedModels to be added
 	 */
 	void addGfxObjects(std::vector<boost::shared_ptr<ShadedModel>>& gfxObjects);
+	void addGfxObjects(shared_ptr<ShadedModel> model);
+
+
+	void addOrthoGfxObject(GraphicsObject& gfxObject);
 
 	/*! \brief get handle to gfx object by name.
 	 *
@@ -99,7 +105,7 @@ public:
 	int getGfxObjectHandleByName(std::string name);
 
 	GraphicsObject& getGfxObject(int handle) {
-		return objs.at(handle);
+		return perspectiveObjs.at(handle);
 	}
 
 	/*! \brief Generates OpenGL textures from the textures in the models
@@ -130,7 +136,8 @@ private:
 	std::string windowName;
 	SDL_Surface* screen;
 
-	std::vector<GraphicsObject> objs;
+	std::vector<GraphicsObject> perspectiveObjs;
+	std::vector<GraphicsObject> orthographicObjs;
 
 	struct OpenGLCamera_t {
 		GLdouble fovy;         // field of view in degree

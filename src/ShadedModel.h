@@ -1,7 +1,7 @@
 /*
- * TexturedModel.h
+ * ShadedModel.h
  *
- *  Created on: 05.02.2012
+ *  Created on: 27.03.2012
  *      Author: yoshi252
  */
 
@@ -13,24 +13,18 @@
 #include "TriangleObject.h"
 #include "TextureObject.h"
 
+/*! \brief A model made from triangles including texture
+ *
+ *  This interface is used to represent shaded models for the class GraphicsGL.
+ */
 class ShadedModel {
 public:
-	ShadedModel(boost::shared_ptr<TriangleObject> tri, boost::shared_ptr<TextureObject> tex, std::string name) {
-		triangleObject = tri;
-		textureObject = tex;
-		this->name = name;
-	}
 
-	virtual ~ShadedModel();
+	virtual ~ShadedModel() {}
 
-	boost::shared_ptr<TriangleObject> getTriangleObject() {return triangleObject;}
-	boost::shared_ptr<TextureObject> getTextureObject() {return textureObject;}
-	std::string getName() {return name;}
-
-private:
-	boost::shared_ptr<TriangleObject> triangleObject;
-	boost::shared_ptr<TextureObject> textureObject;
-	std::string name;
+	virtual boost::shared_ptr<TriangleObject> getTriangleObject() = 0;
+	virtual boost::shared_ptr<TextureObject> getTextureObject() = 0;
+	virtual std::string getName() = 0;
 };
 
 #endif /* SHADEDMODEL_H_ */

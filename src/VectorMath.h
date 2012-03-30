@@ -11,11 +11,11 @@
 #include <cstring>
 #include <cmath>
 #include <initializer_list>
+#include "common.h"
 
 template <typename T, size_t _size>
 class VectorMath {
 public:
-
 	VectorMath() {
 		for (size_t n = 0; n < size(); n++) {
 			data[n] = 0;
@@ -76,9 +76,15 @@ public:
 	}
 
 	VectorMath<T, _size> operator/=(T other) {
-		// VectorMath<T, _size> v;
 		for (size_t i = 0; i < size(); i++) {
 			data[i] /= other;
+		}
+		return *this;
+	}
+
+	VectorMath<T, _size> operator*=(T other) {
+		for (size_t i = 0; i < size(); i++) {
+			data[i] *= other;
 		}
 		return *this;
 	}
@@ -128,6 +134,22 @@ public:
 	const size_t size() const {
 		return _size;
 	}
+
+	std::string toString() {
+		std::string abc  = "{";
+		bool first = true;
+		for (T& val : data) {
+			if (!first) {
+				abc += ", ";
+			} else {
+				first = false;
+			}
+			abc += (fmt("%1%") % val).str();
+		}
+		abc += "}";
+		return abc;
+	}
+
 private:
 	T data[_size];
 };

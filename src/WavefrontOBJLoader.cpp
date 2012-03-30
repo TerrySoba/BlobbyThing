@@ -11,6 +11,7 @@
 #include "StaticVector.h"
 #include "VectorTriangleObject.h"
 #include "SDLTextureObject.h"
+#include "ShadedModelProxy.h"
 
 #include "libgen.h"
 
@@ -443,7 +444,7 @@ std::vector<boost::shared_ptr<ShadedModel>> WavefrontOBJLoader::load(const char*
 		boost::shared_ptr<TextureObject> texture(new SDLTextureObject(mtlLib[tris.first].diffuseMapPath.c_str()));
 
 		// create ShadedModel and push to vector
-		boost::shared_ptr<ShadedModel> model(new ShadedModel(vertexes, texture, tris.first));
+		boost::shared_ptr<ShadedModel> model(new ShadedModelProxy(vertexes, texture, tris.first));
 		models.push_back(model);
 	}
 

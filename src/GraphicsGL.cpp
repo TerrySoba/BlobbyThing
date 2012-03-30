@@ -6,7 +6,6 @@
  */
 
 #include "GraphicsGL.h"
-#include "ErrorLogging.h"
 
 GraphicsGL::GraphicsGL(uint32_t screenWidth, uint32_t screenHeight, uint32_t colorDepth, std::string windowName) {
 	this->screenWidth = screenWidth;
@@ -138,28 +137,39 @@ void GraphicsGL::initGL() {
 	glCullFace (GL_BACK); // select backside of polygons for culling
 	glEnable (GL_CULL_FACE); // cull backside of polygons
 
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	glEnable( GL_BLEND );
+	glClearColor(0.0,0.0,0.0,0.0);
+
 }
 
 void GraphicsGL::addGfxObjects(std::vector<boost::shared_ptr<ShadedModel>>& gfxObjects) {
 	for (auto& model : gfxObjects) {
-		GraphicsObject obj;
-		obj.model = model;
-		obj.rotationAngle = 0;
-		for (int i = 0; i < 3; i++)	{
-			obj.rotationVector[i] = 0;
-			obj.translation[i] = 0;
-		}
-		addGfxObjects(obj);
+		addGfxObjects(model);
 	}
 }
 
+void GraphicsGL::addGfxObjects(shared_ptr<ShadedModel> model) {
+	GraphicsObject obj;
+	obj.model = model;
+	obj.rotationAngle = 0;
+	obj.rotationVector = {0,0,0};
+	obj.translation = {0,0,0};
+	addGfxObjects(obj);
+}
+
+
 void GraphicsGL::addGfxObjects(GraphicsObject& gfxObject) {
-	this->objs.push_back(gfxObject);
+	this->perspectiveObjs.push_back(gfxObject);
+}
+
+void GraphicsGL::addOrthoGfxObject(GraphicsObject& gfxObject) {
+	this->orthographicObjs.push_back(gfxObject);
 }
 
 int GraphicsGL::getGfxObjectHandleByName(std::string name) {
-	for (size_t n = 0; n < objs.size(); n++) {
-		if ((objs[n].model) && objs[n].model->getName() == name) {
+	for (size_t n = 0; n < perspectiveObjs.size(); n++) {
+		if ((perspectiveObjs[n].model) && perspectiveObjs[n].model->getName() == name) {
 			return n;
 		}
 	}
@@ -168,7 +178,10 @@ int GraphicsGL::getGfxObjectHandleByName(std::string name) {
 }
 
 void GraphicsGL::generateGLTextures() {
-	for (GraphicsObject &obj : objs) {
+	for (GraphicsObject &obj : perspectiveObjs) {
+		obj.model->getTextureObject()->generateOpenGLTexture();
+	}
+	for (GraphicsObject &obj : orthographicObjs) {
 		obj.model->getTextureObject()->generateOpenGLTexture();
 	}
 }
@@ -176,7 +189,7 @@ void GraphicsGL::generateGLTextures() {
 void GraphicsGL::draw() {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-	for (GraphicsObject &obj : objs) {
+	auto drawObj = [](GraphicsObject &obj) {
 		glLoadIdentity();
 
 		glTranslatef(obj.translation[0], obj.translation[1], obj.translation[2]);
@@ -185,15 +198,36 @@ void GraphicsGL::draw() {
 		// bind texture
 		obj.model->getTextureObject()->bindTexture();
 
-		// now set data arrays
+		// now draw triangle data
 		MyGLVertex* data = obj.model->getTriangleObject()->getGLVertexes();
 		glVertexPointer(3, GL_FLOAT, sizeof(MyGLVertex), &data->v);
 		glTexCoordPointer(2, GL_FLOAT, sizeof(MyGLVertex), &data->vt);
 		glNormalPointer(GL_FLOAT, sizeof(MyGLVertex), &data->n);
-
 		glDrawArrays(GL_TRIANGLES, 0, obj.model->getTriangleObject()->getSize());
-		// LOG(fmt("Drawing: %1%") % model->getName());
+
+
+	};
+
+	// first draw the perspective objects
+	for (GraphicsObject &obj : perspectiveObjs) {
+		drawObj(obj);
 	}
+
+	// now draw orthographic objects
+	glMatrixMode(GL_PROJECTION);
+	glPushMatrix();
+	glLoadIdentity();
+	glOrtho(0.0 ,this->screenWidth, 0.0, this->screenHeight, 1.0, -1.0);
+	glMatrixMode(GL_MODELVIEW);
+
+	glDisable(GL_DEPTH_TEST); // disable depth buffering
+	for (GraphicsObject &obj : orthographicObjs) {
+		drawObj(obj);
+	}
+	glEnable(GL_DEPTH_TEST); // enable depth buffering
+	glMatrixMode(GL_PROJECTION);
+	glPopMatrix();
+	glMatrixMode(GL_MODELVIEW);
 
 	SDL_GL_SwapBuffers();
 }

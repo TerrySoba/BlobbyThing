@@ -5,7 +5,7 @@
  *      Author: yoshi252
  */
 
-#include "ShadedModel.h"
+#include "ShadedModelProxy.h"
 
-ShadedModel::~ShadedModel() {
+ShadedModelProxy::~ShadedModelProxy() {
 }
