@@ -28,12 +28,12 @@ public:
 	virtual void compact() = 0;
 
 	/* utility function */
-	GLuint generateOpenGLTexture();
-	void bindTexture();
+	virtual GLuint generateOpenGLTexture();
+	virtual void bindTexture();
 
 protected:
 	GLuint texture;
-
+	bool textureLoaded;
 };
 
 #endif /* TEXTUREOBJECT_H_ */

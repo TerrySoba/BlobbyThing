@@ -9,27 +9,38 @@
 #include "SDL_image.h"
 #include "ErrorLogging.h"
 
-
-void FlipSDLSurfaceVertically(SDL_Surface* surface) {
-	char* linebuffer = new char[surface->pitch];
-	for (int line = 0; line < surface->h / 2; line++) {
+/*! \brief flips an image vertically
+ *
+ *  \param ptr pointer to the first line of pixels
+ *  \param pitch distance between the first pixel of a line to the first pixel of the next line in bytes
+ *  \param lineLength length of a line in bytes
+ *  \param lines the number of lines of the image
+ */
+void FlipVertically(void* ptr, size_t pitch, size_t lineLength, size_t lines) {
+	uint8_t* linebuffer = new uint8_t[lineLength];
+	for (size_t line = 0; line < lines / 2; line++) {
 		memcpy(linebuffer,
-			   &(((char*) (surface->pixels))[surface->pitch * line]),
-			   surface->pitch); // save line to buffer
+				       &(((uint8_t*) (ptr))[pitch * line]),
+				       lineLength); // save line to buffer
 
-		memcpy(&(((char*) (surface->pixels))[surface->pitch * line]),
-			   &(((char*) (surface->pixels))[surface->pitch * (surface->h - line - 1)]),
-			   surface->pitch); // overwrite old line
+		memcpy(&(((uint8_t*) (ptr))[pitch * line]),
+					   &(((uint8_t*) (ptr))[pitch * (lines - line - 1)]),
+					   lineLength); // overwrite old line
 
-		memcpy(&(((char*) (surface->pixels))[surface->pitch * (surface->h - line - 1)]),
-			   linebuffer,
-			   surface->pitch); // restore line from buffer
+		memcpy(&(((uint8_t*) (ptr))[pitch * (lines - line - 1)]),
+					   linebuffer,
+					   lineLength); // restore line from buffer
 	}
-	delete[] linebuffer;
+	delete linebuffer;
 }
 
+inline void FlipSDLSurfaceVertically(SDL_Surface* surface) {
+	FlipVertically(surface->pixels, surface->pitch, surface->w * surface->format->BytesPerPixel, surface->h);
+}
 
-SDLTextureObject::SDLTextureObject(const char* path) {
+// #define FlipSDLSurfaceVertically(surface) FlipVertically(surface->pixels, surface->pitch, surface->w * surface->format->BytesPerPixel, surface->h)
+
+SDLTextureObject::SDLTextureObject(const char* path) : TextureObject() {
 	this->path = path;
 	load();
 }
