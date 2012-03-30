@@ -29,7 +29,7 @@ int main(int argc, char* argv[]) {
 	shared_ptr<TextureText> text(new TextureText(font, "TestText"));
 	shared_ptr<TextureText> text2(new TextureText(font, "TestText2"));
 
-	text2->setText(u8"仮名Hallo Welt@.,?=)(/&%$§\"!");
+	text2->setText(u8"私はトルステンです。 どうぞよろしく。");
 	PhysicsSimulation2D physics(1e-2 / 4);
 
 	std::vector<shared_ptr<ShadedModel>> models =  WavefrontOBJLoader::load("../../blender/baum3.obj");
@@ -182,6 +182,8 @@ int main(int argc, char* argv[]) {
 			return TaskReturnvalue::OK;
 		}
 	}, 100);
+
+
 
 	loop.run();
 

@@ -81,15 +81,13 @@ bool TextureFont::load(const char* path) {
 
 	fread(textureTmp.get(), sizeof(uint8_t), width * height, fp);
 
-	// now create RGBA texture
+	// now create LuminanceAlpha texture
 	shared_ptr<MemoryTextureObject> texture(new MemoryTextureObject(width, height));
 	uint8_t* texturePtr = (uint8_t*)texture->getData();
 
 	for (size_t pos = 0; pos < width * height * sizeof(uint8_t); pos++) {
-		texturePtr[4 * pos + 0] = 255;
-		texturePtr[4 * pos + 1] = 255;
-		texturePtr[4 * pos + 2] = 255;
-		texturePtr[4 * pos + 3] = textureTmp[pos];
+		texturePtr[2 * pos + 0] = 255;
+		texturePtr[2 * pos + 1] = textureTmp[pos];
 	}
 
 	this->texture = texture;

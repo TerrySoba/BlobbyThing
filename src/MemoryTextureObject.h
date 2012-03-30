@@ -23,8 +23,8 @@ public:
 	}
 	virtual GLsizei getWidth() { return width; }
 	virtual GLsizei getHeight() { return height; }
-	virtual GLint getInternalFormat() { return 4; }
-	virtual GLenum getFormat() { return GL_RGBA; }
+	virtual GLint getInternalFormat() { return GL_LUMINANCE8_ALPHA8; }
+	virtual GLenum getFormat() { return GL_LUMINANCE_ALPHA; }
 	virtual GLenum getType() { return GL_UNSIGNED_BYTE; }
 
 	virtual void compact() { /* do nothing */ }
@@ -32,7 +32,7 @@ public:
 private:
 	uint32_t width;
 	uint32_t height;
-	boost::shared_array<uint8_t> image; //!< image in RGBA format
+	boost::shared_array<uint8_t> image; //!< image in LuminanceAlpha format
 };
 
 #endif /* MEMORYTEXTUREOBJECT_H_ */

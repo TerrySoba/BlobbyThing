@@ -10,7 +10,7 @@
 MemoryTextureObject::MemoryTextureObject(uint32_t width, uint32_t height) : TextureObject() {
 	this->width = width;
 	this->height = height;
-	boost::shared_array<uint8_t> image(new uint8_t[width * height * 4]);
+	boost::shared_array<uint8_t> image(new uint8_t[width * height * 2]); // Luminance + Alpha = 2
 	this->image = image;
 }
 
