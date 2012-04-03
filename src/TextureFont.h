@@ -41,7 +41,7 @@ public:
 
 private:
 	std::map<uint32_t, CharacterInformation> characterMap;
-	shared_ptr<MemoryTextureObject> texture; //!< texture in RGBA format
+	shared_ptr<MemoryTextureObject> texture; //!< texture in LuminanceAlpha format
 
 };
 

@@ -15,8 +15,6 @@
 #include <map>
 #include <vector>
 
-#include <boost/shared_ptr.hpp>
-
 #include "ShadedModel.h"
 
 struct OBJMaterial {
@@ -35,7 +33,7 @@ public:
 	WavefrontOBJLoader();
 	virtual ~WavefrontOBJLoader();
 
-	static std::vector<boost::shared_ptr<ShadedModel>> load(const char* path);
+	static std::vector<shared_ptr<ShadedModel>> load(const char* path);
 
 private:
 

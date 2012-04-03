@@ -16,20 +16,26 @@
 #include "GraphicsGL.h"
 #include "TextureFont.h"
 #include "TextureText.h"
+#include "GameStateMachine.h"
 
 #include "common.h"
 
+enum class GameState {
+	START_SCREEN = 1,
+	PLAYER_A_SERVE = 2,
+	BALL_ACTIVE = 3
+};
+
 int main(int argc, char* argv[]) {
 
-	LOG(fmt("sizeof = %1%") % sizeof(VectorMath<GLfloat, 3>));
+	shared_ptr<TextureFont> font = make_shared<TextureFont>();
 
-	shared_ptr<TextureFont> font(new TextureFont());
-	font->load("../TextureFontCreator/test.ytf");
+	font->load("font.ytf");
 
-	shared_ptr<TextureText> text(new TextureText(font, "TestText"));
-	shared_ptr<TextureText> text2(new TextureText(font, "TestText2"));
+	shared_ptr<TextureText> text = make_shared<TextureText>(font, "TestText");
+	shared_ptr<TextureText> text2 = make_shared<TextureText>(font, "TestText2");
 
-	text2->setText(u8"私はトルステンです。 どうぞよろしく。");
+	text2->setText(u8"Press F1 to start game!");
 	PhysicsSimulation2D physics(1e-2 / 4);
 
 	std::vector<shared_ptr<ShadedModel>> models =  WavefrontOBJLoader::load("../../blender/baum3.obj");
@@ -54,10 +60,11 @@ int main(int argc, char* argv[]) {
 
 	gl.addGfxObjects(models);
 
-	auto textWidth = text->getTextWidth(" Timer: 999999");
+	auto textWidth = text->getTextWidth(" Points 999999");
 	GraphicsObject textGfx;
 	textGfx.model = text;
 	textGfx.translation = {float(1280.0 - textWidth), 650};
+	// textGfx.translation = {20, 650};
 	textGfx.rotationVector = {0,0,1};
 	textGfx.rotationAngle = 0;
 	gl.addOrthoGfxObject(textGfx);
@@ -100,26 +107,50 @@ int main(int argc, char* argv[]) {
 	gl.getGfxObject(monkey_id).translation[1] = 3;
 	gl.getGfxObject(monkey_id).translation[2] = 0;
 
+	bool keyPressed = false;
+	bool keyRight = false;
+	bool keyLeft = false;
+	bool keyUp = false;
+	bool keyF1 = false;
+
+	GameStateMachine<GameState> stateMachine(GameState::START_SCREEN);
+	stateMachine.addTransition(GameState::START_SCREEN,
+			                   GameState::PLAYER_A_SERVE,
+			                   [&](){ return keyF1; },
+			                   [&](){ LOG("START -> SERVE"); i=0; text2->setText(u8"Game has begun!");});
+
+	stateMachine.addTransition(GameState::PLAYER_A_SERVE,
+			                   GameState::BALL_ACTIVE,
+				               [&](){ return false; },
+				               [&](){  });
+
+//	stateMachine.addTransition(GameState::BALL_ACTIVE,
+//				                   GameState::START_SCREEN,
+//					               [&](){ return keyPressed; },
+//					               [&](){ keyPressed = false; LOG("START <- SERVE"); });
+
+
+
+	stateMachine.printTransistionDebug();
+
+
 
 	loop.addCycleTask([&]() {
 		physics.calc();
 		return TaskReturnvalue::OK;
 	}, 800);
 
-
-
 	loop.addCycleTask([&]() {
 		text->clear();
-		text->setText((fmt(u8" Timer: %1%") % i).str().c_str());
+		text->setText((fmt("Points %1%") % i).str().c_str());
+		stateMachine.evaluate();
 		return TaskReturnvalue::OK;
 	}, 100);
 
-	std::function<void(PhysicsCircle2D& circle)> fun = [&](PhysicsCircle2D& circle) {
+	size_t bigCircleIndex = physics.addCircle(0, 10, 3, -3, 0, 2, [&](PhysicsCircle2D& circle) {
 		gl.getGfxObject(monkey_id).translation[0] = circle.position(0);
 		gl.getGfxObject(monkey_id).translation[1] = circle.position(1);
-	};
-
-	physics.addCircle(0, 10, 3, -3, 0, 3, fun);
+	});
 
 
 	physics.addCircle(-3, 5, 1, 9, 7, 1, [&](PhysicsCircle2D& circle) {
@@ -127,7 +158,40 @@ int main(int argc, char* argv[]) {
 		gl.getGfxObject(ball_id).translation[1] = circle.position(1);
 	});
 
+
 	loop.addCycleTask([&]() {
+			// physics.getCircle(bigCircleIndex).speed = {10 * sin(i/5.0),10 * cos(i/5.0)};
+
+			// if (physics.getCircle(bigCircleIndex).position[1] < 4)
+			physics.getCircle(bigCircleIndex).speed[0] *= 0.5;
+
+			if (physics.getCircle(bigCircleIndex).position[1] < 3.1) {
+				if (!keyUp) {
+					physics.getCircle(bigCircleIndex).speed[1] = 0;
+				} else {
+					physics.getCircle(bigCircleIndex).speed[1] = 10;
+				}
+			}
+
+
+			if (keyRight) {
+				physics.getCircle(bigCircleIndex).speed[0] = 10;
+			}
+			if (keyLeft) {
+				physics.getCircle(bigCircleIndex).speed[0] = -10;
+			}
+//			if (keyUp) {
+//				physics.getCircle(bigCircleIndex).speed[1] = 10;
+//			}
+
+			return TaskReturnvalue::OK;
+	}, 100);
+
+	loop.addCycleTask([&]() {
+		// physics.getCircle(bigCircleIndex).speed = {10 * sin(i/15.0),10 * cos(i/15.0)};
+
+		// LOG(fmt("Pos: %1%") % bigCircle.position.toString());
+		// bigCircle-> = 0;
 		bool done = false;
 		SDL_Event event;
 		uint16_t x,y;
@@ -136,9 +200,40 @@ int main(int argc, char* argv[]) {
 			// if (SDL_WaitEvent(&event)) {
 			switch (event.type) {
 				case SDL_KEYDOWN:
+					keyPressed = true;
 					switch(event.key.keysym.sym) {
 						case SDLK_ESCAPE:
 							done = true;
+							break;
+						case SDLK_RIGHT:
+							keyRight = true;
+							break;
+						case SDLK_LEFT:
+							keyLeft = true;
+							break;
+						case SDLK_UP:
+							keyUp = true;
+							break;
+						case SDLK_F1:
+						    keyF1 = true;
+						default:
+							break;
+					}
+					break;
+
+				case SDL_KEYUP:
+					switch(event.key.keysym.sym) {
+						case SDLK_RIGHT:
+							keyRight = false;
+							break;
+						case SDLK_LEFT:
+							keyLeft = false;
+							break;
+						case SDLK_UP:
+							keyUp = false;
+							break;
+						case SDLK_F1:
+							keyF1 = false;
 							break;
 						default:
 							break;
@@ -182,6 +277,7 @@ int main(int argc, char* argv[]) {
 			return TaskReturnvalue::OK;
 		}
 	}, 100);
+
 
 
 

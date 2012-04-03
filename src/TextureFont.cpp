@@ -65,11 +65,11 @@ bool TextureFont::load(const char* path) {
 	// read font name
 	uint32_t nameLength;
 	fread(&nameLength, sizeof(uint32_t), 1, fp);
-	shared_array<char> fontName(new char[nameLength + 1]);
-	fontName[nameLength] = 0; // null terminate
-	fread(fontName.get(), nameLength, sizeof(char), fp);
+	std::string fontName(nameLength, 0);
+	// fontName[nameLength] = 0; // null terminate
+	fread(&(fontName[0]), nameLength, sizeof(char), fp);
 
-	LOG(fmt("Font name: %1%") % fontName.get());
+	LOG(fmt("Font name: %1%") % fontName);
 
 	// read width and height of texture
 	uint32_t width, height;
@@ -77,12 +77,12 @@ bool TextureFont::load(const char* path) {
 	fread(&height, sizeof(uint32_t), 1, fp);
 
 	// now read texture data
-	shared_array<uint8_t> textureTmp(new uint8_t[width * height * sizeof(uint8_t)]);
+	std::vector<uint8_t> textureTmp(width * height * sizeof(uint8_t));
 
-	fread(textureTmp.get(), sizeof(uint8_t), width * height, fp);
+	fread(&textureTmp[0], sizeof(uint8_t), width * height, fp);
 
 	// now create LuminanceAlpha texture
-	shared_ptr<MemoryTextureObject> texture(new MemoryTextureObject(width, height));
+	shared_ptr<MemoryTextureObject> texture = make_shared<MemoryTextureObject>(width, height);
 	uint8_t* texturePtr = (uint8_t*)texture->getData();
 
 	for (size_t pos = 0; pos < width * height * sizeof(uint8_t); pos++) {

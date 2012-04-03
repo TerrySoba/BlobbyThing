@@ -8,12 +8,13 @@
 
 #include "WavefrontOBJLoader.h"
 #include "ErrorLogging.h"
-#include "StaticVector.h"
 #include "VectorTriangleObject.h"
 #include "SDLTextureObject.h"
 #include "ShadedModelProxy.h"
+#include "VectorMath.h"
 
 #include "libgen.h"
+#include "common.h"
 
 struct FaceIndex {
 	uint32_t vertexIndex;
@@ -24,8 +25,8 @@ struct FaceIndex {
 typedef std::vector<FaceIndex> Face;
 typedef std::vector<MyGLVertex> Polygon;
 
-std::vector<Polygon> convertPolygonToTriangles(Polygon& polygon) {
-	std::vector<Polygon> triVector;
+shared_ptr<std::vector<Polygon>> convertPolygonToTriangles(Polygon& polygon) {
+	shared_ptr<std::vector<Polygon>> triVector = make_shared<std::vector<Polygon>>();
 
 	for (size_t i = 0; polygon.size() > 2 && i < polygon.size() - 2; i++) {
 		Polygon tri;
@@ -34,7 +35,7 @@ std::vector<Polygon> convertPolygonToTriangles(Polygon& polygon) {
 		tri.push_back(polygon[i + 1]);
 		tri.push_back(polygon[i + 2]);
 
-		triVector.push_back(tri);
+		triVector->push_back(tri);
 	}
 
 	return triVector;
@@ -198,8 +199,8 @@ std::map<std::string, OBJMaterial> WavefrontOBJLoader::loadMaterial(const char* 
 }
 
 
-std::vector<boost::shared_ptr<ShadedModel>> WavefrontOBJLoader::load(const char* path) {
-	std::vector<boost::shared_ptr<ShadedModel>> models;
+std::vector<shared_ptr<ShadedModel>> WavefrontOBJLoader::load(const char* path) {
+	std::vector<shared_ptr<ShadedModel>> models;
 	const size_t lineBufferSize = 1000;
 	char lineBuffer[lineBufferSize];
 	FILE* fp = fopen(path, "r");
@@ -209,9 +210,9 @@ std::vector<boost::shared_ptr<ShadedModel>> WavefrontOBJLoader::load(const char*
 		return models;
 	}
 
-	std::vector<StaticVector<GLfloat, 3>> vertices;
-	std::vector<StaticVector<GLfloat, 2>> texCoords;
-	std::vector<StaticVector<GLfloat, 3>> normals;
+	std::vector<VectorMath<GLfloat, 3>> vertices;
+	std::vector<VectorMath<GLfloat, 2>> texCoords;
+	std::vector<VectorMath<GLfloat, 3>> normals;
 	std::map<std::string, std::vector<Face>> faces;
 
 
@@ -257,7 +258,7 @@ std::vector<boost::shared_ptr<ShadedModel>> WavefrontOBJLoader::load(const char*
 
 			if (token[0] == 'v') { // found vertex
 				bool vertexOK = true;
-				StaticVector<GLfloat, 3> vertex;
+				VectorMath<GLfloat, 3> vertex;
 				for (int i = 0; i < 3; i++) {
 					token = strtok_r(NULL, " \n\r", &saveptr);
 					if (token) {
@@ -310,7 +311,7 @@ std::vector<boost::shared_ptr<ShadedModel>> WavefrontOBJLoader::load(const char*
 		if (strlen(token) == 2) {
 			if (token[0] == 'v' && token[1] == 't') { // found texture coordinate
 				bool vertexOK = true;
-				StaticVector<GLfloat, 2> texCoord;
+				VectorMath<GLfloat, 2> texCoord;
 				for (int i = 0; i < 2; i++) {
 					token = strtok_r(NULL, " \n\r", &saveptr);
 					if (token) {
@@ -335,7 +336,7 @@ std::vector<boost::shared_ptr<ShadedModel>> WavefrontOBJLoader::load(const char*
 
 			if (token[0] == 'v' && token[1] == 'n') { // found normal
 				bool vertexOK = true;
-				StaticVector<GLfloat, 3> normal;
+				VectorMath<GLfloat, 3> normal;
 				for (int i = 0; i < 3; i++) {
 					token = strtok_r(NULL, " \n\r", &saveptr);
 					if (token) {
@@ -415,11 +416,11 @@ std::vector<boost::shared_ptr<ShadedModel>> WavefrontOBJLoader::load(const char*
 				p.push_back(vertex);
 			}
 
-			std::vector<Polygon> tmpTri = convertPolygonToTriangles(p);
+			shared_ptr<std::vector<Polygon>> tmpTri = convertPolygonToTriangles(p);
 			// LOG("Trianglulated to %lu tris.", tmpTri.size());
 
 			// now add triangles to real triangle object
-			triangles[fa.first].insert(triangles[fa.first].end(), tmpTri.begin(), tmpTri.end());
+			triangles[fa.first].insert(triangles[fa.first].end(), tmpTri->begin(), tmpTri->end());
 		}
 	}
 
@@ -429,7 +430,7 @@ std::vector<boost::shared_ptr<ShadedModel>> WavefrontOBJLoader::load(const char*
 
 	for (auto &tris: triangles) {
 		// first insert triangles
-		boost::shared_ptr<VectorTriangleObject> vertexes(new VectorTriangleObject());
+		shared_ptr<VectorTriangleObject> vertexes = make_shared<VectorTriangleObject>();
 		// VectorTriangleObject* vertexes = ;
 		for (Polygon& p: tris.second) {
 			if (p.size() >= 3) {
@@ -441,10 +442,10 @@ std::vector<boost::shared_ptr<ShadedModel>> WavefrontOBJLoader::load(const char*
 		}
 
 		// now load texture
-		boost::shared_ptr<TextureObject> texture(new SDLTextureObject(mtlLib[tris.first].diffuseMapPath.c_str()));
+		shared_ptr<TextureObject> texture = make_shared<SDLTextureObject>(mtlLib[tris.first].diffuseMapPath.c_str());
 
 		// create ShadedModel and push to vector
-		boost::shared_ptr<ShadedModel> model(new ShadedModelProxy(vertexes, texture, tris.first));
+		shared_ptr<ShadedModel> model = make_shared<ShadedModelProxy>(vertexes, texture, tris.first);
 		models.push_back(model);
 	}
 

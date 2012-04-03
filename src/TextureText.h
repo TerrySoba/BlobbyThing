@@ -27,7 +27,7 @@ public:
 
 	void clear();
 
-	/*! \brief add text to be displayed
+	/*! \brief set text to be displayed
 	 *
 	 *  \param text text to be displayed in utf-8 coding
 	 */

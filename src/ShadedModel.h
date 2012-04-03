@@ -12,6 +12,7 @@
 #include <string>
 #include "TriangleObject.h"
 #include "TextureObject.h"
+#include "common.h"
 
 /*! \brief A model made from triangles including texture
  *
@@ -22,8 +23,8 @@ public:
 
 	virtual ~ShadedModel() {}
 
-	virtual boost::shared_ptr<TriangleObject> getTriangleObject() = 0;
-	virtual boost::shared_ptr<TextureObject> getTextureObject() = 0;
+	virtual shared_ptr<TriangleObject> getTriangleObject() = 0;
+	virtual shared_ptr<TextureObject> getTextureObject() = 0;
 	virtual std::string getName() = 0;
 };
 

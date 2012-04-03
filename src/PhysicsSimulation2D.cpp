@@ -23,17 +23,22 @@ PhysicsSimulation2D::~PhysicsSimulation2D() {
 	// TODO Auto-generated destructor stub
 }
 
-void PhysicsSimulation2D::addCircle(double posX, double posY, double radius, double vX, double vY, double mass, std::function<void(PhysicsCircle2D&)> action) {
+size_t PhysicsSimulation2D::addCircle(double posX, double posY, double radius, double vX, double vY, double mass, std::function<void(PhysicsCircle2D&)> action) {
 	PhysicsCircle2D circle;
-	circle.position(0) = posX;
-	circle.position(1) = posY;
+	circle.position[0] = posX;
+	circle.position[1] = posY;
 	circle.radius = radius;
-	circle.speed(0) = vX;
-	circle.speed(1) = vY;
+	circle.speed[0] = vX;
+	circle.speed[1] = vY;
 	circle.mass = mass;
 	circle.action = action;
 
-	this->circles.push_back(circle);
+	circles.push_back(circle);
+	return (circles.size() - 1);
+}
+
+PhysicsCircle2D& PhysicsSimulation2D::getCircle(size_t index) {
+	return circles[index];
 }
 
 /*! \brief Calculate collision between two circles
@@ -71,12 +76,10 @@ void PhysicsSimulation2D::circleCollision(PhysicsCircle2D& circle1, PhysicsCircl
 
 void PhysicsSimulation2D::calc() {
 	for (size_t n = 0; n < circles.size(); n++) {
-
 		PhysicsCircle2D &circle = circles[n];
 
 		// apply gravity
-		Vector2d g = {0, -9.81};
-		// g = {0, -9.81}; //!< usual gravity on earth in [m/s²]
+		Vector2d g = {0, -9.81}; //!< usual gravity on earth in [m/s²]
 
 		circle.speed += this->intervalTime * g;
 		circle.position += circle.speed * this->intervalTime;
@@ -88,7 +91,6 @@ void PhysicsSimulation2D::calc() {
 				this->circleCollision(circles[n], circles[j]);
 			}
 		}
-
 
 		// check if in domain
 		if (circle.position(0) - circle.radius < domain.corners[LOWER_LEFT](0)) {
@@ -109,12 +111,9 @@ void PhysicsSimulation2D::calc() {
 		}
 	}
 
-
 	for (PhysicsCircle2D& circle : this->circles) {
 		// now call actions
 		if (circle.action) circle.action(circle);
 	}
-
-
 }
 

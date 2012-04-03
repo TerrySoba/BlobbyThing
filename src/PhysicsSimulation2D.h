@@ -36,6 +36,7 @@ enum {
 	LOWER_LEFT = 0,
 	UPPER_RIGHT = 1
 };
+
 struct PhysicsQuad2D {
 	Vector2d corners[2]; //!< The lower left and upper right corner
 };
@@ -57,7 +58,22 @@ public:
 	PhysicsSimulation2D(double intervalTime);
 	virtual ~PhysicsSimulation2D();
 
-	void addCircle(double posX, double posY, double radius, double vX, double vY, double mass, std::function<void(PhysicsCircle2D&)> action = NULL);
+	/*! \brief add a circle to the physics engine
+	 *
+	 *  \param posX position of circle center
+	 *  \param posY position of circle center
+	 *  \param radius radius of circle
+	 *  \param vX speed of circle
+	 *  \param vY speed of circle
+	 *  \param mass mass of circle
+	 *  \param action pointer to a function that is executed after every
+	 *                iteration of the physics simulation
+	 *
+	 *  \return a reference to the added circle
+	 */
+	size_t addCircle(double posX, double posY, double radius, double vX, double vY, double mass, std::function<void(PhysicsCircle2D&)> action = NULL);
+
+	PhysicsCircle2D& getCircle(size_t index);
 
 	void calc();
 
