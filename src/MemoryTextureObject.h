@@ -18,8 +18,7 @@ public:
 	virtual ~MemoryTextureObject();
 
 	virtual const GLvoid * getData() {
-		if (image) return image.get();
-		else return nullptr;
+		return (&image[0]);
 	}
 	virtual GLsizei getWidth() { return width; }
 	virtual GLsizei getHeight() { return height; }
@@ -32,7 +31,7 @@ public:
 private:
 	uint32_t width;
 	uint32_t height;
-	boost::shared_array<uint8_t> image; //!< image in LuminanceAlpha format
+	std::vector<uint8_t> image; //!< image in LuminanceAlpha format
 };
 
 #endif /* MEMORYTEXTUREOBJECT_H_ */

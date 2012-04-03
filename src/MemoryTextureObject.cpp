@@ -7,11 +7,9 @@
 
 #include "MemoryTextureObject.h"
 
-MemoryTextureObject::MemoryTextureObject(uint32_t width, uint32_t height) : TextureObject() {
+MemoryTextureObject::MemoryTextureObject(uint32_t width, uint32_t height) : TextureObject() , image(width * height * 2) {
 	this->width = width;
 	this->height = height;
-	boost::shared_array<uint8_t> image(new uint8_t[width * height * 2]); // Luminance + Alpha = 2
-	this->image = image;
 }
 
 MemoryTextureObject::~MemoryTextureObject() {

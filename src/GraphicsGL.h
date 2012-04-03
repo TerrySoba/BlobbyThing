@@ -83,7 +83,7 @@ public:
 	 *  It adds multiple ShadedModels with empty translation and rotation.
 	 *  \gfxObjects ShadedModels to be added
 	 */
-	void addGfxObjects(std::vector<boost::shared_ptr<ShadedModel>>& gfxObjects);
+	void addGfxObjects(std::vector<shared_ptr<ShadedModel>>& gfxObjects);
 	void addGfxObjects(shared_ptr<ShadedModel> model);
 
 

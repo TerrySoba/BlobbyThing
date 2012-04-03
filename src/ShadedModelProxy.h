@@ -12,7 +12,7 @@
 
 class ShadedModelProxy : public ShadedModel {
 public:
-	ShadedModelProxy(boost::shared_ptr<TriangleObject> tri, boost::shared_ptr<TextureObject> tex, std::string name) {
+	ShadedModelProxy(shared_ptr<TriangleObject> tri, shared_ptr<TextureObject> tex, std::string name) {
 		triangleObject = tri;
 		textureObject = tex;
 		this->name = name;
@@ -20,13 +20,13 @@ public:
 
 	virtual ~ShadedModelProxy();
 
-	boost::shared_ptr<TriangleObject> getTriangleObject() {return triangleObject;}
-	boost::shared_ptr<TextureObject> getTextureObject() {return textureObject;}
+	shared_ptr<TriangleObject> getTriangleObject() {return triangleObject;}
+	shared_ptr<TextureObject> getTextureObject() {return textureObject;}
 	std::string getName() {return name;}
 
 private:
-	boost::shared_ptr<TriangleObject> triangleObject;
-	boost::shared_ptr<TextureObject> textureObject;
+	shared_ptr<TriangleObject> triangleObject;
+	shared_ptr<TextureObject> textureObject;
 	std::string name;
 };
 

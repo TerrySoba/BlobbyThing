@@ -143,7 +143,7 @@ void GraphicsGL::initGL() {
 
 }
 
-void GraphicsGL::addGfxObjects(std::vector<boost::shared_ptr<ShadedModel>>& gfxObjects) {
+void GraphicsGL::addGfxObjects(std::vector<shared_ptr<ShadedModel>>& gfxObjects) {
 	for (auto& model : gfxObjects) {
 		addGfxObjects(model);
 	}

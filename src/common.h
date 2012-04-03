@@ -8,11 +8,10 @@
 #ifndef COMMON_H_
 #define COMMON_H_
 
-#include <boost/shared_ptr.hpp>
-#include <boost/shared_array.hpp>
 #include "ErrorLogging.h"
+#include <memory>
 
-using boost::shared_ptr;
-using boost::shared_array;
+using std::shared_ptr;
+using std::make_shared;
 
 #endif /* COMMON_H_ */

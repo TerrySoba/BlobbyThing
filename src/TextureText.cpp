@@ -9,8 +9,7 @@
 #include <unicode/unistr.h>
 
 TextureText::TextureText(shared_ptr<TextureFont> font, std::string name) {
-	shared_ptr<VectorTriangleObject> triangleObject(new VectorTriangleObject());
-	// shared_ptr<MemoryTextureObject> textureObject(new MemoryTextureObject(0,0));
+	shared_ptr<VectorTriangleObject> triangleObject = make_shared<VectorTriangleObject>();
 
 	this->triangleObject = triangleObject;
 	this->textureObject = font->getTextureObject();
@@ -27,6 +26,7 @@ void TextureText::clear() {
 }
 
 void TextureText::setText(const char* text) {
+	clear();
 	UnicodeString str(text, "UTF-8");
 	float texWidth = this->textureObject->getWidth();
 	float texHeight = this->textureObject->getHeight();
@@ -96,7 +96,9 @@ uint32_t TextureText::getTextWidth(const char* text) {
 	for (int32_t pos = 0; pos < str.length(); pos++) {
 		uint32_t unicode = str.char32At(pos);
 		CharacterInformation* info = font->getCharacter(unicode);
-		textWidth += round(info->horiAdvance);
+		if (info) {
+			textWidth += round(info->horiAdvance);
+		}
 	}
 	return textWidth;
 }
