@@ -41,15 +41,15 @@ void TextureText::setText(const char* text) {
 			zJitter *= -1;
 			// info->bearingLeft = 0;
 			// info->bearingTop = 0;
-			VectorMath<GLfloat, 3> bottomLeft =  {left + info->bearingLeft                   , (top + info->bearingTop                    ) - info->imageHeight, zJitter};
-			VectorMath<GLfloat, 3> topRight =    {left + info->bearingLeft + info->imageWidth, (top + info->bearingTop + info->imageHeight) - info->imageHeight, zJitter};
-			VectorMath<GLfloat, 3> bottomRight = {left + info->bearingLeft + info->imageWidth, (top + info->bearingTop                    ) - info->imageHeight, zJitter};
-			VectorMath<GLfloat, 3> topLeft =     {left + info->bearingLeft                   , (top + info->bearingTop + info->imageHeight) - info->imageHeight, zJitter};
+			Vector3f bottomLeft    (left + info->bearingLeft                   , (top + info->bearingTop                    ) - info->imageHeight, zJitter);
+			Vector3f topRight      (left + info->bearingLeft + info->imageWidth, (top + info->bearingTop + info->imageHeight) - info->imageHeight, zJitter);
+			Vector3f bottomRight   (left + info->bearingLeft + info->imageWidth, (top + info->bearingTop                    ) - info->imageHeight, zJitter);
+			Vector3f topLeft       (left + info->bearingLeft                   , (top + info->bearingTop + info->imageHeight) - info->imageHeight, zJitter);
 
-			VectorMath<GLfloat, 2> texTopLeft =      {(info->imageLeft) / texWidth                    , 1 - (info->imageTop) / texHeight};
-			VectorMath<GLfloat, 2> texBottomRight =  {(info->imageLeft + info->imageWidth) / texWidth , 1 - (info->imageTop + info->imageHeight) / texHeight};
-			VectorMath<GLfloat, 2> texTopRight =     {(info->imageLeft + info->imageWidth) / texWidth , 1 - (info->imageTop) / texHeight};
-			VectorMath<GLfloat, 2> texBottomLeft =   {(info->imageLeft) / texWidth                    , 1 - (info->imageTop + info->imageHeight) / texHeight};
+			Vector2f texTopLeft        ((info->imageLeft) / texWidth                    , 1 - (info->imageTop) / texHeight);
+			Vector2f texBottomRight    ((info->imageLeft + info->imageWidth) / texWidth , 1 - (info->imageTop + info->imageHeight) / texHeight);
+			Vector2f texTopRight       ((info->imageLeft + info->imageWidth) / texWidth , 1 - (info->imageTop) / texHeight);
+			Vector2f texBottomLeft     ((info->imageLeft) / texWidth                    , 1 - (info->imageTop + info->imageHeight) / texHeight);
 
 
 			float scale = 1;

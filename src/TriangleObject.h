@@ -10,12 +10,12 @@
 
 #include <GL/gl.h>
 #include <vector>
-#include "VectorMath.h"
+#include "common.h"
 
 struct MyGLVertex {
-	VectorMath<GLfloat, 3> v;  //!< Vertex
-	VectorMath<GLfloat, 3> n;  //!< Vertex Normal
-	VectorMath<GLfloat, 2> vt; //!< Vertex Texture coordinate
+	Vector3f v;  //!< Vertex
+	Vector3f n;  //!< Vertex Normal
+	Vector2f vt; //!< Vertex Texture coordinate
 };
 
 class TriangleObject {
