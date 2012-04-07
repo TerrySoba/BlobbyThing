@@ -50,13 +50,13 @@ bool SDLTextureObject::load() {
 	LOG(boost::format("Loading texture \"%1%\"") % path);
 	surface = IMG_Load(path.c_str());
 	if(!surface) {
-	    ERR(fmt("IMG_Load: %1%") % IMG_GetError());
+	    ERR(_fmt("IMG_Load: %1%") % IMG_GetError());
 	    return false;
 	}
 
 	// we need to flip the image vertically
 	FlipSDLSurfaceVertically(surface);
-	LOG(fmt("Finished loading texture \"%1%\"") % path);
+	LOG(_fmt("Finished loading texture \"%1%\"") % path);
 
 	// now fill internal structures
 	this->width = surface->w;
@@ -64,7 +64,7 @@ bool SDLTextureObject::load() {
 	this->internalFormat = surface->format->BytesPerPixel;
 
 	int nOfColors = surface->format->BytesPerPixel;
-	GLenum format;
+	GLenum format = GL_RGB;
 	if (nOfColors == 4) { // contains an alpha channel{
 		if (surface->format->Rmask == 0x000000ff)
 			format = GL_RGBA;

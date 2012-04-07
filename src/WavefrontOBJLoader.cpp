@@ -11,7 +11,6 @@
 #include "VectorTriangleObject.h"
 #include "SDLTextureObject.h"
 #include "ShadedModelProxy.h"
-#include "VectorMath.h"
 
 #include "libgen.h"
 #include "common.h"
@@ -59,7 +58,7 @@ std::map<std::string, OBJMaterial> WavefrontOBJLoader::loadMaterial(const char* 
 	FILE* fp = fopen(path, "r");
 
 	if (!fp) {
-		ERR(fmt("Could not open file \"%1%\".") % path);
+		ERR(_fmt("Could not open file \"%1%\".") % path);
 		return mtl;
 	}
 
@@ -109,7 +108,7 @@ std::map<std::string, OBJMaterial> WavefrontOBJLoader::loadMaterial(const char* 
 				} else { // relative path
 					char* pathTmp = new char[strlen(path)+1];
 					strcpy(pathTmp, path);
-					mtl[mtlname].diffuseMapPath = (fmt("%1%/%2%")%dirname(pathTmp)%token).str();
+					mtl[mtlname].diffuseMapPath = (_fmt("%1%/%2%")%dirname(pathTmp)%token).str();
 					delete[] pathTmp;
 				}
 
@@ -206,13 +205,13 @@ std::vector<shared_ptr<ShadedModel>> WavefrontOBJLoader::load(const char* path) 
 	FILE* fp = fopen(path, "r");
 
 	if (!fp) {
-		ERR(fmt("Could not open file \"%1%\".") % path);
+		ERR(_fmt("Could not open file \"%1%\".") % path);
 		return models;
 	}
 
-	std::vector<VectorMath<GLfloat, 3>> vertices;
-	std::vector<VectorMath<GLfloat, 2>> texCoords;
-	std::vector<VectorMath<GLfloat, 3>> normals;
+	std::vector<Vector3f> vertices;
+	std::vector<Vector2f> texCoords;
+	std::vector<Vector3f> normals;
 	std::map<std::string, std::vector<Face>> faces;
 
 
@@ -252,13 +251,13 @@ std::vector<shared_ptr<ShadedModel>> WavefrontOBJLoader::load(const char* path) 
 			if (token[0] == 'o') { // found object name
 				token = strtok_r(NULL, " \n\r", &saveptr);
 				if (token)
-					LOG(fmt("Found object named %s") % token);
+					LOG(_fmt("Found object named %s") % token);
 				continue;
 			} // end object name
 
 			if (token[0] == 'v') { // found vertex
 				bool vertexOK = true;
-				VectorMath<GLfloat, 3> vertex;
+				Vector3f vertex;
 				for (int i = 0; i < 3; i++) {
 					token = strtok_r(NULL, " \n\r", &saveptr);
 					if (token) {
@@ -311,7 +310,7 @@ std::vector<shared_ptr<ShadedModel>> WavefrontOBJLoader::load(const char* path) 
 		if (strlen(token) == 2) {
 			if (token[0] == 'v' && token[1] == 't') { // found texture coordinate
 				bool vertexOK = true;
-				VectorMath<GLfloat, 2> texCoord;
+				Vector2f texCoord;
 				for (int i = 0; i < 2; i++) {
 					token = strtok_r(NULL, " \n\r", &saveptr);
 					if (token) {
@@ -336,7 +335,7 @@ std::vector<shared_ptr<ShadedModel>> WavefrontOBJLoader::load(const char* path) 
 
 			if (token[0] == 'v' && token[1] == 'n') { // found normal
 				bool vertexOK = true;
-				VectorMath<GLfloat, 3> normal;
+				Vector3f normal;
 				for (int i = 0; i < 3; i++) {
 					token = strtok_r(NULL, " \n\r", &saveptr);
 					if (token) {
@@ -368,7 +367,7 @@ std::vector<shared_ptr<ShadedModel>> WavefrontOBJLoader::load(const char* path) 
 			if (token) {
 				char* tmpPath = new char[strlen(path)+1];
 				strcpy(tmpPath, path);
-				std::string mtllibPath = (fmt("%1%/%2%") % dirname(tmpPath) % token).str();
+				std::string mtllibPath = (_fmt("%1%/%2%") % dirname(tmpPath) % token).str();
 				delete[] tmpPath;
 				mtlLib = loadMaterial(mtllibPath.c_str());
 			}
@@ -394,7 +393,7 @@ std::vector<shared_ptr<ShadedModel>> WavefrontOBJLoader::load(const char* path) 
 	}
 
 	/* now convert data into triangles */
-	LOG(fmt("faces: %1%") % faces.size());
+	LOG(_fmt("faces: %1%") % faces.size());
 	std::map<std::string, std::vector<Polygon>> triangles;
 
 	// typedef std::pair<const std::basic_string<char>, std::vector<std::vector<FaceIndex> > > faceType;
@@ -449,7 +448,7 @@ std::vector<shared_ptr<ShadedModel>> WavefrontOBJLoader::load(const char* path) 
 		models.push_back(model);
 	}
 
-	LOG(fmt("We have %1% triangles.") % triangle_count);
+	LOG(_fmt("We have %1% triangles.") % triangle_count);
 
 	// LOG(fmt("We have %1% vertices, congratulations!") % vertexes->getSize());
 

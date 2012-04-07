@@ -17,13 +17,11 @@
 #include <GL/gl.h>
 #include <GL/glu.h>
 #include "common.h"
-#include "VectorMath.h"
-
 
 struct GraphicsObject {
 	shared_ptr<ShadedModel> model;
-	VectorMath<GLfloat, 3> translation;
-	VectorMath<GLfloat, 3> rotationVector;
+	Vector3f translation;
+	Vector3f rotationVector;
 	GLfloat rotationAngle; // in degree
 };
 

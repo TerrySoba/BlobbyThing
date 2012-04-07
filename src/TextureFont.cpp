@@ -36,17 +36,17 @@ bool TextureFont::load(const char* path) {
 	FILE* fp = fopen(path, "rb");
 
 	if (!fp) {
-		ERR(fmt("Could not open font file \"%1%\".") % path);
+		ERR(_fmt("Could not open font file \"%1%\".") % path);
 		return false;
 	}
 
 	// now read file signature
 	char buffer[7];
-	buffer[7] = 0;
+	buffer[6] = 0;
 	fread(buffer, 1, 6, fp);
 	// check if signature matches
 	if (strcmp(buffer, "ytf252") != 0) {
-		ERR(fmt("Font file did not have matching signature: \"%1%\".") % buffer);
+		ERR(_fmt("Font file did not have matching signature: \"%1%\".") % buffer);
 		fclose(fp);
 		return false;
 	}
@@ -57,7 +57,7 @@ bool TextureFont::load(const char* path) {
 
 	// this parser is for version 3. Check if version matches.
 	if (version != 3) {
-		ERR(fmt("This parser only supports version 3, but version %1% was found in fontfile.") % version);
+		ERR(_fmt("This parser only supports version 3, but version %1% was found in fontfile.") % version);
 		fclose(fp);
 		return false;
 	}
@@ -69,7 +69,7 @@ bool TextureFont::load(const char* path) {
 	// fontName[nameLength] = 0; // null terminate
 	fread(&(fontName[0]), nameLength, sizeof(char), fp);
 
-	LOG(fmt("Font name: %1%") % fontName);
+	LOG(_fmt("Font name: %1%") % fontName);
 
 	// read width and height of texture
 	uint32_t width, height;
@@ -116,9 +116,9 @@ bool TextureFont::load(const char* path) {
 	fclose(fp);
 
 	// now log some debug information
-	LOG(fmt("loaded font file %1%.") % path);
-	LOG(fmt("loaded texture of size %1%x%2%.") % width % height);
-	LOG(fmt("found %1% characters.") % noOfCharacters);
+	LOG(_fmt("loaded font file %1%.") % path);
+	LOG(_fmt("loaded texture of size %1%x%2%.") % width % height);
+	LOG(_fmt("found %1% characters.") % noOfCharacters);
 
 	return true;
 }

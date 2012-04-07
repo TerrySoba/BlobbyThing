@@ -21,7 +21,7 @@ GraphicsGL::~GraphicsGL() {
 bool GraphicsGL::init() {
 	screen = SDL_SetVideoMode(screenWidth, screenHeight, colorDepth, SDL_HWSURFACE | SDL_OPENGL);
 	if (screen == NULL) {
-		ERR(fmt("Can't set video mode: %1%") % SDL_GetError());
+		ERR(_fmt("Can't set video mode: %1%") % SDL_GetError());
 		return false;
 	}
 
@@ -119,13 +119,13 @@ void GraphicsGL::initGL() {
 	SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
 
 	// now print OpenGL Version string
-	LOG(fmt("glversion: %1%") % glGetString(GL_VERSION));
+	LOG(_fmt("glversion: %1%") % glGetString(GL_VERSION));
 
 	int OpenGLVersion[2];
 	glGetIntegerv(GL_MAJOR_VERSION, &OpenGLVersion[0]);
 	glGetIntegerv(GL_MINOR_VERSION, &OpenGLVersion[1]);
 
-	LOG(fmt("OpenGL major: %1%, minor:%2%") % OpenGLVersion[0] % OpenGLVersion[1]);
+	LOG(_fmt("OpenGL major: %1%, minor:%2%") % OpenGLVersion[0] % OpenGLVersion[1]);
 	glEnableClientState (GL_VERTEX_ARRAY);
 	glEnableClientState (GL_NORMAL_ARRAY);
 	glEnableClientState (GL_TEXTURE_COORD_ARRAY);
