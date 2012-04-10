@@ -29,11 +29,6 @@ struct PhysicsStaticLine2D {
 	Vector2d end;   //!< end of line in [m]
 };
 
-struct PhysicsStaticQuad2D {
-	Vector2d corner[4];
-	PhysicsCircle2D cornerCircles[4];
-};
-
 enum {
 	LOWER_LEFT = 0,
 	UPPER_RIGHT = 1
@@ -73,33 +68,29 @@ public:
 	 *
 	 *  \return a reference to the added circle
 	 */
-	size_t addCircle(double posX, double posY, double radius, double vX, double vY, double mass, std::function<void(PhysicsCircle2D&)> action = NULL);
+	size_t addCircle(double posX, double posY, double radius, double vX, double vY, double mass, bool movable, std::function<void(PhysicsCircle2D&)> action = nullptr);
 
 	size_t addLine(double startX, double startY, double endX, double endY) { return addLine(Vector2d(startX, startY), Vector2d(endX, endY)); }
 	size_t addLine(Vector2d start, Vector2d end);
 
 
-	/*! \brief add a static(nonmoving) quad
+	/*! \brief add a static(nonmoving) polygon
 	 *
-	 *  The quad is defined by 4 vertexes. The quad must also be convex.
-	 *  The order in which the vertexes are given determines if the quad
-	 *  will reflect objects on the inside or on the outside.
+	 *  The polygon is defined by vertexes. The polygon must be convex.
+	 *  The order in which the vertexes are given determines if the
+	 *  polygon will reflect objects on the inside or on the outside.
 	 *
-	 *	Internally the quad will be constructed from 4 lines for the edges
-	 *	and 4 circles for the corners. The circles are needed to get
+	 *	Internally the polygon will be constructed from lines for the edges
+	 *	and circles for the corners. The circles are needed to get
 	 *	realistic reflections on the corners. They are also needed to
-	 *	prevent "holes" in the corners of the quad.
+	 *	prevent "holes" in the corners of the polygon.
 	 *	The parameters cornerRadius determines the size of the circles in
 	 *	the corners.
 	 *
-	 *
-	 *  \param p1 first vertex of quad
-	 *  \param p2 second vertex of quad
-	 *  \param p3 third vertex of quad
-	 *  \param p4 fourth vertex of quad
-	 *  \param cornerRadius radius of circles in corners of quad
+	 *  \param polygon corner points of the polygon
+	 *  \param cornerRadius radius of circles in corners of polygon
 	 */
-	void addQuad(Vector2d p1, Vector2d p2, Vector2d p3, Vector2d p4, double cornerRadius = 0.1);
+	void addPolygon(std::vector<Vector2d> polygon, double cornerRadius = 0.1);
 
 	PhysicsCircle2D& getCircle(size_t index);
 

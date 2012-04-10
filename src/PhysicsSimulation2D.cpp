@@ -18,15 +18,21 @@ PhysicsSimulation2D::PhysicsSimulation2D(double intervalTime) {
 	domain.corners[UPPER_RIGHT](0) = 10;
 	domain.corners[UPPER_RIGHT](1) = 100;
 
-	addLine(5, 8, -5, 8);
-	addLine(-5, 8, 5, 8);
+
+	std::vector<Vector2d> polygon;
+	polygon.push_back(Vector2d(-0.5,0));
+	polygon.push_back(Vector2d( 0.5,0));
+	polygon.push_back(Vector2d( 0.5,5));
+	polygon.push_back(Vector2d(-0.5,5));
+
+	addPolygon(polygon, 0.1);
 }
 
 PhysicsSimulation2D::~PhysicsSimulation2D() {
 	// TODO Auto-generated destructor stub
 }
 
-size_t PhysicsSimulation2D::addCircle(double posX, double posY, double radius, double vX, double vY, double mass, std::function<void(PhysicsCircle2D&)> action) {
+size_t PhysicsSimulation2D::addCircle(double posX, double posY, double radius, double vX, double vY, double mass, bool movable = true, std::function<void(PhysicsCircle2D&)> action) {
 	PhysicsCircle2D circle;
 	circle.position[0] = posX;
 	circle.position[1] = posY;
@@ -35,7 +41,7 @@ size_t PhysicsSimulation2D::addCircle(double posX, double posY, double radius, d
 	circle.speed[1] = vY;
 	circle.mass = mass;
 	circle.action = action;
-	circle.movable = true;
+	circle.movable = movable;
 
 	circles.push_back(circle);
 	return (circles.size() - 1);
@@ -54,8 +60,56 @@ PhysicsCircle2D& PhysicsSimulation2D::getCircle(size_t index) {
 	return circles[index];
 }
 
-void PhysicsSimulation2D::addQuad(Vector2d p1, Vector2d p2, Vector2d p3, Vector2d p4, double cornerRadius) {
-	// TODO!!
+void PhysicsSimulation2D::addPolygon(std::vector<Vector2d> polygon, double cornerRadius) {
+	if (polygon.size() < 3) {
+		// we only support polygons with at least 3 vertexes
+		return;
+	}
+
+	PhysicsCircle2D defaultCircle;
+	defaultCircle.movable = false;
+	defaultCircle.radius = cornerRadius;
+	defaultCircle.speed << 0 , 0;
+	std::vector<PhysicsStaticLine2D> lines(polygon.size());
+	std::vector<PhysicsCircle2D> circles(polygon.size(), defaultCircle);
+
+	// now calculate positions of corner circles
+	for (size_t cornerIndex = 0; cornerIndex < polygon.size(); cornerIndex++) {
+		size_t leftIndex = positiveModulo(cornerIndex - 1, polygon.size());
+		size_t rightIndex = positiveModulo(cornerIndex + 1, polygon.size());
+
+		Vector2d leftVector = (polygon[leftIndex] - polygon[cornerIndex]);
+		leftVector /= leftVector.norm();
+		Vector2d rightVector = (polygon[rightIndex] - polygon[cornerIndex]);
+		rightVector /= rightVector.norm();
+
+		Vector2d v = leftVector + rightVector;
+		v /= v.norm();
+
+		// calculate angle between left and right vector
+		double alpha = acos(leftVector.dot(rightVector)); // left and right vector both have length 1
+
+		double l = cornerRadius / sin(alpha / 2);
+		circles[cornerIndex].position = l * v + polygon[cornerIndex];
+
+		double m = cornerRadius / tan(alpha / 2);
+
+		lines[cornerIndex].start = m * leftVector + polygon[cornerIndex];
+		lines[rightIndex].end = m * rightVector + polygon[cornerIndex];
+	}
+
+	// DEBUG: output new polygon
+	LOG("New Polygon:");
+
+	for (PhysicsStaticLine2D& line : lines) {
+		addLine(line.start, line.end);
+		LOG(_fmt("Line: %1% -> %2%") % line.start% line.end);
+	}
+
+	for (PhysicsCircle2D& circle : circles) {
+		addCircle(circle.position[0], circle.position[1], circle.radius, circle.speed[0], circle.speed[1], circle.mass, false);
+	}
+
 }
 
 /*! \brief Calculate collision between two circles
@@ -82,7 +136,7 @@ void PhysicsSimulation2D::circleCollision(PhysicsCircle2D& circle1, PhysicsCircl
 	// LOG(fmt("Normal speeds: %1% and %2%") % v1 % v2);
 
 	// check if circles are moving toward each other
-	if (v1 - v2 >= 0) {
+	if (v1 - v2 >= 0 && circle1.movable && circle2.movable) {
 		LOG("Circles are never going to meet. Nothing was changed.");
 	} else {
 		// now calculate elastic collision in 1 dimension

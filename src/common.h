@@ -20,4 +20,6 @@ using Eigen::Vector2d;
 using std::shared_ptr;
 using std::make_shared;
 
+
+
 #endif /* COMMON_H_ */
