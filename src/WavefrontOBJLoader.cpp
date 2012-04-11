@@ -58,7 +58,7 @@ std::map<std::string, OBJMaterial> WavefrontOBJLoader::loadMaterial(const char* 
 	FILE* fp = fopen(path, "r");
 
 	if (!fp) {
-		ERR(_fmt("Could not open file \"%1%\".") % path);
+		ERR("Could not open file: ", path);
 		return mtl;
 	}
 
@@ -108,7 +108,7 @@ std::map<std::string, OBJMaterial> WavefrontOBJLoader::loadMaterial(const char* 
 				} else { // relative path
 					char* pathTmp = new char[strlen(path)+1];
 					strcpy(pathTmp, path);
-					mtl[mtlname].diffuseMapPath = (_fmt("%1%/%2%")%dirname(pathTmp)%token).str();
+					mtl[mtlname].diffuseMapPath = (boost::format("%1%/%2%")%dirname(pathTmp)%token).str();
 					delete[] pathTmp;
 				}
 
@@ -205,7 +205,7 @@ std::vector<shared_ptr<ShadedModel>> WavefrontOBJLoader::load(const char* path) 
 	FILE* fp = fopen(path, "r");
 
 	if (!fp) {
-		ERR(_fmt("Could not open file \"%1%\".") % path);
+		ERR("Could not open file: ", path);
 		return models;
 	}
 
@@ -251,7 +251,7 @@ std::vector<shared_ptr<ShadedModel>> WavefrontOBJLoader::load(const char* path) 
 			if (token[0] == 'o') { // found object name
 				token = strtok_r(NULL, " \n\r", &saveptr);
 				if (token)
-					LOG(_fmt("Found object named %s") % token);
+					LOG("Found object named: ", token);
 				continue;
 			} // end object name
 
@@ -367,7 +367,7 @@ std::vector<shared_ptr<ShadedModel>> WavefrontOBJLoader::load(const char* path) 
 			if (token) {
 				char* tmpPath = new char[strlen(path)+1];
 				strcpy(tmpPath, path);
-				std::string mtllibPath = (_fmt("%1%/%2%") % dirname(tmpPath) % token).str();
+				std::string mtllibPath = (boost::format("%1%/%2%") % dirname(tmpPath) % token).str();
 				delete[] tmpPath;
 				mtlLib = loadMaterial(mtllibPath.c_str());
 			}
@@ -393,7 +393,7 @@ std::vector<shared_ptr<ShadedModel>> WavefrontOBJLoader::load(const char* path) 
 	}
 
 	/* now convert data into triangles */
-	LOG(_fmt("faces: %1%") % faces.size());
+	LOG("faces: ", faces.size());
 	std::map<std::string, std::vector<Polygon>> triangles;
 
 	// typedef std::pair<const std::basic_string<char>, std::vector<std::vector<FaceIndex> > > faceType;
@@ -448,7 +448,7 @@ std::vector<shared_ptr<ShadedModel>> WavefrontOBJLoader::load(const char* path) 
 		models.push_back(model);
 	}
 
-	LOG(_fmt("We have %1% triangles.") % triangle_count);
+	LOG("We have ", triangle_count, " triangles.");
 
 	// LOG(fmt("We have %1% vertices, congratulations!") % vertexes->getSize());
 

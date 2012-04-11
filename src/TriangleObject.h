@@ -8,9 +8,10 @@
 #ifndef TRIANGLEOBJECT_H_
 #define TRIANGLEOBJECT_H_
 
-#include <GL/gl.h>
+#include "gl_includes.h"
 #include <vector>
 #include "common.h"
+#include "MathUtils.h"
 
 struct MyGLVertex {
 	Vector3f v;  //!< Vertex

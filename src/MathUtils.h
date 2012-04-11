@@ -8,6 +8,13 @@
 #ifndef MATHUTILS_H_
 #define MATHUTILS_H_
 
+#include "Eigen/Dense"
+
+using Eigen::Vector3f;
+using Eigen::Vector2f;
+using Eigen::Vector3d;
+using Eigen::Vector2d;
+
 template <typename T>
 inline T sgn(T value) {
 	return (value >= 0)?1:-1;
@@ -33,7 +40,7 @@ inline T abs(T value) {
  *
  *  \return the rest of the integer division
  */
-int32_t positiveModulo(int32_t value, int32_t modulo) {
+inline int32_t positiveModulo(int32_t value, int32_t modulo) {
 	int32_t tmp = value % modulo;
 	if (tmp >= 0) {
 		return tmp;

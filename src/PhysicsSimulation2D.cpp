@@ -18,7 +18,6 @@ PhysicsSimulation2D::PhysicsSimulation2D(double intervalTime) {
 	domain.corners[UPPER_RIGHT](0) = 10;
 	domain.corners[UPPER_RIGHT](1) = 100;
 
-
 	std::vector<Vector2d> polygon;
 	polygon.push_back(Vector2d(-0.5,0));
 	polygon.push_back(Vector2d( 0.5,0));
@@ -103,7 +102,7 @@ void PhysicsSimulation2D::addPolygon(std::vector<Vector2d> polygon, double corne
 
 	for (PhysicsStaticLine2D& line : lines) {
 		addLine(line.start, line.end);
-		LOG(_fmt("Line: %1% -> %2%") % line.start% line.end);
+		LOG("Line: ", line.start, " -> ", line.end);
 	}
 
 	for (PhysicsCircle2D& circle : circles) {
@@ -202,7 +201,7 @@ bool PhysicsSimulation2D::circleLineCollision(PhysicsStaticLine2D& line, Physics
 		collision_pos >= 0 && collision_pos <= 1) //!< Check if circle hits line between start and end of line
 	{
 
-		LOG(_fmt("Collision: t=%1% T=%2%") % t_collision % intervalTime);
+		LOG("Collision: t=", t_collision, " T=", intervalTime);
 
 		// as we have a collision calculate where the circle will be after a
 		// fully elastic collision/reflection with the line

@@ -12,6 +12,7 @@
 #include "ErrorLogging.h"
 #include <functional>
 #include "common.h"
+#include "MathUtils.h"
 
 struct PhysicsCircle2D {
 	Vector2d position; //!< center of circle in [m]

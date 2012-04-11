@@ -28,7 +28,7 @@ void GameLoop::addCycleTask(std::function<TaskReturnvalue(void)> task, float fre
 	t.elapsedTime = 0;
 	t.cycleTime = 1000000.0 / frequency;
 	if (t.cycleTime <= 0) {
-		LOG(_fmt("Frequency of %1%Hz results in cycle time < 1us. Setting frequency to 1MHz.") % frequency);
+		LOG("Frequency of ", frequency, " Hz results in cycle time < 1us. Setting frequency to 1MHz.");
 		t.cycleTime = 1;
 	}
 	t.task = task;
