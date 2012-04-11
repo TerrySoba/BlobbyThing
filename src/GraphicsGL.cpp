@@ -21,11 +21,28 @@ GraphicsGL::~GraphicsGL() {
 bool GraphicsGL::init() {
 	screen = SDL_SetVideoMode(screenWidth, screenHeight, colorDepth, SDL_HWSURFACE | SDL_OPENGL);
 	if (screen == NULL) {
-		ERR(_fmt("Can't set video mode: %1%") % SDL_GetError());
+		ERR("Can't set video mode: ", SDL_GetError());
 		return false;
 	}
 
 	SDL_WM_SetCaption(windowName.c_str(), windowName.c_str());
+
+	// init GLEW
+	GLenum err = glewInit();
+	if (GLEW_OK != err)
+	{
+	  /* Problem: glewInit failed, something is seriously wrong. */
+	  ERR("Error: ", glewGetErrorString(err));
+	  return false;
+	}
+	LOG("Status: Using GLEW ", glewGetString(GLEW_VERSION));
+
+	if (!glewIsSupported("GL_VERSION_2_0")) {
+		ERR("We need OpenGL 2.0 but it is NOT supported by this PC.");
+		return false;
+	} else {
+		LOG("Yay! OpenGL 2.0 is supported!");
+	}
 
 	initGL();
 	setupGLMatrices();
@@ -119,13 +136,13 @@ void GraphicsGL::initGL() {
 	SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
 
 	// now print OpenGL Version string
-	LOG(_fmt("glversion: %1%") % glGetString(GL_VERSION));
+	LOG("glversion: ", glGetString(GL_VERSION));
 
 	int OpenGLVersion[2];
 	glGetIntegerv(GL_MAJOR_VERSION, &OpenGLVersion[0]);
 	glGetIntegerv(GL_MINOR_VERSION, &OpenGLVersion[1]);
 
-	LOG(_fmt("OpenGL major: %1%, minor:%2%") % OpenGLVersion[0] % OpenGLVersion[1]);
+	LOG("OpenGL major:", OpenGLVersion[0], " minor:", OpenGLVersion[1]);
 	glEnableClientState (GL_VERTEX_ARRAY);
 	glEnableClientState (GL_NORMAL_ARRAY);
 	glEnableClientState (GL_TEXTURE_COORD_ARRAY);
@@ -140,6 +157,61 @@ void GraphicsGL::initGL() {
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	glEnable( GL_BLEND );
 	glClearColor(0.0,0.0,0.0,0.0);
+
+}
+
+std::string readCompleteFile(const char* path) {
+	std::string text = "";
+	FILE* fp = fopen(path, "rb");
+	if (!fp) {
+		ERR("Could not open file: ", path);
+		return text;
+	}
+
+	const size_t bufferSize = 1024;
+	char* buffer = new char[bufferSize+1];
+	while (!feof(fp)) {
+		size_t readElem = fread(buffer, 1, bufferSize, fp);
+		buffer[readElem] = '\0';
+		text += std::string(buffer, readElem);
+	}
+	delete[] buffer;
+
+	fclose(fp);
+
+	return text;
+}
+
+void GraphicsGL::loadShaders() {
+	std::string vertexShaderSource = readCompleteFile("shaders/toon.vert");
+	std::string fragmentShaderSource = readCompleteFile("shaders/toon.frag");
+
+	GLuint vertexShader, fragmentShader, program;
+
+	// load shaders from files
+	vertexShader = glCreateShader(GL_VERTEX_SHADER);
+	fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
+
+	// pass shader source to driver
+	const char* vSS = vertexShaderSource.c_str();
+	glShaderSource(vertexShader, 1, &vSS, NULL);
+
+	// pass shader source to driver
+	const char* fSS = fragmentShaderSource.c_str();
+	glShaderSource(fragmentShader, 1, &fSS, NULL);
+
+	glCompileShader(vertexShader);
+	glCompileShader(fragmentShader);
+
+	program = glCreateProgram();
+
+	glAttachShader(program, vertexShader);
+	glAttachShader(program, fragmentShader);
+
+	glLinkProgram(program);
+	glUseProgram(program);
+
+	// glUseProgram(0);
 
 }
 

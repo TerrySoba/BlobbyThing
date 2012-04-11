@@ -39,7 +39,7 @@ int BlobbyThingGame::run() {
 	std::vector<shared_ptr<ShadedModel>> models = WavefrontOBJLoader::load("../../blender/baum3.obj");
 
 	if (SDL_Init(SDL_INIT_VIDEO) == -1) {
-		ERR(_fmt("Can't init SDL:  %1%") % SDL_GetError());
+		ERR("Can't init SDL: ", SDL_GetError());
 		return 1;
 	}
 	atexit(SDL_Quit);
@@ -93,6 +93,8 @@ int BlobbyThingGame::run() {
 	// generate OpenGL textures
 	gl.generateGLTextures();
 
+	gl.loadShaders();
+
 	GameLoop loop;
 	int i = 1;
 	loop.setDrawTask([&]() {
@@ -113,7 +115,7 @@ int BlobbyThingGame::run() {
 		return 1;
 	}
 
-	LOG(_fmt("Monkey has handle: %1%") % monkey_id);
+	LOG("Monkey has handle: ", monkey_id);
 
 	gl.getGfxObject(monkey_id).translation[0] = 0;
 	gl.getGfxObject(monkey_id).translation[1] = 3;
@@ -141,7 +143,7 @@ int BlobbyThingGame::run() {
 
 	loop.addCycleTask([&]() {
 		text->clear();
-		text->setText((_fmt("Points %1%") % i).str().c_str());
+		text->setText((boost::format("Points %1%") % i).str().c_str());
 		stateMachine.evaluate();
 		return TaskReturnvalue::OK;
 	}, 100);

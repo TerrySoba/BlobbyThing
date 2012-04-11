@@ -50,13 +50,13 @@ bool SDLTextureObject::load() {
 	LOG(boost::format("Loading texture \"%1%\"") % path);
 	surface = IMG_Load(path.c_str());
 	if(!surface) {
-	    ERR(_fmt("IMG_Load: %1%") % IMG_GetError());
+	    ERR("IMG_Load: ", IMG_GetError());
 	    return false;
 	}
 
 	// we need to flip the image vertically
 	FlipSDLSurfaceVertically(surface);
-	LOG(_fmt("Finished loading texture \"%1%\"") % path);
+	LOG("Finished loading texture: ", path);
 
 	// now fill internal structures
 	this->width = surface->w;

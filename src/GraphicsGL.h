@@ -8,14 +8,14 @@
 #ifndef GRAPHICSGL_H_
 #define GRAPHICSGL_H_
 
+#include "gl_includes.h"
 #include "SDL.h"
 #include <cstdint>
 #include <string>
 #include <boost/shared_ptr.hpp>
 #include "ShadedModel.h"
 #include <map>
-#include <GL/gl.h>
-#include <GL/glu.h>
+
 #include "common.h"
 
 struct GraphicsObject {
@@ -114,6 +114,11 @@ public:
 	 *  up the graphics card memory.
 	 */
 	void generateGLTextures();
+
+	/*!
+	 *
+	 */
+	void loadShaders();
 
 	/*! \brief draws the current screen
 	 *

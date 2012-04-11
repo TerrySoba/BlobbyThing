@@ -11,8 +11,6 @@
 
 int main(int argc, char* argv[]) {
 	BlobbyThingGame game(1280, 720, 24);
-
 	int ret = game.run();
-
 	return ret;
 }

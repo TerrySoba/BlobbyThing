@@ -8,7 +8,7 @@
 #ifndef TEXTUREOBJECT_H_
 #define TEXTUREOBJECT_H_
 
-#include <GL/gl.h>
+#include "gl_includes.h"
 
 class TextureObject {
 public:
