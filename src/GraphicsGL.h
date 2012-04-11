@@ -84,7 +84,6 @@ public:
 	void addGfxObjects(std::vector<shared_ptr<ShadedModel>>& gfxObjects);
 	void addGfxObjects(shared_ptr<ShadedModel> model);
 
-
 	void addOrthoGfxObject(GraphicsObject& gfxObject);
 
 	/*! \brief get handle to gfx object by name.

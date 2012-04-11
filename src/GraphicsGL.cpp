@@ -6,6 +6,8 @@
  */
 
 #include "GraphicsGL.h"
+#include "ShaderProgramGL.h"
+
 
 GraphicsGL::GraphicsGL(uint32_t screenWidth, uint32_t screenHeight, uint32_t colorDepth, std::string windowName) {
 	this->screenWidth = screenWidth;
@@ -160,59 +162,11 @@ void GraphicsGL::initGL() {
 
 }
 
-std::string readCompleteFile(const char* path) {
-	std::string text = "";
-	FILE* fp = fopen(path, "rb");
-	if (!fp) {
-		ERR("Could not open file: ", path);
-		return text;
-	}
-
-	const size_t bufferSize = 1024;
-	char* buffer = new char[bufferSize+1];
-	while (!feof(fp)) {
-		size_t readElem = fread(buffer, 1, bufferSize, fp);
-		buffer[readElem] = '\0';
-		text += std::string(buffer, readElem);
-	}
-	delete[] buffer;
-
-	fclose(fp);
-
-	return text;
-}
-
 void GraphicsGL::loadShaders() {
-	std::string vertexShaderSource = readCompleteFile("shaders/toon.vert");
-	std::string fragmentShaderSource = readCompleteFile("shaders/toon.frag");
-
-	GLuint vertexShader, fragmentShader, program;
-
-	// load shaders from files
-	vertexShader = glCreateShader(GL_VERTEX_SHADER);
-	fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
-
-	// pass shader source to driver
-	const char* vSS = vertexShaderSource.c_str();
-	glShaderSource(vertexShader, 1, &vSS, NULL);
-
-	// pass shader source to driver
-	const char* fSS = fragmentShaderSource.c_str();
-	glShaderSource(fragmentShader, 1, &fSS, NULL);
-
-	glCompileShader(vertexShader);
-	glCompileShader(fragmentShader);
-
-	program = glCreateProgram();
-
-	glAttachShader(program, vertexShader);
-	glAttachShader(program, fragmentShader);
-
-	glLinkProgram(program);
-	glUseProgram(program);
-
-	// glUseProgram(0);
-
+	ShaderProgramGL program;
+	program.setShaders("shaders/pointlight.vert", "shaders/pointlight.frag");
+	program.prepareShaders();
+	program.useProgram();
 }
 
 void GraphicsGL::addGfxObjects(std::vector<shared_ptr<ShadedModel>>& gfxObjects) {
