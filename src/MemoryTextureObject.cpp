@@ -7,7 +7,7 @@
 
 #include "MemoryTextureObject.h"
 
-MemoryTextureObject::MemoryTextureObject(uint32_t width, uint32_t height) : TextureObject() , image(width * height * 2) {
+MemoryTextureObject::MemoryTextureObject(uint32_t width, uint32_t height) : TextureObject() , image(width * height) {
 	this->width = width;
 	this->height = height;
 }

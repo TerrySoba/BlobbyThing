@@ -18,6 +18,9 @@ TextureText::TextureText(shared_ptr<TextureFont> font, std::string name) {
 	left = 0;
 	top = 0;
 
+	shader = make_shared<ShaderProgramGL>();;
+	shader->setShaders("shaders/font.vert", "shaders/font.frag");
+
 }
 
 void TextureText::clear() {
