@@ -22,8 +22,8 @@ public:
 	}
 	virtual GLsizei getWidth() { return width; }
 	virtual GLsizei getHeight() { return height; }
-	virtual GLint getInternalFormat() { return GL_LUMINANCE8_ALPHA8; }
-	virtual GLenum getFormat() { return GL_LUMINANCE_ALPHA; }
+	virtual GLint getInternalFormat() { return GL_ALPHA8; }
+	virtual GLenum getFormat() { return GL_ALPHA; }
 	virtual GLenum getType() { return GL_UNSIGNED_BYTE; }
 
 	virtual void compact() { /* do nothing */ }
@@ -31,7 +31,7 @@ public:
 private:
 	uint32_t width;
 	uint32_t height;
-	std::vector<uint8_t> image; //!< image in LuminanceAlpha format
+	std::vector<uint8_t> image; //!< image in Alpha8 format
 };
 
 #endif /* MEMORYTEXTUREOBJECT_H_ */

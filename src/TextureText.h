@@ -23,6 +23,7 @@ public:
 
 	virtual shared_ptr<TriangleObject> getTriangleObject() { return triangleObject; }
 	virtual shared_ptr<TextureObject> getTextureObject() { return textureObject; }
+	shared_ptr<ShaderProgramGL> getShaderProgram() { return shader; }
 	virtual std::string getName();
 
 	void clear();
@@ -39,6 +40,7 @@ private:
 	shared_ptr<VectorTriangleObject> triangleObject;
 	shared_ptr<TextureObject> textureObject;
 	shared_ptr<TextureFont> font;
+	shared_ptr<ShaderProgramGL> shader;
 	std::string name;
 
 	float left; //!< Position of next character from left

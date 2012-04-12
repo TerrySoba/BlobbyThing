@@ -86,8 +86,8 @@ bool TextureFont::load(const char* path) {
 	uint8_t* texturePtr = (uint8_t*)texture->getData();
 
 	for (size_t pos = 0; pos < width * height * sizeof(uint8_t); pos++) {
-		texturePtr[2 * pos + 0] = 255;
-		texturePtr[2 * pos + 1] = textureTmp[pos];
+
+		texturePtr[pos] = textureTmp[pos];
 	}
 
 	this->texture = texture;

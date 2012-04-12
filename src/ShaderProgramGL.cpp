@@ -110,39 +110,41 @@ std::string getProgramInfoLog(GLuint programHandle) {
 }
 
 bool ShaderProgramGL::prepareShaders() {
-	std::string vertexShaderSource = readCompleteFile(this->vertexShaderPath.c_str());
-	std::string fragmentShaderSource = readCompleteFile(this->fragmentShaderPath.c_str());
+	if (!ready) {
+		std::string vertexShaderSource = readCompleteFile(this->vertexShaderPath.c_str());
+		std::string fragmentShaderSource = readCompleteFile(this->fragmentShaderPath.c_str());
 
-	// load shaders from files
-	vertexShaderHandle = glCreateShader(GL_VERTEX_SHADER);
-	fragmentShaderHandle = glCreateShader(GL_FRAGMENT_SHADER);
+		// load shaders from files
+		vertexShaderHandle = glCreateShader(GL_VERTEX_SHADER);
+		fragmentShaderHandle = glCreateShader(GL_FRAGMENT_SHADER);
 
-	// pass shader source to driver
-	const char* vSS = vertexShaderSource.c_str();
-	glShaderSource(vertexShaderHandle, 1, &vSS, NULL);
+		// pass shader source to driver
+		const char* vSS = vertexShaderSource.c_str();
+		glShaderSource(vertexShaderHandle, 1, &vSS, NULL);
 
-	// pass shader source to driver
-	const char* fSS = fragmentShaderSource.c_str();
-	glShaderSource(fragmentShaderHandle, 1, &fSS, NULL);
+		// pass shader source to driver
+		const char* fSS = fragmentShaderSource.c_str();
+		glShaderSource(fragmentShaderHandle, 1, &fSS, NULL);
 
-	glCompileShader(vertexShaderHandle);
-	LOG("VertexShader Log: ", getShaderInfoLog(vertexShaderHandle));
+		glCompileShader(vertexShaderHandle);
+		LOG("VertexShader Log: ", getShaderInfoLog(vertexShaderHandle));
 
-	glCompileShader(fragmentShaderHandle);
-	LOG("FragmentShader Log: ", getShaderInfoLog(fragmentShaderHandle));
+		glCompileShader(fragmentShaderHandle);
+		LOG("FragmentShader Log: ", getShaderInfoLog(fragmentShaderHandle));
 
-	shaderProgramHandle = glCreateProgram();
+		shaderProgramHandle = glCreateProgram();
 
-	glAttachShader(shaderProgramHandle, vertexShaderHandle);
-	glAttachShader(shaderProgramHandle, fragmentShaderHandle);
+		glAttachShader(shaderProgramHandle, vertexShaderHandle);
+		glAttachShader(shaderProgramHandle, fragmentShaderHandle);
 
-	glLinkProgram(shaderProgramHandle);
+		glLinkProgram(shaderProgramHandle);
 
-	LOG("ShaderProgram Log: ", getProgramInfoLog(shaderProgramHandle));
+		LOG("ShaderProgram Log: ", getProgramInfoLog(shaderProgramHandle));
 
-	// glUseProgram(program);
+		// glUseProgram(program);
 
-	ready = true;
+		ready = true;
+	}
 
 	return true;
 }

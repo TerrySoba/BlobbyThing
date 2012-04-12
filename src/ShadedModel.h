@@ -12,9 +12,10 @@
 #include <string>
 #include "TriangleObject.h"
 #include "TextureObject.h"
+#include "ShaderProgramGL.h"
 #include "common.h"
 
-/*! \brief A model made from triangles including texture
+/*! \brief A model made from triangles including texture(s) and shaders
  *
  *  This interface is used to represent shaded models for the class GraphicsGL.
  */
@@ -25,6 +26,9 @@ public:
 
 	virtual shared_ptr<TriangleObject> getTriangleObject() = 0;
 	virtual shared_ptr<TextureObject> getTextureObject() = 0;
+	virtual shared_ptr<ShaderProgramGL> getShaderProgram() = 0;
+//		return shared_ptr<ShaderProgramGL>();
+//	}
 	virtual std::string getName() = 0;
 };
 

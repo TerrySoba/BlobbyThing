@@ -40,7 +40,7 @@ bool GraphicsGL::init() {
 	LOG("Status: Using GLEW ", glewGetString(GLEW_VERSION));
 
 	if (!glewIsSupported("GL_VERSION_2_0")) {
-		ERR("We need OpenGL 2.0 but it is NOT supported by this PC.");
+		ERR("We need at least OpenGL 2.0 but it is NOT supported by this PC.");
 		return false;
 	} else {
 		LOG("Yay! OpenGL 2.0 is supported!");
@@ -79,6 +79,30 @@ void GraphicsGL::setupGLMatrices() {
 	glMatrixMode(GL_MODELVIEW);
 	glEnable(GL_TEXTURE_2D);
 	glLoadIdentity();
+
+	// set light source
+
+
+	GLfloat lAmbient[4] = {.2, .2, .2, 1};
+	glLightfv(GL_LIGHT0, GL_AMBIENT, lAmbient);
+
+	GLfloat lDiffuse[4] = {1, 1, 1, 1};
+	glLightfv(GL_LIGHT0, GL_DIFFUSE, lDiffuse);
+
+	GLfloat lSpecular[4] = {1, 1, .5, 1};
+	glLightfv(GL_LIGHT0, GL_SPECULAR, lSpecular);
+
+
+	// set material parameters
+	GLfloat mSpecular[4] = {1, 1, 1, 1};
+	glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, mSpecular);
+
+	GLfloat mShininess[1] = {100};
+	glMaterialfv(GL_FRONT_AND_BACK, GL_SHININESS, mShininess);
+
+
+
+
 }
 
 void GraphicsGL::setCamera(GLdouble fovy, GLdouble nearClipping, GLdouble farClipping) {
@@ -110,12 +134,17 @@ void GraphicsGL::updateCamera() {
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
 	gluPerspective(openGLCamera.fovy,  (double)this->screenWidth / this->screenHeight, openGLCamera.nearClipping, openGLCamera.farClipping);
+	glMatrixMode(GL_MODELVIEW);
+	glLoadIdentity();
 
 	gluLookAt(openGLCamera.eye[0], openGLCamera.eye[1], openGLCamera.eye[2],
 			  openGLCamera.center[0], openGLCamera.center[1], openGLCamera.center[2],
 			  openGLCamera.up[0], openGLCamera.up[1], openGLCamera.up[2]);
 
-	glMatrixMode(GL_MODELVIEW);
+	GLfloat pos[4] = {10,10,20,1};
+	glLightfv(GL_LIGHT0, GL_POSITION, pos);
+
+	// glMatrixMode(GL_MODELVIEW);
 }
 
 void GraphicsGL::initGL() {
@@ -163,10 +192,24 @@ void GraphicsGL::initGL() {
 }
 
 void GraphicsGL::loadShaders() {
+	/*
 	ShaderProgramGL program;
 	program.setShaders("shaders/pointlight.vert", "shaders/pointlight.frag");
 	program.prepareShaders();
 	program.useProgram();
+	*/
+
+	auto safePrepareShaders = [](std::vector<GraphicsObject>& models) {
+		for (GraphicsObject &obj : models) {
+			shared_ptr<ShaderProgramGL> shader = obj.model->getShaderProgram();
+			if (shader) {
+				shader->prepareShaders();
+			}
+		}
+	};
+
+	safePrepareShaders(this->perspectiveObjs);
+	safePrepareShaders(this->orthographicObjs);
 }
 
 void GraphicsGL::addGfxObjects(std::vector<shared_ptr<ShadedModel>>& gfxObjects) {
@@ -216,13 +259,23 @@ void GraphicsGL::draw() {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	auto drawObj = [](GraphicsObject &obj) {
-		glLoadIdentity();
+		// glLoadIdentity();
+		glPushMatrix();
 
 		glTranslatef(obj.translation[0], obj.translation[1], obj.translation[2]);
 		glRotatef(obj.rotationAngle, obj.rotationVector[0], obj.rotationVector[1], obj.rotationVector[2]);
 
 		// bind texture
 		obj.model->getTextureObject()->bindTexture();
+
+		// set shader
+		shared_ptr<ShaderProgramGL> shader = obj.model->getShaderProgram();
+		if (shader) {
+			shader->useProgram();
+		} else {
+			// use fixed function pipeline
+			glUseProgram(0);
+		}
 
 		// now draw triangle data
 		MyGLVertex* data = obj.model->getTriangleObject()->getGLVertexes();
@@ -232,6 +285,7 @@ void GraphicsGL::draw() {
 		glDrawArrays(GL_TRIANGLES, 0, obj.model->getTriangleObject()->getSize());
 
 
+		glPopMatrix();
 	};
 
 	// first draw the perspective objects
@@ -245,11 +299,13 @@ void GraphicsGL::draw() {
 	glLoadIdentity();
 	glOrtho(0.0 ,this->screenWidth, 0.0, this->screenHeight, 1.0, -1.0);
 	glMatrixMode(GL_MODELVIEW);
-
+	glPushMatrix();
+	glLoadIdentity();
 	glDisable(GL_DEPTH_TEST); // disable depth buffering
 	for (GraphicsObject &obj : orthographicObjs) {
 		drawObj(obj);
 	}
+	glPopMatrix();
 	glEnable(GL_DEPTH_TEST); // enable depth buffering
 	glMatrixMode(GL_PROJECTION);
 	glPopMatrix();

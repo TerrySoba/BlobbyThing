@@ -427,6 +427,10 @@ std::vector<shared_ptr<ShadedModel>> WavefrontOBJLoader::load(const char* path) 
 
 	uint32_t triangle_count = 0;
 
+	// create default shader
+	shared_ptr<ShaderProgramGL> shader = make_shared<ShaderProgramGL>();
+	shader->setShaders("shaders/phong2.vert", "shaders/phong2.frag");
+
 	for (auto &tris: triangles) {
 		// first insert triangles
 		shared_ptr<VectorTriangleObject> vertexes = make_shared<VectorTriangleObject>();
@@ -444,7 +448,7 @@ std::vector<shared_ptr<ShadedModel>> WavefrontOBJLoader::load(const char* path) 
 		shared_ptr<TextureObject> texture = make_shared<SDLTextureObject>(mtlLib[tris.first].diffuseMapPath.c_str());
 
 		// create ShadedModel and push to vector
-		shared_ptr<ShadedModel> model = make_shared<ShadedModelProxy>(vertexes, texture, tris.first);
+		shared_ptr<ShadedModel> model = make_shared<ShadedModelProxy>(vertexes, texture, shader, tris.first);
 		models.push_back(model);
 	}
 
