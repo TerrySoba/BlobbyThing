@@ -13,6 +13,9 @@
 #include <functional>
 #include "common.h"
 #include "MathUtils.h"
+#include <map>
+#include <tuple>
+#include <array>
 
 struct PhysicsCircle2D {
 	Vector2d position; //!< center of circle in [m]
@@ -70,8 +73,6 @@ public:
 	 *  \return a reference to the added circle
 	 */
 	size_t addCircle(double posX, double posY, double radius, double vX, double vY, double mass, bool movable, std::function<void(PhysicsCircle2D&)> action = nullptr);
-
-	size_t addLine(double startX, double startY, double endX, double endY) { return addLine(Vector2d(startX, startY), Vector2d(endX, endY)); }
 	size_t addLine(Vector2d start, Vector2d end);
 
 
@@ -97,10 +98,23 @@ public:
 
 	void calc();
 
+	void addLineCircleCollisionAction(size_t lineIndex, size_t circleIndex, std::function<void (PhysicsStaticLine2D&, PhysicsCircle2D&)> action);
+	void addcircleCircleCollisionAction(size_t circleAIndex, size_t circleBIndex, std::function<void (PhysicsCircle2D&, PhysicsCircle2D&)> action);
+
 private:
 
-	void circleCollision(PhysicsCircle2D& circle1, PhysicsCircle2D& circle2);
-	bool circleLineCollision(PhysicsStaticLine2D& line, PhysicsCircle2D& circle);
+	void circleCollision(size_t circle1Index, size_t circle2Index);
+	bool circleLineCollision(size_t lineIndex, size_t circleIndex);
+
+	std::map<
+		std::tuple<size_t /* line index */,size_t /* circle index */>,
+		std::function<void (PhysicsStaticLine2D&, PhysicsCircle2D&)>
+	        > lineCircleCollisionActions;
+
+	std::map<
+		std::array<size_t,2>,
+		std::function<void (PhysicsCircle2D&, PhysicsCircle2D&)>
+		    > circleCircleCollisionActions;
 
 	PhysicsQuad2D domain;
 	std::vector<PhysicsCircle2D> circles;

@@ -17,17 +17,31 @@ GraphicsGL::GraphicsGL(uint32_t screenWidth, uint32_t screenHeight, uint32_t col
 }
 
 GraphicsGL::~GraphicsGL() {
-	// TODO Auto-generated destructor stub
+	/* Delete our opengl context, destroy our window, and shutdown SDL */
+	SDL_GL_DeleteContext(maincontext);
+	SDL_DestroyWindow(mainwindow);
+	SDL_Quit();
 }
 
 bool GraphicsGL::init() {
-	screen = SDL_SetVideoMode(screenWidth, screenHeight, colorDepth, SDL_HWSURFACE | SDL_OPENGL);
-	if (screen == NULL) {
+	//screen = SDL_SetVideoMode(screenWidth, screenHeight, colorDepth, SDL_HWSURFACE | SDL_OPENGL);
+
+	mainwindow = SDL_CreateWindow(windowName.c_str(), SDL_WINDOWPOS_CENTERED,
+			SDL_WINDOWPOS_CENTERED, screenWidth, screenHeight,
+			SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN);
+
+	if (!mainwindow) {
 		ERR("Can't set video mode: ", SDL_GetError());
 		return false;
 	}
 
-	SDL_WM_SetCaption(windowName.c_str(), windowName.c_str());
+	/* Create our opengl context and attach it to our window */
+	maincontext = SDL_GL_CreateContext(mainwindow);
+
+	/* This makes our buffer swap syncronized with the monitor's vertical refresh */
+	SDL_GL_SetSwapInterval(1);
+
+	// SDL_WM_SetCaption(windowName.c_str(), windowName.c_str());
 
 	// init GLEW
 	GLenum err = glewInit();
@@ -311,6 +325,7 @@ void GraphicsGL::draw() {
 	glPopMatrix();
 	glMatrixMode(GL_MODELVIEW);
 
-	SDL_GL_SwapBuffers();
+	// SDL_GL_SwapBuffers();
+	SDL_GL_SwapWindow(mainwindow);
 }
 

@@ -35,7 +35,12 @@ private: // types
 	};
 
 	enum class GameState {
-		START_SCREEN = 1, PLAYER_A_SERVE = 2, BALL_ACTIVE = 3
+		START_SCREEN = 1,
+	    PLAYER_A_SERVE = 2,
+	    PLAYER_B_SERVE = 3,
+	    PLAYER_A_SCORE = 4,
+	    PLAYER_B_SCORE = 5,
+	    BALL_ACTIVE = 6
 	};
 
 private: // variables
