@@ -115,6 +115,7 @@ public:
 			transition.second.marked = false;
 		}
 
+		// recursively mark states
 		recursiveMarker(startState);
 
 		// now look for unmarked transitions. These will never be reached.

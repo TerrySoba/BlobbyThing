@@ -50,4 +50,5 @@ inline int32_t positiveModulo(int32_t value, int32_t modulo) {
 }
 
 
+
 #endif /* MATHUTILS_H_ */

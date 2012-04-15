@@ -125,6 +125,10 @@ public:
 	 */
 	void draw();
 
+
+	uint32_t getScreenWidth() const { return screenWidth; }
+	uint32_t getScreenHeight() const { return screenHeight; }
+
 private:
 
 	void initGL();
@@ -136,7 +140,10 @@ private:
 	uint32_t screenHeight;
 	uint32_t colorDepth;
 	std::string windowName;
-	SDL_Surface* screen;
+	// SDL_Surface* screen;
+	SDL_Window *mainwindow;    /* Our window handle */
+	SDL_GLContext maincontext; /* Our opengl context handle */
+
 
 	std::vector<GraphicsObject> perspectiveObjs;
 	std::vector<GraphicsObject> orthographicObjs;

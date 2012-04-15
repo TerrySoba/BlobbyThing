@@ -26,17 +26,42 @@ BlobbyThingGame::~BlobbyThingGame() {
 int BlobbyThingGame::run() {
 	initKeyStatus();
 
-	shared_ptr<TextureFont> font = make_shared<TextureFont>();
+	/*
+	 *  ----------- Start game state variables -----------
+	 */
 
+	int playerAScore = 0; //<! score of player A
+	int playerBScore = 0; //<! score of player B
+
+	int playerATouch = 0; //<! number of times player A has touched the ball
+	int playerBTouch = 0; //<! number of times player B has touched the ball
+
+	bool groundATouched = false; //!< ball has touched the round on the side of player A
+	bool groundBTouched = false; //!< ball has touched the round on the side of player B
+
+	/*
+	 *  ----------- End game state variables -----------
+	 */
+
+
+	shared_ptr<TextureFont> font = make_shared<TextureFont>();
 	font->load("font.ytf");
 
-	shared_ptr<TextureText> text = make_shared<TextureText>(font, "TestText");
-	shared_ptr<TextureText> text2 = make_shared<TextureText>(font, "TestText2");
+	shared_ptr<TextureFont> titleFont = make_shared<TextureFont>();
+	titleFont->load("title_font.ytf");
 
-	text2->setText(u8"Press F1 to start game!");
+	shared_ptr<TextureText> playerAScoreText = make_shared<TextureText>(font, "playerAScoreText");
+	shared_ptr<TextureText> playerBScoreText = make_shared<TextureText>(font, "playerBScoreText");
+	shared_ptr<TextureText> startText = make_shared<TextureText>(titleFont, "startText");
+
+	playerAScoreText->setText(u8"Score 0");
+	playerBScoreText->setText(u8"Score 0");
+	const char* titleStr = u8"Press F1 to start!";
+	startText->setText(titleStr);
 	PhysicsSimulation2D physics(1e-2 / 4);
 
 	std::vector<shared_ptr<ShadedModel>> models = WavefrontOBJLoader::load("../../blender/baum3.obj");
+	std::vector<shared_ptr<ShadedModel>> ballShadow = WavefrontOBJLoader::load("../../blender/shadow.obj");
 
 	if (SDL_Init(SDL_INIT_VIDEO) == -1) {
 		ERR("Can't init SDL: ", SDL_GetError());
@@ -49,7 +74,7 @@ int BlobbyThingGame::run() {
 //	Eigen::Vector4d su, b;
 //	b = Eigen::MatrixXd::Random(4,1);
 //
-//	int times = 800000;
+//	int times = 8000000;
 //	uint32_t then = SDL_GetTicks();
 //	for (int i = 0; i < times; i++) {
 //		// mat *= i;
@@ -60,10 +85,9 @@ int BlobbyThingGame::run() {
 //	}
 //	uint32_t now = SDL_GetTicks();
 //
-//	LOG(_fmt("Operation took %1%sec, that is %2% ops/sec. Res = \n%3%") % ((now - then) / 1000.0) % (times / ((now - then) / 1000.0)) % su);
+//	LOG(boost::format("Operation took %1%sec, that is %2% ops/sec. Res = \n%3%") % ((now - then) / 1000.0) % (times / ((now - then) / 1000.0)) % su);
 //
-//	// exit(0);
-
+//	exit(0);
 
 	if (!gl.init()) {
 		return 1;
@@ -73,22 +97,32 @@ int BlobbyThingGame::run() {
 	gl.lookAt(5, 5, 20, 0, 1, 0, 0, 1, 0);
 
 	gl.addGfxObjects(models);
+	gl.addGfxObjects(ballShadow);
 
-	auto textWidth = text->getTextWidth(" Points 999999");
+	auto textWidth = playerAScoreText->getTextWidth("Score 99 ");
 	GraphicsObject textGfx;
-	textGfx.model = text;
-	textGfx.translation << float(1280.0 - textWidth), 650, 0;
+	textGfx.model = playerAScoreText;
+	textGfx.translation << 10, gl.getScreenHeight() - 100, 0;
 	// textGfx.translation = {20, 650};
 	textGfx.rotationVector = {0,0,1};
 	textGfx.rotationAngle = 0;
 	gl.addOrthoGfxObject(textGfx);
 
 	GraphicsObject text2Gfx;
-	text2Gfx.model = text2;
-	text2Gfx.translation << 200, 300, 0;
+	text2Gfx.model = playerBScoreText;
+	text2Gfx.translation << float(gl.getScreenWidth() - textWidth), gl.getScreenHeight() - 100, 0;
 	text2Gfx.rotationVector << 0,0,1;
 	text2Gfx.rotationAngle = 0;
 	gl.addOrthoGfxObject(text2Gfx);
+
+	GraphicsObject titleTextGfx;
+
+	auto titleWidth = startText->getTextWidth(titleStr);
+	titleTextGfx.model = startText;
+	titleTextGfx.translation << float(gl.getScreenWidth()/2 - titleWidth/2), gl.getScreenHeight() / 2, 0;
+	titleTextGfx.rotationVector << 0,0,1;
+	titleTextGfx.rotationAngle = 0;
+	gl.addOrthoGfxObject(titleTextGfx);
 
 	// generate OpenGL textures
 	gl.generateGLTextures();
@@ -96,14 +130,19 @@ int BlobbyThingGame::run() {
 	gl.loadShaders();
 
 	GameLoop loop;
-	int i = 1;
 	loop.setDrawTask([&]() {
-		i++;
 		gl.draw();
 	});
 
 	int monkey_id = gl.getGfxObjectHandleByName("Material_BallTexture");
 	int ball_id = gl.getGfxObjectHandleByName("Material.005_Ball2");
+
+	int ballShadow_id = gl.getGfxObjectHandleByName("Material.001_circle_shadow.png");
+
+	if (ballShadow_id == -1) {
+		ERR("ballShadow_id war not found");
+		return 1;
+	}
 
 	if (monkey_id == -1) {
 		ERR("monkey_id war not found");
@@ -121,20 +160,10 @@ int BlobbyThingGame::run() {
 	gl.getGfxObject(monkey_id).translation[1] = 3;
 	gl.getGfxObject(monkey_id).translation[2] = 0;
 
+
+
 	GameStateMachine<GameState> stateMachine(GameState::START_SCREEN);
-	stateMachine.addTransition(GameState::START_SCREEN,
-			GameState::PLAYER_A_SERVE, [&]() {return keyStatus.keyF1;},
-			[&]() {LOG("START -> SERVE"); i=0; text2->setText(u8"Game has begun!");});
 
-	stateMachine.addTransition(GameState::PLAYER_A_SERVE,
-			GameState::BALL_ACTIVE, [&]() {return false;}, [&]() {});
-
-	//	stateMachine.addTransition(GameState::BALL_ACTIVE,
-	//				                   GameState::START_SCREEN,
-	//					               [&](){ return keyPressed; },
-	//					               [&](){ keyPressed = false; LOG("START <- SERVE"); });
-
-	stateMachine.printTransistionDebug();
 
 	loop.addCycleTask([&]() {
 		physics.calc();
@@ -142,34 +171,70 @@ int BlobbyThingGame::run() {
 	}, 800); // was 800
 
 	loop.addCycleTask([&]() {
-		text->clear();
-		text->setText((boost::format("Points %1%") % i).str().c_str());
+//		playerAScoreText->clear();
+//		playerAScoreText->setText((boost::format("Score %1%") % i).str().c_str());
 		stateMachine.evaluate();
 		return TaskReturnvalue::OK;
 	}, 100);
 
-	size_t bigCircleIndex = physics.addCircle(0, 10, 3, -3, 0, 2, true,
+	// add volleyball net
+	std::vector<Vector2d> net;
+	net.push_back(Vector2d(-0.2, 0));
+	net.push_back(Vector2d(0.2, 0));
+	net.push_back(Vector2d(0.2, 3.6));
+	net.push_back(Vector2d(-0.2, 3.6));
+	physics.addPolygon(net, 0.01);
+
+	size_t rightLineID = physics.addLine(Vector2d(0,0), Vector2d(10,0));
+	size_t leftLineID = physics.addLine(Vector2d(-10,0), Vector2d(0,0));
+
+	size_t bigCircleIndex = physics.addCircle(0, 10, 3, -3, 0, 3, true,
 			[&](PhysicsCircle2D& circle) {
 				gl.getGfxObject(monkey_id).translation[0] = circle.position(0);
 				gl.getGfxObject(monkey_id).translation[1] = circle.position(1);
 			});
 
-	physics.addCircle(-3, 5, 1, 9, 7, 1, true,
+	size_t smallCircleIndex = physics.addCircle(-3, 5, 1, 9, 7, 1, true,
 			[&](PhysicsCircle2D& circle) {
 		gl.getGfxObject(ball_id).translation[0] = circle.position(0);
 		gl.getGfxObject(ball_id).translation[1] = circle.position(1);
+		gl.getGfxObject(ballShadow_id).translation[0] = circle.position(0);
 	});
+
+	physics.addLineCircleCollisionAction(rightLineID, bigCircleIndex, [&](PhysicsStaticLine2D& line, PhysicsCircle2D& circle){
+		circle.speed[1] = circle.speed[1] * 0.2;
+		// LOG("Right Collision BIG!");
+	});
+
+	physics.addLineCircleCollisionAction(leftLineID, smallCircleIndex, [&](PhysicsStaticLine2D& line, PhysicsCircle2D& circle){
+		groundATouched = true;
+		circle.speed = circle.speed * 0.5;
+	});
+
+	physics.addLineCircleCollisionAction(rightLineID, smallCircleIndex, [&](PhysicsStaticLine2D& line, PhysicsCircle2D& circle){
+		groundBTouched = true;
+		circle.speed = circle.speed * 0.5;
+	});
+
+	physics.addLineCircleCollisionAction(leftLineID, bigCircleIndex, [&](PhysicsStaticLine2D& line, PhysicsCircle2D& circle){
+		circle.speed[1] = circle.speed[1] * 0.2;
+	});
+
+	physics.addcircleCircleCollisionAction(bigCircleIndex, smallCircleIndex, [&](PhysicsCircle2D& circle1, PhysicsCircle2D& circle2){
+		playerATouch++;
+	});
+
 
 	loop.addCycleTask([&]() {
 			physics.getCircle(bigCircleIndex).speed[0] *= 0.5;
 
+
 			if (physics.getCircle(bigCircleIndex).position[1] < 3.1) {
-				if (!keyStatus.keyUp) {
-					physics.getCircle(bigCircleIndex).speed[1] = 0;
-				} else {
+				if (keyStatus.keyUp) {
 					physics.getCircle(bigCircleIndex).speed[1] = 10;
 				}
 			}
+
 
 			if (keyStatus.keyRight) {
 				physics.getCircle(bigCircleIndex).speed[0] = 10;
@@ -183,6 +248,92 @@ int BlobbyThingGame::run() {
 
 	// add task to handle SDL events
 	loop.addCycleTask([&](){ return handleEvents(); }, 100);
+
+
+
+	/*
+	 *   ---------- START GAME RULES ---------------
+	 */
+	stateMachine.addTransition(GameState::START_SCREEN,
+			GameState::BALL_ACTIVE,
+			[&]() {
+				return keyStatus.keyF1;
+			},
+			[&]() {
+				LOG("START -> SERVE A");
+				// playerBScoreText->setText(u8"Game has begun!");
+				startText->clear();
+
+				playerAScore = 0;
+				playerBScore = 0;
+				playerATouch = 0;
+				playerBTouch = 0;
+				groundATouched = false;
+				groundBTouched = false;
+
+				physics.getCircle(smallCircleIndex).speed = Vector2d(0,0);
+				physics.getCircle(smallCircleIndex).position = Vector2d(0,10);
+
+				physics.getCircle(bigCircleIndex).speed = Vector2d(0,0);
+				physics.getCircle(bigCircleIndex).position = Vector2d(5,4);
+
+			});
+
+	stateMachine.addTransition(GameState::BALL_ACTIVE,
+			GameState::BALL_ACTIVE,
+			[&]() {	return (groundATouched || playerATouch > 3);},
+			[&]() {
+				playerBTouch = 0;
+				playerATouch = 0;
+				groundATouched = false;
+				playerBScore++;
+				playerBScoreText->clear();
+				playerBScoreText->setText((boost::format("Score %1%") % playerBScore).str().c_str());
+
+				physics.getCircle(smallCircleIndex).speed = Vector2d(0,0);
+				physics.getCircle(smallCircleIndex).position = Vector2d(0,10);
+
+				physics.getCircle(bigCircleIndex).speed = Vector2d(0,0);
+				physics.getCircle(bigCircleIndex).position = Vector2d(5,4);
+
+
+			});
+
+	stateMachine.addTransition(GameState::BALL_ACTIVE,
+			GameState::BALL_ACTIVE,
+			[&]() {	return (groundBTouched || playerBTouch > 3); },
+			[&]() {
+				playerBTouch = 0;
+				playerATouch = 0;
+				groundBTouched = false;
+				playerAScore++;
+				playerAScoreText->clear();
+				playerAScoreText->setText((boost::format("Score %1%") % playerAScore).str().c_str());
+
+				physics.getCircle(smallCircleIndex).speed = Vector2d(0,0);
+				physics.getCircle(smallCircleIndex).position = Vector2d(0,10);
+
+				physics.getCircle(bigCircleIndex).speed = Vector2d(0,0);
+				physics.getCircle(bigCircleIndex).position = Vector2d(-5,4);
+
+			});
+
+	stateMachine.addTransition(GameState::PLAYER_A_SERVE,
+			GameState::BALL_ACTIVE, [&]() {return false;}, [&]() {});
+
+	stateMachine.addTransition(GameState::PLAYER_B_SERVE,
+			GameState::BALL_ACTIVE, [&]() {return false;}, [&]() {});
+
+	//	stateMachine.addTransition(GameState::BALL_ACTIVE,
+	//				                   GameState::START_SCREEN,
+	//					               [&](){ return keyPressed; },
+	//					               [&](){ keyPressed = false; LOG("START <- SERVE"); });
+
+	stateMachine.printTransistionDebug();
+
+	/*
+	 *   ---------- END GAME RULES ---------------
+	 */
 
 	loop.run();
 
@@ -263,26 +414,16 @@ TaskReturnvalue BlobbyThingGame::handleEvents() {
 			x = event.motion.x;
 			y = event.motion.y;
 
-			//					gl.lookAt(5,5,20,
-			//							  -x / 30.0 +10,y / 30.0 - 10,0,
-			//							  0,1,0);
+//								gl.lookAt(5,5,20,
+//										  -x / 30.0 +10,y / 30.0 - 10,0,
+//										  0,1,0);
 
 			gl.lookAt(-x / 30.0 + 10, y / 30.0 - 10, 20, 0, 5, 0, 0, 1, 0);
 
 			break;
 
-		case SDL_MOUSEBUTTONDOWN:
-			switch (event.button.button) {
-			case SDL_BUTTON_WHEELUP:
-				// move += 0.1;
-				break;
-			case SDL_BUTTON_WHEELDOWN:
-				// move -= 0.1;
-				break;
-			}
-			break;
-
 		}
+
 	}
 
 	if (done) {
