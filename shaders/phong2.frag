@@ -7,7 +7,7 @@ void main (void)
   vec4 texColor = texture2D(tex, gl_TexCoord[0].st);
   float alpha = texColor.a;
   // vec4 final_color = gl_FrontLightModelProduct.sceneColor;
-  float ambient_factor = 0.3;
+  float ambient_factor = 0.9;
   vec4 final_color = gl_FrontMaterial.emission + (texColor * ambient_factor) * gl_LightModel.ambient;
   vec3 N = normalize(normal);
   vec3 L = normalize(lightDir);
