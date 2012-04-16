@@ -60,8 +60,9 @@ int BlobbyThingGame::run() {
 	startText->setText(titleStr);
 	PhysicsSimulation2D physics(1e-2 / 4);
 
-	std::vector<shared_ptr<ShadedModel>> models = WavefrontOBJLoader::load("../../blender/baum3.obj");
+	// std::vector<shared_ptr<ShadedModel>> models = WavefrontOBJLoader::load("../../blender/baum3.obj");
 	std::vector<shared_ptr<ShadedModel>> ballShadow = WavefrontOBJLoader::load("../../blender/shadow.obj");
+	std::vector<shared_ptr<ShadedModel>> beach = WavefrontOBJLoader::load("../../blender/beach_background/beach_background_export.obj");
 
 	if (SDL_Init(SDL_INIT_VIDEO) == -1) {
 		ERR("Can't init SDL: ", SDL_GetError());
@@ -74,7 +75,7 @@ int BlobbyThingGame::run() {
 //	Eigen::Vector4d su, b;
 //	b = Eigen::MatrixXd::Random(4,1);
 //
-//	int times = 8000000;
+//	int times = 800000;
 //	uint32_t then = SDL_GetTicks();
 //	for (int i = 0; i < times; i++) {
 //		// mat *= i;
@@ -96,8 +97,11 @@ int BlobbyThingGame::run() {
 	gl.setCamera(49.134);
 	gl.lookAt(5, 5, 20, 0, 1, 0, 0, 1, 0);
 
-	gl.addGfxObjects(models);
+
+	gl.addGfxObjects(beach);
+	// gl.addGfxObjects(models);
 	gl.addGfxObjects(ballShadow);
+
 
 	auto textWidth = playerAScoreText->getTextWidth("Score 99 ");
 	GraphicsObject textGfx;
@@ -134,8 +138,8 @@ int BlobbyThingGame::run() {
 		gl.draw();
 	});
 
-	int monkey_id = gl.getGfxObjectHandleByName("Material_BallTexture");
-	int ball_id = gl.getGfxObjectHandleByName("Material.005_Ball2");
+	int monkey_id = gl.getGfxObjectHandleByName("_PlayerADiffuse");
+	int ball_id = gl.getGfxObjectHandleByName("_VolleyBallTextureDiffuse");
 
 	int ballShadow_id = gl.getGfxObjectHandleByName("Material.001_circle_shadow.png");
 
@@ -168,7 +172,7 @@ int BlobbyThingGame::run() {
 	loop.addCycleTask([&]() {
 		physics.calc();
 		return TaskReturnvalue::OK;
-	}, 800); // was 800
+	}, 600); // was 800
 
 	loop.addCycleTask([&]() {
 //		playerAScoreText->clear();
@@ -179,26 +183,27 @@ int BlobbyThingGame::run() {
 
 	// add volleyball net
 	std::vector<Vector2d> net;
-	net.push_back(Vector2d(-0.2, 0));
-	net.push_back(Vector2d(0.2, 0));
-	net.push_back(Vector2d(0.2, 3.6));
-	net.push_back(Vector2d(-0.2, 3.6));
+	net.push_back(Vector2d(-0.1, 0));
+	net.push_back(Vector2d(0.1, 0));
+	net.push_back(Vector2d(0.1, 4));
+	net.push_back(Vector2d(-0.1, 4));
 	physics.addPolygon(net, 0.01);
 
 	size_t rightLineID = physics.addLine(Vector2d(0,0), Vector2d(10,0));
 	size_t leftLineID = physics.addLine(Vector2d(-10,0), Vector2d(0,0));
 
-	size_t bigCircleIndex = physics.addCircle(0, 10, 3, -3, 0, 3, true,
+	size_t bigCircleIndex = physics.addCircle(0, 10, .5, -3, 0, 3, true,
 			[&](PhysicsCircle2D& circle) {
 				gl.getGfxObject(monkey_id).translation[0] = circle.position(0);
 				gl.getGfxObject(monkey_id).translation[1] = circle.position(1);
 			});
 
-	size_t smallCircleIndex = physics.addCircle(-3, 5, 1, 9, 7, 1, true,
+	size_t smallCircleIndex = physics.addCircle(-3, 5, .5, 9, 7, 1, true,
 			[&](PhysicsCircle2D& circle) {
 		gl.getGfxObject(ball_id).translation[0] = circle.position(0);
 		gl.getGfxObject(ball_id).translation[1] = circle.position(1);
 		gl.getGfxObject(ballShadow_id).translation[0] = circle.position(0);
+		gl.getGfxObject(ballShadow_id).translation[1] = 0.05;
 	});
 
 	physics.addLineCircleCollisionAction(rightLineID, bigCircleIndex, [&](PhysicsStaticLine2D& line, PhysicsCircle2D& circle){
@@ -229,7 +234,7 @@ int BlobbyThingGame::run() {
 			physics.getCircle(bigCircleIndex).speed[0] *= 0.5;
 
 
-			if (physics.getCircle(bigCircleIndex).position[1] < 3.1) {
+			if (physics.getCircle(bigCircleIndex).position[1] < 0.6) {
 				if (keyStatus.keyUp) {
 					physics.getCircle(bigCircleIndex).speed[1] = 10;
 				}
@@ -237,10 +242,10 @@ int BlobbyThingGame::run() {
 
 
 			if (keyStatus.keyRight) {
-				physics.getCircle(bigCircleIndex).speed[0] = 10;
+				physics.getCircle(bigCircleIndex).speed[0] = 5;
 			}
 			if (keyStatus.keyLeft) {
-				physics.getCircle(bigCircleIndex).speed[0] = -10;
+				physics.getCircle(bigCircleIndex).speed[0] = -5;
 			}
 
 			return TaskReturnvalue::OK;
@@ -418,7 +423,7 @@ TaskReturnvalue BlobbyThingGame::handleEvents() {
 //										  -x / 30.0 +10,y / 30.0 - 10,0,
 //										  0,1,0);
 
-			gl.lookAt(-x / 30.0 + 10, y / 30.0 - 10, 20, 0, 5, 0, 0, 1, 0);
+			gl.lookAt(-x / 30.0 + 10, y / 30.0 - 10, 14, 0, 3, 0, 0, 1, 0);
 
 			break;
 

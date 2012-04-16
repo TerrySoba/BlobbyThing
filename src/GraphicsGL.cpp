@@ -68,7 +68,8 @@ bool GraphicsGL::init() {
 
 
 void GraphicsGL::setupGLMatrices() {
-	glClearColor(0, 0, 0, 0);
+	// glClearColor(0, 0, 0, 0);
+	glClearColor(0.3, .6, 1, 0); // sky color
 	glClearDepth(1.0f);
 
 	glViewport(0, 0, this->screenWidth, this->screenHeight);
