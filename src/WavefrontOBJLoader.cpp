@@ -70,14 +70,14 @@ std::map<std::string, OBJMaterial> WavefrontOBJLoader::loadMaterial(const char* 
 		size_t linePos = 0;
 		/* read a single line */
 		do {
-			fread(&cur, 1, 1, fp); // read one character
+			checked_fread(&cur, 1, 1, fp); // read one character
 			lineBuffer[linePos++] = cur;
 			if (linePos >= lineBufferSize) {
 				ERR("Line too long!");
 				return mtl;
 			}
 		} while (!feof(fp) && cur != '\n' && cur != '\r');
-		lineBuffer[linePos] = '\0'; // nullterminate string
+		lineBuffer[linePos] = '\0'; // terminate string with null
 
 		/* now parse line */
 		// get first token to determine what to expect
@@ -108,12 +108,13 @@ std::map<std::string, OBJMaterial> WavefrontOBJLoader::loadMaterial(const char* 
 				} else { // relative path
 					char* pathTmp = new char[strlen(path)+1];
 					strcpy(pathTmp, path);
+					// LOG("pathTmp: ", pathTmp, "  token: ", token);
 					mtl[mtlname].diffuseMapPath = (boost::format("%1%/%2%")%dirname(pathTmp)%token).str();
 					delete[] pathTmp;
 				}
 
-				LOG(path);
-				LOG(mtl[mtlname].diffuseMapPath);
+				// LOG(path);
+				// LOG(mtl[mtlname].diffuseMapPath);
 			}
 			continue;
 		}
@@ -224,7 +225,7 @@ std::vector<shared_ptr<ShadedModel>> WavefrontOBJLoader::load(const char* path) 
 		size_t linePos = 0;
 		/* read a single line */
 		do {
-			fread(&cur, 1, 1, fp); // read one character
+			checked_fread(&cur, 1, 1, fp); // read one character
 			lineBuffer[linePos++] = cur;
 			if (linePos >= lineBufferSize) {
 				ERR("Line too long!");
@@ -250,8 +251,8 @@ std::vector<shared_ptr<ShadedModel>> WavefrontOBJLoader::load(const char* path) 
 		if (strlen(token) == 1) {
 			if (token[0] == 'o') { // found object name
 				token = strtok_r(NULL, " \n\r", &saveptr);
-				if (token)
-					LOG("Found object named: ", token);
+//				if (token)
+//					LOG("Found object named: ", token);
 				continue;
 			} // end object name
 
@@ -393,7 +394,7 @@ std::vector<shared_ptr<ShadedModel>> WavefrontOBJLoader::load(const char* path) 
 	}
 
 	/* now convert data into triangles */
-	LOG("faces: ", faces.size());
+	// LOG("faces: ", faces.size());
 	std::map<std::string, std::vector<Polygon>> triangles;
 
 	// typedef std::pair<const std::basic_string<char>, std::vector<std::vector<FaceIndex> > > faceType;

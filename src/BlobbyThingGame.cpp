@@ -14,6 +14,8 @@
 
 #include "GameStateMachine.h"
 
+#include "MultiSpline.h"
+
 BlobbyThingGame::BlobbyThingGame(uint32_t screenWidth, uint32_t screenHeight, uint32_t colorDepth, std::string windowName)
                             : gl(screenWidth, screenHeight, colorDepth, windowName) {
 
@@ -39,16 +41,34 @@ int BlobbyThingGame::run() {
 	bool groundATouched = false; //!< ball has touched the round on the side of player A
 	bool groundBTouched = false; //!< ball has touched the round on the side of player B
 
+	double time = 0;
+
 	/*
 	 *  ----------- End game state variables -----------
 	 */
 
 
+	// create camera path
+	// gl.lookAt(-x / 30.0 + 10, y / 30.0 - 10, 14, 0, 3, 0, 0, 1, 0);
+
+	std::vector<Vector4d> cameraPath;
+	cameraPath.push_back(Vector4d(0,       -14, 30,  1));
+	cameraPath.push_back(Vector4d(0.0001,  -14, 30,  1));
+	cameraPath.push_back(Vector4d(10,        5, 10,  30));
+	cameraPath.push_back(Vector4d(20,       15, 10,  30));
+	cameraPath.push_back(Vector4d(30,       15, 10,  10));
+	cameraPath.push_back(Vector4d(40,        0, 40,  -10));
+	cameraPath.push_back(Vector4d(59.9999, -14, 30,  1));
+	cameraPath.push_back(Vector4d(60      ,-14, 30,  1));
+
+	Spline3d spline;
+	spline.setPoints(cameraPath);
+
 	shared_ptr<TextureFont> font = make_shared<TextureFont>();
 	font->load("font.ytf");
 
 	shared_ptr<TextureFont> titleFont = make_shared<TextureFont>();
-	titleFont->load("title_font.ytf");
+	titleFont->load("test_font.ytf");
 
 	shared_ptr<TextureText> playerAScoreText = make_shared<TextureText>(font, "playerAScoreText");
 	shared_ptr<TextureText> playerBScoreText = make_shared<TextureText>(font, "playerBScoreText");
@@ -60,7 +80,6 @@ int BlobbyThingGame::run() {
 	startText->setText(titleStr);
 	PhysicsSimulation2D physics(1e-2 / 4);
 
-	// std::vector<shared_ptr<ShadedModel>> models = WavefrontOBJLoader::load("../../blender/baum3.obj");
 	std::vector<shared_ptr<ShadedModel>> ballShadow = WavefrontOBJLoader::load("../../blender/shadow.obj");
 	std::vector<shared_ptr<ShadedModel>> beach = WavefrontOBJLoader::load("../../blender/beach_background/beach_background_export.obj");
 
@@ -70,26 +89,6 @@ int BlobbyThingGame::run() {
 	}
 	atexit(SDL_Quit);
 
-//	// DEBUG: do some benchmarking
-//	Eigen::Matrix4d mat = Eigen::MatrixXd::Random(4,4);
-//	Eigen::Vector4d su, b;
-//	b = Eigen::MatrixXd::Random(4,1);
-//
-//	int times = 800000;
-//	uint32_t then = SDL_GetTicks();
-//	for (int i = 0; i < times; i++) {
-//		// mat *= i;
-//		asm("# before gnaa");
-//		mat *= -1;
-//		asm("# after gnaa");
-//		su += mat.lu().solve(b*i);
-//	}
-//	uint32_t now = SDL_GetTicks();
-//
-//	LOG(boost::format("Operation took %1%sec, that is %2% ops/sec. Res = \n%3%") % ((now - then) / 1000.0) % (times / ((now - then) / 1000.0)) % su);
-//
-//	exit(0);
-
 	if (!gl.init()) {
 		return 1;
 	}
@@ -97,23 +96,32 @@ int BlobbyThingGame::run() {
 	gl.setCamera(49.134);
 	gl.lookAt(5, 5, 20, 0, 1, 0, 0, 1, 0);
 
+	for (shared_ptr<ShadedModel>& model : beach) {
+		size_t modelHandle = gl.addModel(model);
+		gl.addGfxObjects(modelHandle);
+	}
 
-	gl.addGfxObjects(beach);
-	// gl.addGfxObjects(models);
-	gl.addGfxObjects(ballShadow);
+	size_t ballShadowHandle = gl.addModel(ballShadow[0]);
 
+	size_t ballShadow1_id = gl.addGfxObjects(ballShadowHandle);
+	size_t ballShadow2_id = gl.addGfxObjects(ballShadowHandle);
+	size_t ballShadow3_id = gl.addGfxObjects(ballShadowHandle);
 
 	auto textWidth = playerAScoreText->getTextWidth("Score 99 ");
+
+	size_t playerAScoreTextHandle = gl.addModel(playerAScoreText);
+
 	GraphicsObject textGfx;
-	textGfx.model = playerAScoreText;
+	textGfx.modelHandle = playerAScoreTextHandle;
 	textGfx.translation << 10, gl.getScreenHeight() - 100, 0;
-	// textGfx.translation = {20, 650};
 	textGfx.rotationVector = {0,0,1};
 	textGfx.rotationAngle = 0;
 	gl.addOrthoGfxObject(textGfx);
 
+	size_t playerBScoreTextHandle = gl.addModel(playerBScoreText);
+
 	GraphicsObject text2Gfx;
-	text2Gfx.model = playerBScoreText;
+	text2Gfx.modelHandle = playerBScoreTextHandle;
 	text2Gfx.translation << float(gl.getScreenWidth() - textWidth), gl.getScreenHeight() - 100, 0;
 	text2Gfx.rotationVector << 0,0,1;
 	text2Gfx.rotationAngle = 0;
@@ -122,7 +130,10 @@ int BlobbyThingGame::run() {
 	GraphicsObject titleTextGfx;
 
 	auto titleWidth = startText->getTextWidth(titleStr);
-	titleTextGfx.model = startText;
+
+	size_t startTextHandle = gl.addModel(startText);
+
+	titleTextGfx.modelHandle = startTextHandle;
 	titleTextGfx.translation << float(gl.getScreenWidth()/2 - titleWidth/2), gl.getScreenHeight() / 2, 0;
 	titleTextGfx.rotationVector << 0,0,1;
 	titleTextGfx.rotationAngle = 0;
@@ -138,36 +149,26 @@ int BlobbyThingGame::run() {
 		gl.draw();
 	});
 
-	int monkey_id = gl.getGfxObjectHandleByName("_PlayerADiffuse");
+	int playerA_id = gl.getGfxObjectHandleByName("_PlayerADiffuse");
+	int playerB_id = gl.getGfxObjectHandleByName("_PlayerBDiffuse");
 	int ball_id = gl.getGfxObjectHandleByName("_VolleyBallTextureDiffuse");
 
-	int ballShadow_id = gl.getGfxObjectHandleByName("Material.001_circle_shadow.png");
-
-	if (ballShadow_id == -1) {
-		ERR("ballShadow_id war not found");
+	if (playerA_id == -1) {
+		ERR("playerA_id was not found");
 		return 1;
 	}
 
-	if (monkey_id == -1) {
-		ERR("monkey_id war not found");
+	if (playerB_id == -1) {
+		ERR("playerB_id was not found");
 		return 1;
 	}
 
 	if (ball_id == -1) {
-		ERR("ball_id war not found");
+		ERR("ball_id was not found");
 		return 1;
 	}
 
-	LOG("Monkey has handle: ", monkey_id);
-
-	gl.getGfxObject(monkey_id).translation[0] = 0;
-	gl.getGfxObject(monkey_id).translation[1] = 3;
-	gl.getGfxObject(monkey_id).translation[2] = 0;
-
-
-
 	GameStateMachine<GameState> stateMachine(GameState::START_SCREEN);
-
 
 	loop.addCycleTask([&]() {
 		physics.calc();
@@ -175,13 +176,16 @@ int BlobbyThingGame::run() {
 	}, 600); // was 800
 
 	loop.addCycleTask([&]() {
-//		playerAScoreText->clear();
-//		playerAScoreText->setText((boost::format("Score %1%") % i).str().c_str());
+		time += 1.0 / 100.0;
+		if (time > 60.0)
+			time -= 60.0;
+		Vector3d camPos = spline.evaluate(time);
+		gl.lookAt(camPos[0], camPos[1], camPos[2], 0, 3, 0, 0, 1, 0);
 		stateMachine.evaluate();
 		return TaskReturnvalue::OK;
 	}, 100);
 
-	// add volleyball net
+	// add volleyball net physics
 	std::vector<Vector2d> net;
 	net.push_back(Vector2d(-0.1, 0));
 	net.push_back(Vector2d(0.1, 0));
@@ -192,24 +196,31 @@ int BlobbyThingGame::run() {
 	size_t rightLineID = physics.addLine(Vector2d(0,0), Vector2d(10,0));
 	size_t leftLineID = physics.addLine(Vector2d(-10,0), Vector2d(0,0));
 
-	size_t bigCircleIndex = physics.addCircle(0, 10, .5, -3, 0, 3, true,
+	size_t playerACircleIndex = physics.addCircle(0, 10, 1, -3, 0, 3, true,
 			[&](PhysicsCircle2D& circle) {
-				gl.getGfxObject(monkey_id).translation[0] = circle.position(0);
-				gl.getGfxObject(monkey_id).translation[1] = circle.position(1);
+				gl.getGfxObject(playerA_id).translation[0] = circle.position(0);
+				gl.getGfxObject(playerA_id).translation[1] = circle.position(1);
+				gl.getGfxObject(ballShadow2_id).translation[0] = circle.position(0);
+				gl.getGfxObject(ballShadow2_id).translation[1] = 0.021;
+			});
+
+	size_t playerBCircleIndex = physics.addCircle(-5, 10, 1, -3, 0, 3, true,
+			[&](PhysicsCircle2D& circle) {
+				gl.getGfxObject(playerB_id).translation[0] = circle.position(0);
+				gl.getGfxObject(playerB_id).translation[1] = circle.position(1);
+				gl.getGfxObject(ballShadow3_id).translation[0] = circle.position(0);
+				gl.getGfxObject(ballShadow3_id).translation[1] = 0.022;
 			});
 
 	size_t smallCircleIndex = physics.addCircle(-3, 5, .5, 9, 7, 1, true,
 			[&](PhysicsCircle2D& circle) {
 		gl.getGfxObject(ball_id).translation[0] = circle.position(0);
 		gl.getGfxObject(ball_id).translation[1] = circle.position(1);
-		gl.getGfxObject(ballShadow_id).translation[0] = circle.position(0);
-		gl.getGfxObject(ballShadow_id).translation[1] = 0.05;
+		gl.getGfxObject(ballShadow1_id).translation[0] = circle.position(0);
+		gl.getGfxObject(ballShadow1_id).translation[1] = 0.02;
 	});
 
-	physics.addLineCircleCollisionAction(rightLineID, bigCircleIndex, [&](PhysicsStaticLine2D& line, PhysicsCircle2D& circle){
-		circle.speed[1] = circle.speed[1] * 0.2;
-		// LOG("Right Collision BIG!");
-	});
+
 
 	physics.addLineCircleCollisionAction(leftLineID, smallCircleIndex, [&](PhysicsStaticLine2D& line, PhysicsCircle2D& circle){
 		groundATouched = true;
@@ -221,35 +232,65 @@ int BlobbyThingGame::run() {
 		circle.speed = circle.speed * 0.5;
 	});
 
-	physics.addLineCircleCollisionAction(leftLineID, bigCircleIndex, [&](PhysicsStaticLine2D& line, PhysicsCircle2D& circle){
+	physics.addLineCircleCollisionAction(rightLineID, playerACircleIndex, [&](PhysicsStaticLine2D& line, PhysicsCircle2D& circle){
 		circle.speed[1] = circle.speed[1] * 0.2;
 	});
 
-	physics.addcircleCircleCollisionAction(bigCircleIndex, smallCircleIndex, [&](PhysicsCircle2D& circle1, PhysicsCircle2D& circle2){
+	physics.addLineCircleCollisionAction(leftLineID, playerACircleIndex, [&](PhysicsStaticLine2D& line, PhysicsCircle2D& circle){
+		circle.speed[1] = circle.speed[1] * 0.2;
+	});
+
+	physics.addLineCircleCollisionAction(rightLineID, playerBCircleIndex, [&](PhysicsStaticLine2D& line, PhysicsCircle2D& circle){
+		circle.speed[1] = circle.speed[1] * 0.2;
+	});
+
+	physics.addLineCircleCollisionAction(leftLineID, playerBCircleIndex, [&](PhysicsStaticLine2D& line, PhysicsCircle2D& circle){
+		circle.speed[1] = circle.speed[1] * 0.2;
+	});
+
+	physics.addcircleCircleCollisionAction(playerACircleIndex, smallCircleIndex, [&](PhysicsCircle2D& circle1, PhysicsCircle2D& circle2){
 		playerATouch++;
+		playerBTouch = 0;
+	});
+
+	physics.addcircleCircleCollisionAction(playerBCircleIndex, smallCircleIndex, [&](PhysicsCircle2D& circle1, PhysicsCircle2D& circle2){
+		playerBTouch++;
+		playerATouch = 0;
 	});
 
 
 	loop.addCycleTask([&]() {
-			physics.getCircle(bigCircleIndex).speed[0] *= 0.5;
+		physics.getCircle(playerACircleIndex).speed[0] *= 0.5;
+		physics.getCircle(playerBCircleIndex).speed[0] *= 0.5;
 
-
-			if (physics.getCircle(bigCircleIndex).position[1] < 0.6) {
-				if (keyStatus.keyUp) {
-					physics.getCircle(bigCircleIndex).speed[1] = 10;
-				}
+		if (physics.getCircle(playerACircleIndex).position[1] < 1.1) {
+			if (keyStatus.keyUp) {
+				physics.getCircle(playerACircleIndex).speed[1] = 10;
 			}
+		}
 
-
-			if (keyStatus.keyRight) {
-				physics.getCircle(bigCircleIndex).speed[0] = 5;
+		if (physics.getCircle(playerBCircleIndex).position[1] < 1.1) {
+			if (keyStatus.keyW) {
+				physics.getCircle(playerBCircleIndex).speed[1] = 10;
 			}
-			if (keyStatus.keyLeft) {
-				physics.getCircle(bigCircleIndex).speed[0] = -5;
-			}
+		}
 
-			return TaskReturnvalue::OK;
-		}, 100);
+		if (keyStatus.keyRight) {
+			physics.getCircle(playerACircleIndex).speed[0] = 5;
+		}
+		if (keyStatus.keyLeft) {
+			physics.getCircle(playerACircleIndex).speed[0] = -5;
+		}
+
+		if (keyStatus.keyD) {
+			physics.getCircle(playerBCircleIndex).speed[0] = 5;
+		}
+		if (keyStatus.keyA) {
+			physics.getCircle(playerBCircleIndex).speed[0] = -5;
+		}
+
+		return TaskReturnvalue::OK;
+	}, 100);
 
 	// add task to handle SDL events
 	loop.addCycleTask([&](){ return handleEvents(); }, 100);
@@ -259,6 +300,17 @@ int BlobbyThingGame::run() {
 	/*
 	 *   ---------- START GAME RULES ---------------
 	 */
+
+	auto resetBallPos = [&](){
+		physics.getCircle(smallCircleIndex).speed = Vector2d(0,0);
+		physics.getCircle(smallCircleIndex).position = Vector2d(0,10);
+
+		physics.getCircle(playerACircleIndex).speed = Vector2d(0,0);
+		physics.getCircle(playerACircleIndex).position = Vector2d(5,4);
+		physics.getCircle(playerBCircleIndex).speed = Vector2d(0,0);
+		physics.getCircle(playerBCircleIndex).position = Vector2d(-5,4);
+	};
+
 	stateMachine.addTransition(GameState::START_SCREEN,
 			GameState::BALL_ACTIVE,
 			[&]() {
@@ -276,17 +328,13 @@ int BlobbyThingGame::run() {
 				groundATouched = false;
 				groundBTouched = false;
 
-				physics.getCircle(smallCircleIndex).speed = Vector2d(0,0);
-				physics.getCircle(smallCircleIndex).position = Vector2d(0,10);
-
-				physics.getCircle(bigCircleIndex).speed = Vector2d(0,0);
-				physics.getCircle(bigCircleIndex).position = Vector2d(5,4);
+				resetBallPos();
 
 			});
 
 	stateMachine.addTransition(GameState::BALL_ACTIVE,
 			GameState::BALL_ACTIVE,
-			[&]() {	return (groundATouched || playerATouch > 3);},
+			[&]() {	return (groundATouched || playerBTouch > 3);},
 			[&]() {
 				playerBTouch = 0;
 				playerATouch = 0;
@@ -295,18 +343,12 @@ int BlobbyThingGame::run() {
 				playerBScoreText->clear();
 				playerBScoreText->setText((boost::format("Score %1%") % playerBScore).str().c_str());
 
-				physics.getCircle(smallCircleIndex).speed = Vector2d(0,0);
-				physics.getCircle(smallCircleIndex).position = Vector2d(0,10);
-
-				physics.getCircle(bigCircleIndex).speed = Vector2d(0,0);
-				physics.getCircle(bigCircleIndex).position = Vector2d(5,4);
-
-
+				resetBallPos();
 			});
 
 	stateMachine.addTransition(GameState::BALL_ACTIVE,
 			GameState::BALL_ACTIVE,
-			[&]() {	return (groundBTouched || playerBTouch > 3); },
+			[&]() {	return (groundBTouched || playerATouch > 3); },
 			[&]() {
 				playerBTouch = 0;
 				playerATouch = 0;
@@ -315,11 +357,7 @@ int BlobbyThingGame::run() {
 				playerAScoreText->clear();
 				playerAScoreText->setText((boost::format("Score %1%") % playerAScore).str().c_str());
 
-				physics.getCircle(smallCircleIndex).speed = Vector2d(0,0);
-				physics.getCircle(smallCircleIndex).position = Vector2d(0,10);
-
-				physics.getCircle(bigCircleIndex).speed = Vector2d(0,0);
-				physics.getCircle(bigCircleIndex).position = Vector2d(-5,4);
+				resetBallPos();
 
 			});
 
@@ -383,6 +421,18 @@ TaskReturnvalue BlobbyThingGame::handleEvents() {
 			case SDLK_F2:
 				keyStatus.keyF2 = true;
 				break;
+			case SDLK_w:
+				keyStatus.keyW = true;
+				break;
+			case SDLK_a:
+				keyStatus.keyA = true;
+				break;
+			case SDLK_s:
+				keyStatus.keyS = true;
+				break;
+			case SDLK_d:
+				keyStatus.keyD = true;
+				break;
 			default:
 				break;
 			}
@@ -408,6 +458,18 @@ TaskReturnvalue BlobbyThingGame::handleEvents() {
 			case SDLK_F2:
 				keyStatus.keyF2 = false;
 				break;
+			case SDLK_w:
+				keyStatus.keyW = false;
+				break;
+			case SDLK_a:
+				keyStatus.keyA = false;
+				break;
+			case SDLK_s:
+				keyStatus.keyS = false;
+				break;
+			case SDLK_d:
+				keyStatus.keyD = false;
+				break;
 			default:
 				break;
 			}
@@ -423,7 +485,7 @@ TaskReturnvalue BlobbyThingGame::handleEvents() {
 //										  -x / 30.0 +10,y / 30.0 - 10,0,
 //										  0,1,0);
 
-			gl.lookAt(-x / 30.0 + 10, y / 30.0 - 10, 14, 0, 3, 0, 0, 1, 0);
+			// gl.lookAt(-x / 30.0 + 10, y / 30.0 - 10, 14, 0, 3, 0, 0, 1, 0);
 
 			break;
 
@@ -446,4 +508,8 @@ void BlobbyThingGame::initKeyStatus() {
 	keyStatus.keyRight = false;
 	keyStatus.keyF1 = false;
 	keyStatus.keyF2 = false;
+	keyStatus.keyW = false;
+	keyStatus.keyA = false;
+	keyStatus.keyS = false;
+	keyStatus.keyD = false;
 }

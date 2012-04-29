@@ -47,7 +47,7 @@ SDLTextureObject::SDLTextureObject(const char* path) : TextureObject() {
 
 bool SDLTextureObject::load() {
 
-	LOG(boost::format("Loading texture \"%1%\"") % path);
+	// LOG("Loading texture \"", path, "\"");
 	surface = IMG_Load(path.c_str());
 	if(!surface) {
 	    ERR("IMG_Load: ", IMG_GetError());
@@ -56,7 +56,7 @@ bool SDLTextureObject::load() {
 
 	// we need to flip the image vertically
 	FlipSDLSurfaceVertically(surface);
-	LOG("Finished loading texture: ", path);
+	// LOG("Finished loading texture: ", path);
 
 	// now fill internal structures
 	this->width = surface->w;
@@ -83,6 +83,14 @@ bool SDLTextureObject::load() {
 	this->type = GL_UNSIGNED_BYTE;
 
 	return true;
+}
+
+size_t SDLTextureObject::getPixelSize() {
+	if (!surface) {
+		load();
+	}
+
+	return surface->format->BytesPerPixel;
 }
 
 SDLTextureObject::~SDLTextureObject() {

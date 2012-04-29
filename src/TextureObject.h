@@ -22,14 +22,22 @@ public:
 	virtual GLenum  getFormat() = 0;
 	virtual GLenum  getType() = 0;
 
-	/**
-	 * Frees space, but might slow reloading of the texture down.
+	// returns number of bytes per pixel
+	virtual size_t getPixelSize() = 0;
+
+	/*! \brief return true if texture is identical to other texture
+	 */
+	bool operator==(TextureObject& other);
+
+	/*! \brief Frees space, but might slow reloading of the texture down.
 	 */
 	virtual void compact() = 0;
 
 	/* utility function */
 	virtual GLuint generateOpenGLTexture();
 	virtual void bindTexture();
+
+
 
 protected:
 	GLuint texture;

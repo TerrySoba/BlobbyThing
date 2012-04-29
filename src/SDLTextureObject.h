@@ -24,6 +24,8 @@ public:
 	virtual GLenum  getFormat();
 	virtual GLenum  getType();
 
+	size_t getPixelSize();
+
 	virtual void compact();
 
 private:

@@ -32,6 +32,10 @@ private: // types
 		bool keyDown;
 		bool keyF1;
 		bool keyF2;
+		bool keyW;
+		bool keyA;
+		bool keyS;
+		bool keyD;
 	};
 
 	enum class GameState {
