@@ -88,9 +88,9 @@ MatrixXd solveTDMA(int32_t n, MatrixXd& a, MatrixXd& b, MatrixXd& c, MatrixXd& v
 
 void Spline::setPoints(std::vector<Eigen::Vector2d> points) {
 
-#define x(i) (points[i][0])
+#define x(i) (points[(i)][0])
 #define h(i) (x((i)+1) - x((i)))
-#define a(i) (points[i][1])
+#define a(i) (points[(i)][1])
 
 	// check if Values are strictly increasing
 	for (size_t i = 1; i < points.size(); i++) {
@@ -133,37 +133,38 @@ void Spline::setPoints(std::vector<Eigen::Vector2d> points) {
 	}
 		break;
 	default: // general spline (N > 3) calculation
-		Eigen::MatrixXd r(N - 2, 1);
-		for (size_t i = 1; i < N - 1; i++) {
-			r(i - 1) = 3 * ((a(i+1) - a(i)) / h(i) - (a(i) - a(i-1)) / h(i-1));
-		}
-
-		MatrixXd diag(N,1);
-		MatrixXd subDiag(N,1);
-
-		// fill diagonal of matrix A
-		for (size_t i = 0; i < N - 2; i++) {
-			diag(i) = 2 * (h(i) + h(i+1));
-		}
-
-		// now fill the subdiagonals of Matrix A
-		for (size_t i = 0; i < N - 3; i++) {
-			subDiag(i) = h(i+1);
-		}
-
-		// now solve linear system A*x = r
-		// A is tridiagonal where the diagonal is set by diag
-		// the sub and super diagonals are given by subDiag
-		// A is not explicitly constructed. Instead a TDMA solver is used
-		// that will finish in O(n). (Normal gaussian elimination would take O(n^3))
-		MatrixXd Cs = solveTDMA(N-2,subDiag,diag,subDiag,r);
 
 		MatrixXd c(N, 1);
-		c = MatrixXd::Zero(N, 1);
-		for (size_t i = 1; i < N - 1; i++) {
-			c(i) = Cs(i - 1);
-		}
+		c(0) = 0;
+		c(N - 1) = 0;
 
+		{
+			Eigen::MatrixXd r(N - 2, 1);
+			for (size_t i = 1; i < N - 1; i++) {
+				r(i - 1) = 3
+						* ((a(i+1) - a(i)) / h(i) - (a(i) - a(i-1)) / h(i-1));
+			}
+
+			MatrixXd diag(N, 1);
+			MatrixXd subDiag(N, 1);
+
+			// fill diagonal of matrix A
+			for (size_t i = 0; i < N - 2; i++) {
+				diag(i) = 2 * (h(i) + h(i+1));
+			}
+
+			// now fill the subdiagonals of Matrix A
+			for (size_t i = 0; i < N - 3; i++) {
+				subDiag(i) = h(i+1);
+			}
+
+			// now solve linear system A*x = r
+			// A is tridiagonal where the diagonal is set by diag
+			// the sub and super diagonals are given by subDiag
+			// A is not explicitly constructed. Instead a TDMA solver is used
+			// that will finish in O(n). (Normal gaussian elimination would take O(n^3))
+			c.block(1, 0, N - 2, 1) = solveTDMA(N - 2, subDiag, diag, subDiag, r);
+		}
 		MatrixXd d(N - 1, 1);
 		for (size_t i = 1; i < N; i++) {
 			d(i - 1) = (c(i) - c(i - 1)) / (3 * h(i-1));
@@ -176,6 +177,9 @@ void Spline::setPoints(std::vector<Eigen::Vector2d> points) {
 		}
 
 		// put coeffs into map
+
+		auto lastIt = splineCoeffs.begin();
+
 		for (size_t i = 0; i < N - 1; i++) {
 			SplineCoeff coeff;
 			coeff.a = a(i);
@@ -184,7 +188,7 @@ void Spline::setPoints(std::vector<Eigen::Vector2d> points) {
 			coeff.d = d(i);
 			coeff.length = h(i);
 
-			splineCoeffs.insert(std::make_pair(x(i) + h(i), coeff));
+			lastIt = splineCoeffs.insert(lastIt, std::make_pair(x(i) + h(i), coeff));
 		}
 
 		break;
