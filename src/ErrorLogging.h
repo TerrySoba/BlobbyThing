@@ -11,6 +11,7 @@
 #include <iostream>
 #include <boost/format.hpp>
 #include <string>
+#include <sstream>
 
 #define _MY_STR_HELPER(x) #x
 #define _MY_STR_(x) _MY_STR_HELPER(x)
@@ -27,15 +28,22 @@ enum LogLevel {
 };
 
 template<typename T>
-std::string toStrVariadic(T value) {
-	return (boost::format("%1%") % value).str();
+void addVarSS(std::stringstream& oss,T value) {
+	oss << value;
 }
 
 template<typename T, typename... Args>
-std::string toStrVariadic(T value, Args... args) {
-	return (boost::format("%1%%2%") % value % toStrVariadic(args...)).str();
+void addVarSS(std::stringstream& oss,T value, Args... args) {
+	oss << value;
+	addVarSS(oss, args...);
 }
 
+template<typename... Args>
+std::string toStrVariadic(Args... args) {
+	std::stringstream oss;
+	addVarSS(oss, args...);
+	return oss.str();
+}
 
 /*! \brief General logging class.
  *

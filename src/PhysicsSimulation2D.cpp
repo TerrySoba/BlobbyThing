@@ -99,11 +99,11 @@ void PhysicsSimulation2D::addPolygon(std::vector<Vector2d> polygon, double corne
 	}
 
 	// DEBUG: output new polygon
-	LOG("New Polygon:");
+	// LOG("New Polygon:");
 
 	for (PhysicsStaticLine2D& line : lines) {
 		addLine(line.start, line.end);
-		LOG("Line: ", line.start, " -> ", line.end);
+		// LOG("Line: ", line.start, " -> ", line.end);
 	}
 
 	for (PhysicsCircle2D& circle : circles) {

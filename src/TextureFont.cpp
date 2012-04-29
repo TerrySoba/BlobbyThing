@@ -43,7 +43,7 @@ bool TextureFont::load(const char* path) {
 	// now read file signature
 	char buffer[7];
 	buffer[6] = 0;
-	fread(buffer, 1, 6, fp);
+	checked_fread(buffer, 1, 6, fp);
 	// check if signature matches
 	if (strcmp(buffer, "ytf252") != 0) {
 		ERR("Font file did not have matching signature: ", buffer);
@@ -53,7 +53,7 @@ bool TextureFont::load(const char* path) {
 
 	// read version of file
 	uint16_t version;
-	fread(&version, sizeof(uint16_t), 1, fp);
+	checked_fread(&version, sizeof(uint16_t), 1, fp);
 
 	// this parser is for version 3. Check if version matches.
 	if (version != 3) {
@@ -64,22 +64,22 @@ bool TextureFont::load(const char* path) {
 
 	// read font name
 	uint32_t nameLength;
-	fread(&nameLength, sizeof(uint32_t), 1, fp);
+	checked_fread(&nameLength, sizeof(uint32_t), 1, fp);
 	std::string fontName(nameLength, 0);
 	// fontName[nameLength] = 0; // null terminate
-	fread(&(fontName[0]), nameLength, sizeof(char), fp);
+	checked_fread(&(fontName[0]), nameLength, sizeof(char), fp);
 
-	LOG("Font name: ", fontName);
+	// LOG("Font name: ", fontName);
 
 	// read width and height of texture
 	uint32_t width, height;
-	fread(&width, sizeof(uint32_t), 1, fp);
-	fread(&height, sizeof(uint32_t), 1, fp);
+	checked_fread(&width, sizeof(uint32_t), 1, fp);
+	checked_fread(&height, sizeof(uint32_t), 1, fp);
 
 	// now read texture data
 	std::vector<uint8_t> textureTmp(width * height * sizeof(uint8_t));
 
-	fread(&textureTmp[0], sizeof(uint8_t), width * height, fp);
+	checked_fread(&textureTmp[0], sizeof(uint8_t), width * height, fp);
 
 	// now create LuminanceAlpha texture
 	shared_ptr<MemoryTextureObject> texture = make_shared<MemoryTextureObject>(width, height);
@@ -94,21 +94,21 @@ bool TextureFont::load(const char* path) {
 
 	// now read how many characters this font contains
 	uint32_t noOfCharacters;
-	fread(&noOfCharacters, sizeof(uint32_t), 1, fp);
+	checked_fread(&noOfCharacters, sizeof(uint32_t), 1, fp);
 
 	// now read information about each character
 	for (uint32_t n = 0; n < noOfCharacters; n++) {
 		CharacterInformation info;
 
-		fread(&info.unicode, sizeof(uint32_t), 1, fp);
-		fread(&info.bearingLeft, sizeof(int32_t), 1, fp);
-		fread(&info.bearingTop, sizeof(int32_t), 1, fp);
-		fread(&info.horiAdvance, sizeof(double), 1, fp);
-		fread(&info.vertAdvance, sizeof(double), 1, fp);
-		fread(&info.imageLeft, sizeof(int32_t), 1, fp);
-		fread(&info.imageTop, sizeof(int32_t), 1, fp);
-		fread(&info.imageWidth, sizeof(uint32_t), 1, fp);
-		fread(&info.imageHeight, sizeof(uint32_t), 1, fp);
+		checked_fread(&info.unicode, sizeof(uint32_t), 1, fp);
+		checked_fread(&info.bearingLeft, sizeof(int32_t), 1, fp);
+		checked_fread(&info.bearingTop, sizeof(int32_t), 1, fp);
+		checked_fread(&info.horiAdvance, sizeof(double), 1, fp);
+		checked_fread(&info.vertAdvance, sizeof(double), 1, fp);
+		checked_fread(&info.imageLeft, sizeof(int32_t), 1, fp);
+		checked_fread(&info.imageTop, sizeof(int32_t), 1, fp);
+		checked_fread(&info.imageWidth, sizeof(uint32_t), 1, fp);
+		checked_fread(&info.imageHeight, sizeof(uint32_t), 1, fp);
 
 		characterMap.insert(std::make_pair(info.unicode, info));
 	}
@@ -116,9 +116,9 @@ bool TextureFont::load(const char* path) {
 	fclose(fp);
 
 	// now log some debug information
-	LOG("loaded font file ", path);
-	LOG("loaded texture of size ", width, "x", height);
-	LOG("found ", noOfCharacters, " characters.");
+	// LOG("loaded font file ", path);
+	// LOG("loaded texture of size ", width, "x", height);
+	// LOG("found ", noOfCharacters, " characters.");
 
 	return true;
 }

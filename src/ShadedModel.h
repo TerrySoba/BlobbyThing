@@ -27,8 +27,7 @@ public:
 	virtual shared_ptr<TriangleObject> getTriangleObject() = 0;
 	virtual shared_ptr<TextureObject> getTextureObject() = 0;
 	virtual shared_ptr<ShaderProgramGL> getShaderProgram() = 0;
-//		return shared_ptr<ShaderProgramGL>();
-//	}
+
 	virtual std::string getName() = 0;
 };
 

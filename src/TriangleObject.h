@@ -26,6 +26,21 @@ public:
 
 	virtual MyGLVertex* getGLVertexes() = 0;
 	virtual size_t getSize() = 0;
+
+	Vector3f getCenterOfGravity() {
+		MyGLVertex* vertexes = getGLVertexes();
+		if (!centerOfGravity) {
+			// calculate center of gravity
+			Vector3f sum = Vector3f(0,0,0);
+			for (size_t i = 0; i < getSize(); i++) {
+				sum += vertexes[i].v;
+			}
+			centerOfGravity = make_shared<Vector3f>(sum / double(getSize()));
+		}
+		return *centerOfGravity;
+	}
+private:
+	shared_ptr<Vector3f> centerOfGravity;
 };
 
 #endif /* TRIANGLEOBJECT_H_ */

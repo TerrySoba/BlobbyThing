@@ -19,12 +19,12 @@
 #include "common.h"
 
 struct GraphicsObject {
-	shared_ptr<ShadedModel> model;
+	// shared_ptr<ShadedModel> model;
+	size_t modelHandle;
 	Vector3f translation;
 	Vector3f rotationVector;
 	GLfloat rotationAngle; // in degree
 };
-
 
 class GraphicsGL {
 public:
@@ -68,38 +68,53 @@ public:
 			    GLdouble upy,
 			    GLdouble upz);
 
-	/*! \brief add GraphicsObject to draw list
+
+
+	/*! \brief Add model to the graphics engine
+	 *
+	 *  It adds a ShadedModel to the graphics engine.
+	 *  A handle to the model is returned.
+	 *  \param model ShadedModel to be added
+	 *  \return handle of the added model
+	 */
+	size_t addModel(shared_ptr<ShadedModel> model);
+
+	/*! \brief add GraphicsObject to perspective draw list
+	 *
+	 *  The added object is drawn by the class every time draw() is called.
+	 *
+	 *  \param gfxObject reference to the GraphicsObject to be added
+	 *
+	 *  \return a handle to the newly inserted GfxObject
+	 */
+	size_t addGfxObjects(GraphicsObject& gfxObject);
+
+	size_t addGfxObjects(size_t modelHandle, Vector3f translation = Vector3f(0,0,0), Vector3f rotationVector = Vector3f(0,0,0), GLfloat rotationAngle = 0.0);
+
+	/*! \brief add GraphicsObject to orthigraphic draw list
 	 *
 	 *  The added object is drawn by the class every time draw() is called.
 	 *
 	 *  \param gfxObject reference to the GraphicsObject to be added
 	 */
-	void addGfxObjects(GraphicsObject& gfxObject);
-
-	/*! \brief convenience function for addGfxObjects()
-	 *
-	 *  It adds multiple ShadedModels with empty translation and rotation.
-	 *  \gfxObjects ShadedModels to be added
-	 */
-	void addGfxObjects(std::vector<shared_ptr<ShadedModel>>& gfxObjects);
-	void addGfxObjects(shared_ptr<ShadedModel> model);
-
 	void addOrthoGfxObject(GraphicsObject& gfxObject);
 
-	/*! \brief get handle to gfx object by name.
+	/*! \brief get handle to model by name.
 	 *
-	 *	Finds the first gfx object with the given name. If name is not found
+	 *	Finds the first model with the given name. If name is not found
 	 *	-1 is returned.
 	 *
-	 *	\param name name of the object to be found
+	 *	\param name name of the model to be found
 	 *
 	 *  \warning This operation is slow. Do not use it in a loop to
 	 *           periodically get a handle. Just use it once and keep
 	 *           the handle.
 	 *
-	 *  \return the handle of the object or -1 if name was not found
+	 *  \return the handle of the model or -1 if name was not found
 	 */
-	int getGfxObjectHandleByName(std::string name);
+	size_t getModelHandleByName(std::string name);
+
+	size_t getGfxObjectHandleByName(std::string name);
 
 	GraphicsObject& getGfxObject(int handle) {
 		return perspectiveObjs.at(handle);
@@ -114,8 +129,7 @@ public:
 	 */
 	void generateGLTextures();
 
-	/*!
-	 *
+	/*! \brief load shaders of models
 	 */
 	void loadShaders();
 
@@ -124,7 +138,6 @@ public:
 	 *  You have to call this every time you want to update the screen
 	 */
 	void draw();
-
 
 	uint32_t getScreenWidth() const { return screenWidth; }
 	uint32_t getScreenHeight() const { return screenHeight; }
@@ -144,7 +157,7 @@ private:
 	SDL_Window *mainwindow;    /* Our window handle */
 	SDL_GLContext maincontext; /* Our opengl context handle */
 
-
+	std::vector<shared_ptr<ShadedModel>> models;
 	std::vector<GraphicsObject> perspectiveObjs;
 	std::vector<GraphicsObject> orthographicObjs;
 

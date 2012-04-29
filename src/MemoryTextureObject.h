@@ -10,7 +10,8 @@
 
 #include "TextureObject.h"
 #include <stdint.h>
-#include <boost/shared_array.hpp>
+#include <vector>
+// #include <boost/shared_array.hpp>
 
 class MemoryTextureObject: public TextureObject {
 public:
@@ -25,6 +26,8 @@ public:
 	virtual GLint getInternalFormat() { return GL_ALPHA8; }
 	virtual GLenum getFormat() { return GL_ALPHA; }
 	virtual GLenum getType() { return GL_UNSIGNED_BYTE; }
+
+	size_t getPixelSize() { return 1; }
 
 	virtual void compact() { /* do nothing */ }
 

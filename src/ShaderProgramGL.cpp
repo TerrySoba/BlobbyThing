@@ -127,10 +127,10 @@ bool ShaderProgramGL::prepareShaders() {
 		glShaderSource(fragmentShaderHandle, 1, &fSS, NULL);
 
 		glCompileShader(vertexShaderHandle);
-		LOG("VertexShader Log: ", getShaderInfoLog(vertexShaderHandle));
+		// LOG("VertexShader Log: ", getShaderInfoLog(vertexShaderHandle));
 
 		glCompileShader(fragmentShaderHandle);
-		LOG("FragmentShader Log: ", getShaderInfoLog(fragmentShaderHandle));
+		// LOG("FragmentShader Log: ", getShaderInfoLog(fragmentShaderHandle));
 
 		shaderProgramHandle = glCreateProgram();
 
@@ -139,7 +139,7 @@ bool ShaderProgramGL::prepareShaders() {
 
 		glLinkProgram(shaderProgramHandle);
 
-		LOG("ShaderProgram Log: ", getProgramInfoLog(shaderProgramHandle));
+		// LOG("ShaderProgram Log: ", getProgramInfoLog(shaderProgramHandle));
 
 		// glUseProgram(program);
 
@@ -149,3 +149,6 @@ bool ShaderProgramGL::prepareShaders() {
 	return true;
 }
 
+bool ShaderProgramGL::operator==(const ShaderProgramGL& other) const {
+	return (this->vertexShaderPath == other.vertexShaderPath && this->fragmentShaderPath == other.fragmentShaderPath);
+}
