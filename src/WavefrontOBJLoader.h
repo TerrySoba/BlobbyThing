@@ -17,9 +17,11 @@
 
 #include "ShadedModel.h"
 
-struct OBJMaterial {
+struct ObjMaterial {
 	std::string name;           // name of material
 	std::string diffuseMapPath; // e.g. texture
+	std::string vertexShaderPath;   // path to vertex shader
+	std::string fragmentShaderPath; // path to fragment shader
 	float specular;             // [0..1000]   0 = no specular highlights
 	float ambientColor[3];      // RGB [0..1]  0 = black
 	float diffuseColor[3];      // RGB [0..1]  0 = black
@@ -27,17 +29,26 @@ struct OBJMaterial {
 	float transparency;         // [0..1]      0 = invisible
 };
 
+struct ModelPart {
+	shared_ptr<TriangleObject> triangles;
+	ObjMaterial material;
+};
+
+struct ObjModel {
+	std::string name;
+	std::vector<ModelPart> modelParts;
+};
 
 class WavefrontOBJLoader {
 public:
 	WavefrontOBJLoader();
 	virtual ~WavefrontOBJLoader();
 
-	static std::vector<shared_ptr<ShadedModel>> load(const char* path);
+	static std::vector<shared_ptr<ObjModel>> load(const char* path);
 
 private:
 
-	static std::map<std::string, OBJMaterial> loadMaterial(const char* path);
+	static std::map<std::string, ObjMaterial> loadMaterial(const char* path);
 
 };
 

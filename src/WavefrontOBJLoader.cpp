@@ -9,8 +9,6 @@
 #include "WavefrontOBJLoader.h"
 #include "ErrorLogging.h"
 #include "VectorTriangleObject.h"
-#include "SDLTextureObject.h"
-#include "ShadedModelProxy.h"
 
 #include "libgen.h"
 #include "common.h"
@@ -49,8 +47,8 @@ WavefrontOBJLoader::~WavefrontOBJLoader() {
 	// TODO Auto-generated destructor stub
 }
 
-std::map<std::string, OBJMaterial> WavefrontOBJLoader::loadMaterial(const char* path) {
-	std::map<std::string, OBJMaterial> mtl;
+std::map<std::string, ObjMaterial> WavefrontOBJLoader::loadMaterial(const char* path) {
+	std::map<std::string, ObjMaterial> mtl;
 
 
 	const size_t lineBufferSize = 1000;
@@ -196,25 +194,27 @@ std::map<std::string, OBJMaterial> WavefrontOBJLoader::loadMaterial(const char* 
 }
 
 
-std::vector<shared_ptr<ShadedModel>> WavefrontOBJLoader::load(const char* path) {
-	std::vector<shared_ptr<ShadedModel>> models;
+std::vector<shared_ptr<ObjModel>> WavefrontOBJLoader::load(const char* path) {
+	std::vector<shared_ptr<ObjModel>> modelsRet;
 	const size_t lineBufferSize = 1000;
 	char lineBuffer[lineBufferSize];
 	FILE* fp = fopen(path, "r");
 
 	if (!fp) {
 		ERR("Could not open file: ", path);
-		return models;
+		return modelsRet;
 	}
 
 	std::vector<Vector3f> vertices;
 	std::vector<Vector2f> texCoords;
 	std::vector<Vector3f> normals;
 
-
+	typedef std::pair<std::string, // model name
+			           std::string  // material name
+			          > ModelMaterialIndex;
 
 	std::map<
-		std::string       /* material name */,
+	    ModelMaterialIndex,
 		std::vector<Face>
 	        > faces;
 
@@ -223,7 +223,7 @@ std::vector<shared_ptr<ShadedModel>> WavefrontOBJLoader::load(const char* path) 
 	std::string currentMaterial = "";
 	std::string currentObjectName = "";
 
-	std::map<std::string, OBJMaterial> mtlLib;
+	std::map<std::string, ObjMaterial> mtlLib;
 
 	while (!feof(fp)) {
 		char cur;
@@ -234,7 +234,7 @@ std::vector<shared_ptr<ShadedModel>> WavefrontOBJLoader::load(const char* path) 
 			lineBuffer[linePos++] = cur;
 			if (linePos >= lineBufferSize) {
 				ERR("Line too long!");
-				return models;
+				return modelsRet;
 			}
 		} while (!feof(fp) && cur != '\n' && cur != '\r');
 		lineBuffer[linePos] = '\0'; // nullterminate string
@@ -307,7 +307,8 @@ std::vector<shared_ptr<ShadedModel>> WavefrontOBJLoader::load(const char* path) 
 				}
 
 				if (faceOK) {
-					faces[currentMaterial].push_back(face);
+					auto index = std::make_pair(currentObjectName, currentMaterial);
+					faces[index].push_back(face);
 				}
 
 				continue;
@@ -401,10 +402,8 @@ std::vector<shared_ptr<ShadedModel>> WavefrontOBJLoader::load(const char* path) 
 	}
 
 	/* now convert data into triangles */
-	// LOG("faces: ", faces.size());
-	std::map<std::string, std::vector<Polygon>> triangles;
+	std::map<ModelMaterialIndex, std::vector<Polygon>> triangles;
 
-	// typedef std::pair<const std::basic_string<char>, std::vector<std::vector<FaceIndex> > > faceType;
 	for (auto &fa : faces) {
 		for (Face& f : fa.second) {
 			// create a Polygon from the faces
@@ -426,23 +425,20 @@ std::vector<shared_ptr<ShadedModel>> WavefrontOBJLoader::load(const char* path) 
 			std::vector<Polygon> tmpTri = convertPolygonToTriangles(p);
 
 			// now add triangles to real triangle object
-			triangles[fa.first].insert(triangles[fa.first].end(), tmpTri.begin(), tmpTri.end());
+			const ModelMaterialIndex& index = fa.first;
+			triangles[index].insert(triangles[index].end(), tmpTri.begin(), tmpTri.end());
 		}
 	}
 
-	// LOG(fmt("We have %1% triangles, congratulations!") % triangles.size());
-
 	uint32_t triangle_count = 0;
 
-	// create default shader
-	shared_ptr<ShaderProgramGL> shader = make_shared<ShaderProgramGL>();
-	shader->setShaders("shaders/phong2.vert", "shaders/phong2.frag");
+	std::map<std::string /* model name */, std::vector<ModelPart>> models;
 
-	for (auto &tris: triangles) {
+	for (const std::pair<ModelMaterialIndex, std::vector<Polygon>> &modelPart: triangles) {
 		// first insert triangles
 		shared_ptr<VectorTriangleObject> vertexes = make_shared<VectorTriangleObject>();
 		// VectorTriangleObject* vertexes = ;
-		for (Polygon& p: tris.second) {
+		for (const Polygon& p: modelPart.second) {
 			if (p.size() >= 3) {
 				for (int i = 0; i < 3; i++) {
 					vertexes->addVertex(p.at(i));
@@ -451,17 +447,24 @@ std::vector<shared_ptr<ShadedModel>> WavefrontOBJLoader::load(const char* path) 
 			triangle_count++;
 		}
 
-		// now load texture
-		shared_ptr<TextureObject> texture = make_shared<SDLTextureObject>(mtlLib[tris.first].diffuseMapPath.c_str());
+		ModelPart part;
+		part.triangles = vertexes;
+		const std::string& materialName = modelPart.first.second;
+		const std::string& modelName = modelPart.first.first;
+		part.material = mtlLib[materialName];
 
-		// create ShadedModel and push to vector
-		shared_ptr<ShadedModel> model = make_shared<ShadedModelProxy>(vertexes, texture, shader, tris.first);
-		models.push_back(model);
+		models[modelName].push_back(part);
 	}
 
+	for (auto& modelTmp : models) {
+		shared_ptr<ObjModel> model = make_shared<ObjModel>();
+		model->name = modelTmp.first;
+		model->modelParts = modelTmp.second;
+		modelsRet.push_back(model);
+	}
+
+	LOG("We have ", modelsRet.size(), " model(s).");
 	LOG("We have ", triangle_count, " triangles.");
 
-	// LOG(fmt("We have %1% vertices, congratulations!") % vertexes->getSize());
-
-	return models;
+	return modelsRet;
 }
