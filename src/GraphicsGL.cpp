@@ -9,6 +9,9 @@
 #include "ShaderProgramGL.h"
 #include <algorithm>
 #include "Eigen/Geometry"
+#include "SDL_image.h"
+#include "icon_img.h"
+
 
 GraphicsGL::GraphicsGL(uint32_t screenWidth, uint32_t screenHeight, uint32_t colorDepth, std::string windowName) {
 	this->screenWidth = screenWidth;
@@ -36,13 +39,24 @@ bool GraphicsGL::init() {
 		return false;
 	}
 
+	/* set icon of window */
+	// first convert icon to SDL surface from "icon_img.h"
+	SDL_Surface* icon = SDL_CreateRGBSurfaceFrom((void*) icon_image.pixel_data,
+			icon_image.width, icon_image.height, icon_image.bytes_per_pixel * 8,
+			icon_image.width * icon_image.bytes_per_pixel,
+			0x000000ff,
+			0x0000ff00,
+			0x00ff0000,
+			0xff000000);
+
+	SDL_SetWindowIcon(mainwindow, icon);
+	SDL_FreeSurface(icon);
+
 	/* Create our opengl context and attach it to our window */
 	maincontext = SDL_GL_CreateContext(mainwindow);
 
 	/* This makes our buffer swap syncronized with the monitor's vertical refresh */
 	SDL_GL_SetSwapInterval(1);
-
-	// SDL_WM_SetCaption(windowName.c_str(), windowName.c_str());
 
 	// init GLEW
 	GLenum err = glewInit();

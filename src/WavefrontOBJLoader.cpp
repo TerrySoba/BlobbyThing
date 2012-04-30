@@ -24,8 +24,8 @@ struct FaceIndex {
 typedef std::vector<FaceIndex> Face;
 typedef std::vector<MyGLVertex> Polygon;
 
-shared_ptr<std::vector<Polygon>> convertPolygonToTriangles(Polygon& polygon) {
-	shared_ptr<std::vector<Polygon>> triVector = make_shared<std::vector<Polygon>>();
+std::vector<Polygon> convertPolygonToTriangles(Polygon& polygon) {
+	std::vector<Polygon> triVector;
 
 	for (size_t i = 0; polygon.size() > 2 && i < polygon.size() - 2; i++) {
 		Polygon tri;
@@ -34,7 +34,7 @@ shared_ptr<std::vector<Polygon>> convertPolygonToTriangles(Polygon& polygon) {
 		tri.push_back(polygon[i + 1]);
 		tri.push_back(polygon[i + 2]);
 
-		triVector->push_back(tri);
+		triVector.push_back(tri);
 	}
 
 	return triVector;
@@ -112,9 +112,6 @@ std::map<std::string, OBJMaterial> WavefrontOBJLoader::loadMaterial(const char* 
 					mtl[mtlname].diffuseMapPath = (boost::format("%1%/%2%")%dirname(pathTmp)%token).str();
 					delete[] pathTmp;
 				}
-
-				// LOG(path);
-				// LOG(mtl[mtlname].diffuseMapPath);
 			}
 			continue;
 		}
@@ -213,10 +210,18 @@ std::vector<shared_ptr<ShadedModel>> WavefrontOBJLoader::load(const char* path) 
 	std::vector<Vector3f> vertices;
 	std::vector<Vector2f> texCoords;
 	std::vector<Vector3f> normals;
-	std::map<std::string, std::vector<Face>> faces;
+
+
+
+	std::map<
+		std::string       /* material name */,
+		std::vector<Face>
+	        > faces;
+
 
 
 	std::string currentMaterial = "";
+	std::string currentObjectName = "";
 
 	std::map<std::string, OBJMaterial> mtlLib;
 
@@ -251,8 +256,10 @@ std::vector<shared_ptr<ShadedModel>> WavefrontOBJLoader::load(const char* path) 
 		if (strlen(token) == 1) {
 			if (token[0] == 'o') { // found object name
 				token = strtok_r(NULL, " \n\r", &saveptr);
-//				if (token)
-//					LOG("Found object named: ", token);
+				if (token) {
+					currentObjectName = token;
+					LOG("Found object named: ", token);
+				}
 				continue;
 			} // end object name
 
@@ -381,11 +388,11 @@ std::vector<shared_ptr<ShadedModel>> WavefrontOBJLoader::load(const char* path) 
 			token = strtok_r(NULL, "\n\r", &saveptr);
 			if (token) {
 				currentMaterial = token;
+				LOG("Using material named: ", currentMaterial);
 			}
 
 			continue;
 		}
-
 
 	} // while !feof()
 
@@ -416,11 +423,10 @@ std::vector<shared_ptr<ShadedModel>> WavefrontOBJLoader::load(const char* path) 
 				p.push_back(vertex);
 			}
 
-			shared_ptr<std::vector<Polygon>> tmpTri = convertPolygonToTriangles(p);
-			// LOG("Trianglulated to %lu tris.", tmpTri.size());
+			std::vector<Polygon> tmpTri = convertPolygonToTriangles(p);
 
 			// now add triangles to real triangle object
-			triangles[fa.first].insert(triangles[fa.first].end(), tmpTri->begin(), tmpTri->end());
+			triangles[fa.first].insert(triangles[fa.first].end(), tmpTri.begin(), tmpTri.end());
 		}
 	}
 
