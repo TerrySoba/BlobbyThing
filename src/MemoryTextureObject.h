@@ -11,11 +11,10 @@
 #include "TextureObject.h"
 #include <stdint.h>
 #include <vector>
-// #include <boost/shared_array.hpp>
 
 class MemoryTextureObject: public TextureObject {
 public:
-	MemoryTextureObject(uint32_t width, uint32_t height);
+	MemoryTextureObject(uint32_t width, uint32_t height, std::string name);
 	virtual ~MemoryTextureObject();
 
 	virtual const GLvoid * getData() {
@@ -27,11 +26,14 @@ public:
 	virtual GLenum getFormat() { return GL_ALPHA; }
 	virtual GLenum getType() { return GL_UNSIGNED_BYTE; }
 
+	std::string getSourceName() {	return "MemTex_" + name; }
+
 	size_t getPixelSize() { return 1; }
 
 	virtual void compact() { /* do nothing */ }
 
 private:
+	std::string name;
 	uint32_t width;
 	uint32_t height;
 	std::vector<uint8_t> image; //!< image in Alpha8 format

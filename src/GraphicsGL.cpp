@@ -11,6 +11,8 @@
 #include "Eigen/Geometry"
 #include "SDL_image.h"
 #include "icon_img.h"
+#include "SDLTextureObject.h"
+#include "benchmarking.h"
 
 
 GraphicsGL::GraphicsGL(uint32_t screenWidth, uint32_t screenHeight, uint32_t colorDepth, std::string windowName) {
@@ -56,12 +58,11 @@ bool GraphicsGL::init() {
 	maincontext = SDL_GL_CreateContext(mainwindow);
 
 	/* This makes our buffer swap syncronized with the monitor's vertical refresh */
-	SDL_GL_SetSwapInterval(1);
+	// SDL_GL_SetSwapInterval(1);
 
 	// init GLEW
 	GLenum err = glewInit();
-	if (GLEW_OK != err)
-	{
+	if (GLEW_OK != err)	{
 	  /* Problem: glewInit failed, something is seriously wrong. */
 	  ERR("Error: ", glewGetErrorString(err));
 	  return false;
@@ -221,48 +222,107 @@ void GraphicsGL::initGL() {
 
 }
 
-void GraphicsGL::loadShaders() {
-	auto safePrepareShaders = [&](std::vector<GraphicsObject>& objs) {
-		for (GraphicsObject& obj : objs) {
-			shared_ptr<ShaderProgramGL> shader = models[obj.modelHandle]->getShaderProgram();
-			if (shader) {
-				shader->prepareShaders();
-			}
-		}
-	};
-
-	safePrepareShaders(this->perspectiveObjs);
-	safePrepareShaders(this->orthographicObjs);
-}
+//void GraphicsGL::loadShaders() {
+//	auto safePrepareShaders = [&](std::vector<GraphicsObject>& objs) {
+//		for (GraphicsObject& obj : objs) {
+//			shared_ptr<ShaderProgramGL> shader = models[obj.modelHandle]->getShaderProgram();
+//			if (shader) {
+//				shader->prepareShaders();
+//			}
+//		}
+//	};
+//
+//	safePrepareShaders(this->perspectiveObjs);
+//	safePrepareShaders(this->orthographicObjs);
+//}
 
 size_t GraphicsGL::addModel(shared_ptr<ShadedModel> model) {
-	models.push_back(model);
+	if (model) {
+		InternalModelReference ref;
+		ref.name = model->getName();
+		// put model parts in storage to find duplicates
+		geometryStore.push_back(model->getTriangleObject());
+		auto texturePos = textureStore.insert(model->getTextureObject()); // returns a pair<iterator, bool>
+		auto shaderPos = shaderStore.insert(model->getShaderProgram()); // returns a pair<iterator, bool>
+
+		// put model parts in model
+		InternalModelPart partTmp;
+		partTmp.triangles = model->getTriangleObject();
+		partTmp.shader = *(shaderPos.first);
+		partTmp.texture = *(texturePos.first);
+		ref.modelParts.push_back(partTmp);
+
+		models.push_back(ref);
+	}
 	return (models.size() - 1);
 }
 
+size_t GraphicsGL::addModel(shared_ptr<ObjModel> model) {
+	// models.push_back(model);
 
-size_t GraphicsGL::addGfxObjects(GraphicsObject& gfxObject) {
-	this->perspectiveObjs.push_back(gfxObject);
-	return (this->perspectiveObjs.size() - 1);
+	if (model) {
+		InternalModelReference ref;
+		ref.name = model->name;
+
+		for (ModelPart& part : model->modelParts) {
+			shared_ptr<TriangleObject>& triangles = part.triangles;
+			shared_ptr<TextureObject> texture = make_shared<SDLTextureObject>(part.material.diffuseMapPath.c_str());
+			shared_ptr<ShaderProgramGL> shader = make_shared<ShaderProgramGL>();
+
+			// check if shader path is given. If not use default shaders
+			if (!(part.material.fragmentShaderPath.size() && part.material.vertexShaderPath.size())) {
+				shader->setShaders("shaders/phong2.vert", "shaders/phong2.frag");
+			} else {
+				shader->setShaders(part.material.vertexShaderPath, part.material.fragmentShaderPath);
+			}
+
+			// put model parts in storage to find duplicates
+			geometryStore.push_back(triangles);
+			auto texturePos = textureStore.insert(texture); // returns a pair<iterator, bool>
+			auto shaderPos = shaderStore.insert(shader); // returns a pair<iterator, bool>
+
+			// LOG("triangles:1  shader:", shaderPos.second, " texture:", texturePos.second, texture->getSourceName());
+
+			// put model parts in model
+			InternalModelPart partTmp;
+			partTmp.triangles = triangles;
+			partTmp.shader = *(shaderPos.first);
+			partTmp.texture = *(texturePos.first);
+			ref.modelParts.push_back(partTmp);
+		}
+
+		models.push_back(ref);
+	}
+	return (models.size() - 1);
 }
 
-size_t GraphicsGL::addGfxObjects(size_t modelHandle, Vector3f translation, Vector3f rotationVector, GLfloat rotationAngle) {
+size_t GraphicsGL::addGfxObjects(size_t modelHandle, std::string name, Vector3f translation, Vector3f rotationVector, GLfloat rotationAngle) {
 	GraphicsObject obj;
+	obj.name = name;
 	obj.modelHandle = modelHandle;
 	obj.translation = translation;
 	obj.rotationVector = rotationVector;
 	obj.rotationAngle = rotationAngle;
 
-	return addGfxObjects(obj);
+	perspectiveObjs.push_back(obj);
+	return (perspectiveObjs.size() - 1);
 }
 
-void GraphicsGL::addOrthoGfxObject(GraphicsObject& gfxObject) {
-	this->orthographicObjs.push_back(gfxObject);
+size_t GraphicsGL::addOrthoGfxObject(size_t modelHandle, std::string name, Vector3f translation, Vector3f rotationVector, GLfloat rotationAngle) {
+	GraphicsObject obj;
+	obj.name = name;
+	obj.modelHandle = modelHandle;
+	obj.translation = translation;
+	obj.rotationVector = rotationVector;
+	obj.rotationAngle = rotationAngle;
+
+	orthographicObjs.push_back(obj);
+	return (orthographicObjs.size() - 1);
 }
 
 size_t GraphicsGL::getModelHandleByName(std::string name) {
 	for (size_t n = 0; n < models.size(); n++) {
-		if ((models[n]) && models[n]->getName() == name) {
+		if (models[n].name == name) {
 			return n;
 		}
 	}
@@ -271,21 +331,22 @@ size_t GraphicsGL::getModelHandleByName(std::string name) {
 }
 
 size_t GraphicsGL::getGfxObjectHandleByName(std::string name) {
-	for (GraphicsObject& obj : perspectiveObjs) {
-		if (models[obj.modelHandle] && models[obj.modelHandle]->getName() == name) {
-			return obj.modelHandle;
+	for (size_t n = 0; n < perspectiveObjs.size(); n++) {
+		if (perspectiveObjs[n].name == name) {
+			return n;
 		}
 	}
 
 	return -1;
 }
 
-void GraphicsGL::generateGLTextures() {
-	for (GraphicsObject &obj : perspectiveObjs) {
-		models[obj.modelHandle]->getTextureObject()->generateOpenGLTexture();
+void GraphicsGL::prepareScene() {
+	for (const shared_ptr<TextureObject>& texture : textureStore) {
+		texture->generateOpenGLTexture();
 	}
-	for (GraphicsObject &obj : orthographicObjs) {
-		models[obj.modelHandle]->getTextureObject()->generateOpenGLTexture();
+
+	for (const shared_ptr<ShaderProgramGL>& shader : shaderStore) {
+		shader->prepareShaders();
 	}
 }
 
@@ -293,34 +354,27 @@ void GraphicsGL::draw() {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	auto drawObj = [&](GraphicsObject &obj) {
-		ShadedModel& model = *(models[obj.modelHandle]);
-
-		// glLoadIdentity();
+		InternalModelReference& model = (models[obj.modelHandle]);
 		glPushMatrix();
 
 		glTranslatef(obj.translation[0], obj.translation[1], obj.translation[2]);
 		glRotatef(obj.rotationAngle, obj.rotationVector[0], obj.rotationVector[1], obj.rotationVector[2]);
 
-		// bind texture
-		model.getTextureObject()->bindTexture();
+		for (auto& part : model.modelParts) {
+			// bind texture
+			part.texture->bindTexture();
 
-		// set shader
-		shared_ptr<ShaderProgramGL> shader = model.getShaderProgram();
-		if (shader) {
-			shader->useProgram();
-		} else {
-			// use fixed function pipeline
-			glUseProgram(0);
-			WARN("Warning: Using OpenGL fixed function pipeline. This is unsupported by OpenGL >= 3.2.");
+			// use shader program
+			part.shader->useProgram();
+			// glUseProgram(0);
+
+			// now draw triangle data
+			MyGLVertex* data = part.triangles->getGLVertexes();
+			glVertexPointer(3, GL_FLOAT, sizeof(MyGLVertex), &data->v);
+			glTexCoordPointer(2, GL_FLOAT, sizeof(MyGLVertex), &data->vt);
+			glNormalPointer(GL_FLOAT, sizeof(MyGLVertex), &data->n);
+			glDrawArrays(GL_TRIANGLES, 0, part.triangles->getSize());
 		}
-
-		// now draw triangle data
-		MyGLVertex* data = model.getTriangleObject()->getGLVertexes();
-		glVertexPointer(3, GL_FLOAT, sizeof(MyGLVertex), &data->v);
-		glTexCoordPointer(2, GL_FLOAT, sizeof(MyGLVertex), &data->vt);
-		glNormalPointer(GL_FLOAT, sizeof(MyGLVertex), &data->n);
-		glDrawArrays(GL_TRIANGLES, 0, model.getTriangleObject()->getSize());
-
 
 		glPopMatrix();
 	};

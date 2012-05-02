@@ -48,19 +48,8 @@ void TextureObject::bindTexture() {
 	glBindTexture(GL_TEXTURE_2D, texture);
 }
 
-bool TextureObject::operator==(TextureObject& other) {
-	if (getWidth() != other.getWidth()   ||
-		getHeight() != other.getHeight() ||
-		getInternalFormat() != other.getInternalFormat() ||
-		getFormat() != other.getFormat() ||
-		getType() != other.getType() ||
-		getPixelSize() != other.getPixelSize()) {
-		return false;
-	}
-
-	size_t size = other.getHeight() * other.getWidth() * other.getPixelSize();
-
-	return (memcmp(this->getData(), other.getData(), size) == 0);
+bool TextureObject::operator<(TextureObject& other) {
+	return (this->getSourceName() < other.getSourceName());
 }
 
 

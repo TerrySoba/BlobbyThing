@@ -82,7 +82,7 @@ bool TextureFont::load(const char* path) {
 	checked_fread(&textureTmp[0], sizeof(uint8_t), width * height, fp);
 
 	// now create LuminanceAlpha texture
-	shared_ptr<MemoryTextureObject> texture = make_shared<MemoryTextureObject>(width, height);
+	shared_ptr<MemoryTextureObject> texture = make_shared<MemoryTextureObject>(width, height, path);
 	uint8_t* texturePtr = (uint8_t*)texture->getData();
 
 	for (size_t pos = 0; pos < width * height * sizeof(uint8_t); pos++) {

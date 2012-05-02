@@ -133,4 +133,8 @@ void SDLTextureObject::compact() {
 	}
 }
 
+std::string SDLTextureObject::getSourceName() {
+	return path;
+}
+
 

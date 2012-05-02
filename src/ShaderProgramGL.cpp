@@ -139,7 +139,7 @@ bool ShaderProgramGL::prepareShaders() {
 
 		glLinkProgram(shaderProgramHandle);
 
-		// LOG("ShaderProgram Log: ", getProgramInfoLog(shaderProgramHandle));
+		LOG("ShaderProgram Log: ", getProgramInfoLog(shaderProgramHandle));
 
 		// glUseProgram(program);
 
@@ -149,6 +149,8 @@ bool ShaderProgramGL::prepareShaders() {
 	return true;
 }
 
-bool ShaderProgramGL::operator==(const ShaderProgramGL& other) const {
-	return (this->vertexShaderPath == other.vertexShaderPath && this->fragmentShaderPath == other.fragmentShaderPath);
+bool ShaderProgramGL::operator<(const ShaderProgramGL& other) const {
+	auto thisName = std::make_pair(this->vertexShaderPath, this->fragmentShaderPath);
+	auto otherName = std::make_pair(other.vertexShaderPath, other.fragmentShaderPath);
+	return (thisName < otherName);
 }

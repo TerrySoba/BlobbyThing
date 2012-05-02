@@ -72,10 +72,12 @@ int BlobbyThingGame::run() {
 
 	shared_ptr<TextureText> playerAScoreText = make_shared<TextureText>(font, "playerAScoreText");
 	shared_ptr<TextureText> playerBScoreText = make_shared<TextureText>(font, "playerBScoreText");
+	shared_ptr<TextureText> fpsText = make_shared<TextureText>(font, "fpsText");
 	shared_ptr<TextureText> startText = make_shared<TextureText>(titleFont, "startText");
 
 	playerAScoreText->setText(u8"Score 0");
 	playerBScoreText->setText(u8"Score 0");
+	fpsText->setText("fps:000");
 	const char* titleStr = u8"Press F1 to start!";
 	startText->setText(titleStr);
 	PhysicsSimulation2D physics(1e-2 / 4);
@@ -96,62 +98,36 @@ int BlobbyThingGame::run() {
 	gl.setCamera(49.134);
 	gl.lookAt(5, 5, 20, 0, 1, 0, 0, 1, 0);
 
-//	for (shared_ptr<ShadedModel>& model : beach) {
-//		size_t modelHandle = gl.addModel(model);
-//		gl.addGfxObjects(modelHandle);
-//	}
+	for (shared_ptr<ObjModel>& model : beach) {
+		size_t modelHandle = gl.addModel(model);
+		gl.addGfxObjects(modelHandle, model->name);
+	}
 
-//	size_t ballShadowHandle = gl.addModel(ballShadow[0]);
+	size_t ballShadowHandle = gl.addModel(ballShadow[0]);
 
-//	size_t ballShadow1_id = gl.addGfxObjects(ballShadowHandle);
-//	size_t ballShadow2_id = gl.addGfxObjects(ballShadowHandle);
-//	size_t ballShadow3_id = gl.addGfxObjects(ballShadowHandle);
+	size_t ballShadow1_id = gl.addGfxObjects(ballShadowHandle, "BallShadow1");
+	size_t ballShadow2_id = gl.addGfxObjects(ballShadowHandle, "BallShadow2");
+	size_t ballShadow3_id = gl.addGfxObjects(ballShadowHandle, "BallShadow3");
 
 	auto textWidth = playerAScoreText->getTextWidth("Score 99 ");
 
-	size_t playerAScoreTextHandle = gl.addModel(playerAScoreText);
-
-	GraphicsObject textGfx;
-	textGfx.modelHandle = playerAScoreTextHandle;
-	textGfx.translation << 10, gl.getScreenHeight() - 100, 0;
-	textGfx.rotationVector = {0,0,1};
-	textGfx.rotationAngle = 0;
-	gl.addOrthoGfxObject(textGfx);
-
-	size_t playerBScoreTextHandle = gl.addModel(playerBScoreText);
-
-	GraphicsObject text2Gfx;
-	text2Gfx.modelHandle = playerBScoreTextHandle;
-	text2Gfx.translation << float(gl.getScreenWidth() - textWidth), gl.getScreenHeight() - 100, 0;
-	text2Gfx.rotationVector << 0,0,1;
-	text2Gfx.rotationAngle = 0;
-	gl.addOrthoGfxObject(text2Gfx);
-
-	GraphicsObject titleTextGfx;
-
+	gl.addOrthoGfxObject(gl.addModel(playerAScoreText), "PlayerAScoreText", Vector3f(10, gl.getScreenHeight() - 100, 0), Vector3f(0,0,1), 0);
+	gl.addOrthoGfxObject(gl.addModel(playerBScoreText), "PlayerBScoreText", Vector3f(float(gl.getScreenWidth() - textWidth), gl.getScreenHeight() - 100, 0), Vector3f(0,0,1), 0);
 	auto titleWidth = startText->getTextWidth(titleStr);
+	gl.addOrthoGfxObject(gl.addModel(startText), "StartText", Vector3f(float(gl.getScreenWidth()/2 - titleWidth/2), gl.getScreenHeight() / 2, 0), Vector3f(0,0,1), 0);
+	gl.addOrthoGfxObject(gl.addModel(fpsText), "FPSText", Vector3f(10, gl.getScreenHeight() - 200, 0), Vector3f(0,0,1), 0);
 
-	size_t startTextHandle = gl.addModel(startText);
-
-	titleTextGfx.modelHandle = startTextHandle;
-	titleTextGfx.translation << float(gl.getScreenWidth()/2 - titleWidth/2), gl.getScreenHeight() / 2, 0;
-	titleTextGfx.rotationVector << 0,0,1;
-	titleTextGfx.rotationAngle = 0;
-	gl.addOrthoGfxObject(titleTextGfx);
-
-	// generate OpenGL textures
-	gl.generateGLTextures();
-
-	gl.loadShaders();
-
+	gl.prepareScene();
+	size_t fpsCounter = 0;
 	GameLoop loop;
 	loop.setDrawTask([&]() {
 		gl.draw();
+		fpsCounter++;
 	});
 
-	int playerA_id = gl.getGfxObjectHandleByName("_PlayerADiffuse");
-	int playerB_id = gl.getGfxObjectHandleByName("_PlayerBDiffuse");
-	int ball_id = gl.getGfxObjectHandleByName("_VolleyBallTextureDiffuse");
+	int playerA_id = gl.getGfxObjectHandleByName("PlayerA_Sphere");
+	int playerB_id = gl.getGfxObjectHandleByName("PlayerB_Sphere.001");
+	int ball_id = gl.getGfxObjectHandleByName("VolleyBall_Cube.006");
 
 	if (playerA_id == -1) {
 		ERR("playerA_id was not found");
@@ -169,6 +145,12 @@ int BlobbyThingGame::run() {
 	}
 
 	GameStateMachine<GameState> stateMachine(GameState::START_SCREEN);
+
+	loop.addCycleTask([&]() {
+		fpsText->setText((boost::format("fps %1%") % fpsCounter).str().c_str());
+		fpsCounter = 0;
+		return TaskReturnvalue::OK;
+	}, 1);
 
 	loop.addCycleTask([&]() {
 		physics.calc();
@@ -196,101 +178,101 @@ int BlobbyThingGame::run() {
 	size_t rightLineID = physics.addLine(Vector2d(0,0), Vector2d(10,0));
 	size_t leftLineID = physics.addLine(Vector2d(-10,0), Vector2d(0,0));
 
-//	size_t playerACircleIndex = physics.addCircle(0, 10, 1, -3, 0, 3, true,
-//			[&](PhysicsCircle2D& circle) {
-//				gl.getGfxObject(playerA_id).translation[0] = circle.position(0);
-//				gl.getGfxObject(playerA_id).translation[1] = circle.position(1);
-//				gl.getGfxObject(ballShadow2_id).translation[0] = circle.position(0);
-//				gl.getGfxObject(ballShadow2_id).translation[1] = 0.021;
-//			});
+	size_t playerACircleIndex = physics.addCircle(0, 10, 1, -3, 0, 3, true,
+			[&](PhysicsCircle2D& circle) {
+				gl.getGfxObject(playerA_id).translation[0] = circle.position(0);
+				gl.getGfxObject(playerA_id).translation[1] = circle.position(1);
+				gl.getGfxObject(ballShadow2_id).translation[0] = circle.position(0);
+				gl.getGfxObject(ballShadow2_id).translation[1] = 0.021;
+			});
 
-//	size_t playerBCircleIndex = physics.addCircle(-5, 10, 1, -3, 0, 3, true,
-//			[&](PhysicsCircle2D& circle) {
-//				gl.getGfxObject(playerB_id).translation[0] = circle.position(0);
-//				gl.getGfxObject(playerB_id).translation[1] = circle.position(1);
-//				gl.getGfxObject(ballShadow3_id).translation[0] = circle.position(0);
-//				gl.getGfxObject(ballShadow3_id).translation[1] = 0.022;
-//			});
-//
-//	size_t smallCircleIndex = physics.addCircle(-3, 5, .5, 9, 7, 1, true,
-//			[&](PhysicsCircle2D& circle) {
-//		gl.getGfxObject(ball_id).translation[0] = circle.position(0);
-//		gl.getGfxObject(ball_id).translation[1] = circle.position(1);
-//		gl.getGfxObject(ballShadow1_id).translation[0] = circle.position(0);
-//		gl.getGfxObject(ballShadow1_id).translation[1] = 0.02;
-//	});
+	size_t playerBCircleIndex = physics.addCircle(-5, 10, 1, -3, 0, 3, true,
+			[&](PhysicsCircle2D& circle) {
+				gl.getGfxObject(playerB_id).translation[0] = circle.position(0);
+				gl.getGfxObject(playerB_id).translation[1] = circle.position(1);
+				gl.getGfxObject(ballShadow3_id).translation[0] = circle.position(0);
+				gl.getGfxObject(ballShadow3_id).translation[1] = 0.022;
+			});
 
-
-
-//	physics.addLineCircleCollisionAction(leftLineID, smallCircleIndex, [&](PhysicsStaticLine2D& line, PhysicsCircle2D& circle){
-//		groundATouched = true;
-//		circle.speed = circle.speed * 0.5;
-//	});
-//
-//	physics.addLineCircleCollisionAction(rightLineID, smallCircleIndex, [&](PhysicsStaticLine2D& line, PhysicsCircle2D& circle){
-//		groundBTouched = true;
-//		circle.speed = circle.speed * 0.5;
-//	});
-//
-//	physics.addLineCircleCollisionAction(rightLineID, playerACircleIndex, [&](PhysicsStaticLine2D& line, PhysicsCircle2D& circle){
-//		circle.speed[1] = circle.speed[1] * 0.2;
-//	});
-//
-//	physics.addLineCircleCollisionAction(leftLineID, playerACircleIndex, [&](PhysicsStaticLine2D& line, PhysicsCircle2D& circle){
-//		circle.speed[1] = circle.speed[1] * 0.2;
-//	});
-//
-//	physics.addLineCircleCollisionAction(rightLineID, playerBCircleIndex, [&](PhysicsStaticLine2D& line, PhysicsCircle2D& circle){
-//		circle.speed[1] = circle.speed[1] * 0.2;
-//	});
-//
-//	physics.addLineCircleCollisionAction(leftLineID, playerBCircleIndex, [&](PhysicsStaticLine2D& line, PhysicsCircle2D& circle){
-//		circle.speed[1] = circle.speed[1] * 0.2;
-//	});
-//
-//	physics.addcircleCircleCollisionAction(playerACircleIndex, smallCircleIndex, [&](PhysicsCircle2D& circle1, PhysicsCircle2D& circle2){
-//		playerATouch++;
-//		playerBTouch = 0;
-//	});
-
-//	physics.addcircleCircleCollisionAction(playerBCircleIndex, smallCircleIndex, [&](PhysicsCircle2D& circle1, PhysicsCircle2D& circle2){
-//		playerBTouch++;
-//		playerATouch = 0;
-//	});
+	size_t smallCircleIndex = physics.addCircle(-3, 5, .5, 9, 7, 1, true,
+			[&](PhysicsCircle2D& circle) {
+		gl.getGfxObject(ball_id).translation[0] = circle.position(0);
+		gl.getGfxObject(ball_id).translation[1] = circle.position(1);
+		gl.getGfxObject(ballShadow1_id).translation[0] = circle.position(0);
+		gl.getGfxObject(ballShadow1_id).translation[1] = 0.02;
+	});
 
 
-//	loop.addCycleTask([&]() {
-//		physics.getCircle(playerACircleIndex).speed[0] *= 0.5;
-//		physics.getCircle(playerBCircleIndex).speed[0] *= 0.5;
-//
-//		if (physics.getCircle(playerACircleIndex).position[1] < 1.1) {
-//			if (keyStatus.keyUp) {
-//				physics.getCircle(playerACircleIndex).speed[1] = 10;
-//			}
-//		}
-//
-//		if (physics.getCircle(playerBCircleIndex).position[1] < 1.1) {
-//			if (keyStatus.keyW) {
-//				physics.getCircle(playerBCircleIndex).speed[1] = 10;
-//			}
-//		}
-//
-//		if (keyStatus.keyRight) {
-//			physics.getCircle(playerACircleIndex).speed[0] = 5;
-//		}
-//		if (keyStatus.keyLeft) {
-//			physics.getCircle(playerACircleIndex).speed[0] = -5;
-//		}
-//
-//		if (keyStatus.keyD) {
-//			physics.getCircle(playerBCircleIndex).speed[0] = 5;
-//		}
-//		if (keyStatus.keyA) {
-//			physics.getCircle(playerBCircleIndex).speed[0] = -5;
-//		}
-//
-//		return TaskReturnvalue::OK;
-//	}, 100);
+
+	physics.addLineCircleCollisionAction(leftLineID, smallCircleIndex, [&](PhysicsStaticLine2D& line, PhysicsCircle2D& circle){
+		groundATouched = true;
+		circle.speed = circle.speed * 0.5;
+	});
+
+	physics.addLineCircleCollisionAction(rightLineID, smallCircleIndex, [&](PhysicsStaticLine2D& line, PhysicsCircle2D& circle){
+		groundBTouched = true;
+		circle.speed = circle.speed * 0.5;
+	});
+
+	physics.addLineCircleCollisionAction(rightLineID, playerACircleIndex, [&](PhysicsStaticLine2D& line, PhysicsCircle2D& circle){
+		circle.speed[1] = circle.speed[1] * 0.2;
+	});
+
+	physics.addLineCircleCollisionAction(leftLineID, playerACircleIndex, [&](PhysicsStaticLine2D& line, PhysicsCircle2D& circle){
+		circle.speed[1] = circle.speed[1] * 0.2;
+	});
+
+	physics.addLineCircleCollisionAction(rightLineID, playerBCircleIndex, [&](PhysicsStaticLine2D& line, PhysicsCircle2D& circle){
+		circle.speed[1] = circle.speed[1] * 0.2;
+	});
+
+	physics.addLineCircleCollisionAction(leftLineID, playerBCircleIndex, [&](PhysicsStaticLine2D& line, PhysicsCircle2D& circle){
+		circle.speed[1] = circle.speed[1] * 0.2;
+	});
+
+	physics.addcircleCircleCollisionAction(playerACircleIndex, smallCircleIndex, [&](PhysicsCircle2D& circle1, PhysicsCircle2D& circle2){
+		playerATouch++;
+		playerBTouch = 0;
+	});
+
+	physics.addcircleCircleCollisionAction(playerBCircleIndex, smallCircleIndex, [&](PhysicsCircle2D& circle1, PhysicsCircle2D& circle2){
+		playerBTouch++;
+		playerATouch = 0;
+	});
+
+
+	loop.addCycleTask([&]() {
+		physics.getCircle(playerACircleIndex).speed[0] *= 0.5;
+		physics.getCircle(playerBCircleIndex).speed[0] *= 0.5;
+
+		if (physics.getCircle(playerACircleIndex).position[1] < 1.1) {
+			if (keyStatus.keyUp) {
+				physics.getCircle(playerACircleIndex).speed[1] = 10;
+			}
+		}
+
+		if (physics.getCircle(playerBCircleIndex).position[1] < 1.1) {
+			if (keyStatus.keyW) {
+				physics.getCircle(playerBCircleIndex).speed[1] = 10;
+			}
+		}
+
+		if (keyStatus.keyRight) {
+			physics.getCircle(playerACircleIndex).speed[0] = 5;
+		}
+		if (keyStatus.keyLeft) {
+			physics.getCircle(playerACircleIndex).speed[0] = -5;
+		}
+
+		if (keyStatus.keyD) {
+			physics.getCircle(playerBCircleIndex).speed[0] = 5;
+		}
+		if (keyStatus.keyA) {
+			physics.getCircle(playerBCircleIndex).speed[0] = -5;
+		}
+
+		return TaskReturnvalue::OK;
+	}, 100);
 
 	// add task to handle SDL events
 	loop.addCycleTask([&](){ return handleEvents(); }, 100);
@@ -302,13 +284,13 @@ int BlobbyThingGame::run() {
 	 */
 
 	auto resetBallPos = [&](){
-//		physics.getCircle(smallCircleIndex).speed = Vector2d(0,0);
-//		physics.getCircle(smallCircleIndex).position = Vector2d(0,10);
-//
-//		physics.getCircle(playerACircleIndex).speed = Vector2d(0,0);
-//		physics.getCircle(playerACircleIndex).position = Vector2d(5,4);
-//		physics.getCircle(playerBCircleIndex).speed = Vector2d(0,0);
-//		physics.getCircle(playerBCircleIndex).position = Vector2d(-5,4);
+		physics.getCircle(smallCircleIndex).speed = Vector2d(0,0);
+		physics.getCircle(smallCircleIndex).position = Vector2d(0,10);
+
+		physics.getCircle(playerACircleIndex).speed = Vector2d(0,0);
+		physics.getCircle(playerACircleIndex).position = Vector2d(5,4);
+		physics.getCircle(playerBCircleIndex).speed = Vector2d(0,0);
+		physics.getCircle(playerBCircleIndex).position = Vector2d(-5,4);
 	};
 
 	stateMachine.addTransition(GameState::START_SCREEN,

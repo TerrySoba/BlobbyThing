@@ -48,7 +48,7 @@ public:
 
 	void useProgram();
 
-	bool operator==(const ShaderProgramGL& other) const;
+	bool operator<(const ShaderProgramGL& other) const;
 
 private: // variables
 	std::string vertexShaderPath;
