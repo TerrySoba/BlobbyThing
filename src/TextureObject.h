@@ -9,6 +9,7 @@
 #define TEXTUREOBJECT_H_
 
 #include "gl_includes.h"
+#include <string>
 
 class TextureObject {
 public:
@@ -25,9 +26,13 @@ public:
 	// returns number of bytes per pixel
 	virtual size_t getPixelSize() = 0;
 
+	// returns name of image source. This is used as as a kind of hash.
+	// If the texture is different, this must also be different.
+	virtual std::string getSourceName() = 0;
+
 	/*! \brief return true if texture is identical to other texture
 	 */
-	bool operator==(TextureObject& other);
+	bool operator<(TextureObject& other);
 
 	/*! \brief Frees space, but might slow reloading of the texture down.
 	 */
@@ -36,8 +41,6 @@ public:
 	/* utility function */
 	virtual GLuint generateOpenGLTexture();
 	virtual void bindTexture();
-
-
 
 protected:
 	GLuint texture;

@@ -114,6 +114,40 @@ std::map<std::string, ObjMaterial> WavefrontOBJLoader::loadMaterial(const char* 
 			continue;
 		}
 
+		if (strcmp("fragment_shader", token) == 0) { // path to fragment_shader
+			token = strtok_r(NULL, "\n\r", &saveptr);
+			if (token) {
+				if (token[0] == '/' || token[0] == '\\') { // absolute path
+					mtl[mtlname].fragmentShaderPath = token;
+				} else { // relative path
+					char* pathTmp = new char[strlen(path) + 1];
+					strcpy(pathTmp, path);
+					// LOG("pathTmp: ", pathTmp, "  token: ", token);
+					mtl[mtlname].fragmentShaderPath = (boost::format("%1%/%2%")
+							% dirname(pathTmp) % token).str();
+					delete[] pathTmp;
+				}
+			}
+			continue;
+		}
+
+		if (strcmp("vertex_shader", token) == 0) { // path to vertex_shader
+			token = strtok_r(NULL, "\n\r", &saveptr);
+			if (token) {
+				if (token[0] == '/' || token[0] == '\\') { // absolute path
+					mtl[mtlname].vertexShaderPath = token;
+				} else { // relative path
+					char* pathTmp = new char[strlen(path) + 1];
+					strcpy(pathTmp, path);
+					// LOG("pathTmp: ", pathTmp, "  token: ", token);
+					mtl[mtlname].vertexShaderPath = (boost::format("%1%/%2%")
+							% dirname(pathTmp) % token).str();
+					delete[] pathTmp;
+				}
+			}
+			continue;
+		}
+
 		if (strcmp("Ns", token) == 0) { // specular factor
 			token = strtok_r(NULL, "\n\r", &saveptr);
 			if (token) {

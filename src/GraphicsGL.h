@@ -12,19 +12,23 @@
 #include "SDL.h"
 #include <cstdint>
 #include <string>
-#include <boost/shared_ptr.hpp>
 #include "ShadedModel.h"
 #include <map>
-
+#include <set>
+#include "WavefrontOBJLoader.h"
+#include <tuple>
 #include "common.h"
 
+
+
 struct GraphicsObject {
-	// shared_ptr<ShadedModel> model;
+	std::string name;
 	size_t modelHandle;
 	Vector3f translation;
 	Vector3f rotationVector;
 	GLfloat rotationAngle; // in degree
 };
+
 
 class GraphicsGL {
 public:
@@ -72,11 +76,12 @@ public:
 
 	/*! \brief Add model to the graphics engine
 	 *
-	 *  It adds a ShadedModel to the graphics engine.
+	 *  It adds a model to the graphics engine.
 	 *  A handle to the model is returned.
-	 *  \param model ShadedModel to be added
+	 *  \param model ObjModel to be added
 	 *  \return handle of the added model
 	 */
+	size_t addModel(shared_ptr<ObjModel> model);
 	size_t addModel(shared_ptr<ShadedModel> model);
 
 	/*! \brief add GraphicsObject to perspective draw list
@@ -87,9 +92,9 @@ public:
 	 *
 	 *  \return a handle to the newly inserted GfxObject
 	 */
-	size_t addGfxObjects(GraphicsObject& gfxObject);
+	// size_t addGfxObjects(GraphicsObject& gfxObject);
 
-	size_t addGfxObjects(size_t modelHandle, Vector3f translation = Vector3f(0,0,0), Vector3f rotationVector = Vector3f(0,0,0), GLfloat rotationAngle = 0.0);
+	size_t addGfxObjects(size_t modelHandle, std::string name, Vector3f translation = Vector3f(0,0,0), Vector3f rotationVector = Vector3f(0,0,0), GLfloat rotationAngle = 0.0);
 
 	/*! \brief add GraphicsObject to orthigraphic draw list
 	 *
@@ -97,7 +102,7 @@ public:
 	 *
 	 *  \param gfxObject reference to the GraphicsObject to be added
 	 */
-	void addOrthoGfxObject(GraphicsObject& gfxObject);
+	size_t addOrthoGfxObject(size_t modelHandle, std::string name, Vector3f translation = Vector3f(0,0,0), Vector3f rotationVector = Vector3f(0,0,0), GLfloat rotationAngle = 0.0);
 
 	/*! \brief get handle to model by name.
 	 *
@@ -120,18 +125,7 @@ public:
 		return perspectiveObjs.at(handle);
 	}
 
-	/*! \brief Generates OpenGL textures from the textures in the models
-	 *
-	 *  You have to call this once before drawing for the first time.
-	 *  Currently there is no way to free already created OpenGL textures,
-	 *  so don't call this more than once. Additional calls will fill
-	 *  up the graphics card memory.
-	 */
-	void generateGLTextures();
-
-	/*! \brief load shaders of models
-	 */
-	void loadShaders();
+	void prepareScene();
 
 	/*! \brief draws the current screen
 	 *
@@ -157,9 +151,36 @@ private:
 	SDL_Window *mainwindow;    /* Our window handle */
 	SDL_GLContext maincontext; /* Our opengl context handle */
 
-	std::vector<shared_ptr<ShadedModel>> models;
 	std::vector<GraphicsObject> perspectiveObjs;
 	std::vector<GraphicsObject> orthographicObjs;
+
+	// do not compare pointers, but compare dereferenced pointers
+	template <class T> struct ptr_less {
+	  bool operator() (const T& x, const T& y) const {
+		  if (!(x && y)) {
+			  ERR("At least one pointer is a null pointer.");
+			  return false;
+		  }
+		  return (*x)<(*y);
+	  }
+	};
+
+	std::vector<shared_ptr<TriangleObject>> geometryStore;
+	std::set<shared_ptr<ShaderProgramGL>, ptr_less<shared_ptr<ShaderProgramGL>>> shaderStore;
+	std::set<shared_ptr<TextureObject>, ptr_less<shared_ptr<TextureObject>>> textureStore;
+
+	struct InternalModelPart {
+		shared_ptr<TriangleObject> triangles;
+		shared_ptr<ShaderProgramGL> shader;
+		shared_ptr<TextureObject> texture;
+	};
+
+	struct InternalModelReference {
+		std::string name;
+		std::vector<InternalModelPart> modelParts;
+	};
+
+	std::vector<InternalModelReference> models;
 
 	struct OpenGLCamera_t {
 		GLdouble fovy;         // field of view in degree
