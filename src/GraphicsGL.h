@@ -122,7 +122,7 @@ public:
 	size_t getGfxObjectHandleByName(std::string name);
 
 	GraphicsObject& getGfxObject(int handle) {
-		return perspectiveObjs.at(handle);
+		return objs.at(handle);
 	}
 
 	void prepareScene();
@@ -147,12 +147,18 @@ private:
 	uint32_t screenHeight;
 	uint32_t colorDepth;
 	std::string windowName;
-	// SDL_Surface* screen;
+
+#if SDL_VERSION_ATLEAST(2,0,0)
 	SDL_Window *mainwindow;    /* Our window handle */
 	SDL_GLContext maincontext; /* Our opengl context handle */
+#else
+	SDL_Surface* screen;
+#endif
 
-	std::vector<GraphicsObject> perspectiveObjs;
-	std::vector<GraphicsObject> orthographicObjs;
+	std::vector<size_t> perspectiveObjs;
+	std::vector<size_t> orthographicObjs;
+
+	std::vector<GraphicsObject> objs;
 
 	// do not compare pointers, but compare dereferenced pointers
 	template <class T> struct ptr_less {
@@ -178,6 +184,7 @@ private:
 	struct InternalModelReference {
 		std::string name;
 		std::vector<InternalModelPart> modelParts;
+		double transparency;
 	};
 
 	std::vector<InternalModelReference> models;

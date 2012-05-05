@@ -24,14 +24,17 @@ GraphicsGL::GraphicsGL(uint32_t screenWidth, uint32_t screenHeight, uint32_t col
 
 GraphicsGL::~GraphicsGL() {
 	/* Delete our opengl context, destroy our window, and shutdown SDL */
+#if SDL_VERSION_ATLEAST(2,0,0)
 	SDL_GL_DeleteContext(maincontext);
 	SDL_DestroyWindow(mainwindow);
+#else
+
+#endif
 	SDL_Quit();
 }
 
 bool GraphicsGL::init() {
-	//screen = SDL_SetVideoMode(screenWidth, screenHeight, colorDepth, SDL_HWSURFACE | SDL_OPENGL);
-
+#if SDL_VERSION_ATLEAST(2,0,0)
 	mainwindow = SDL_CreateWindow(windowName.c_str(), SDL_WINDOWPOS_CENTERED,
 			SDL_WINDOWPOS_CENTERED, screenWidth, screenHeight,
 			SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN);
@@ -40,6 +43,13 @@ bool GraphicsGL::init() {
 		ERR("Can't set video mode: ", SDL_GetError());
 		return false;
 	}
+#else
+	screen = SDL_SetVideoMode(screenWidth, screenHeight, colorDepth, SDL_HWSURFACE | SDL_OPENGL);
+	if (!screen) {
+		ERR("Can't set video mode: ", SDL_GetError());
+		return false;
+	}
+#endif
 
 	/* set icon of window */
 	// first convert icon to SDL surface from "icon_img.h"
@@ -51,13 +61,20 @@ bool GraphicsGL::init() {
 			0x00ff0000,
 			0xff000000);
 
+#if SDL_VERSION_ATLEAST(2,0,0)
 	SDL_SetWindowIcon(mainwindow, icon);
+#else
+	SDL_WM_SetIcon(icon, NULL);
+#endif
+
 	SDL_FreeSurface(icon);
 
+#if SDL_VERSION_ATLEAST(2,0,0)
 	/* Create our opengl context and attach it to our window */
 	maincontext = SDL_GL_CreateContext(mainwindow);
+#endif
 
-	/* This makes our buffer swap syncronized with the monitor's vertical refresh */
+	/* This makes our buffer swap synchronized with the monitor's vertical refresh */
 	// SDL_GL_SetSwapInterval(1);
 
 	// init GLEW
@@ -252,8 +269,10 @@ size_t GraphicsGL::addModel(shared_ptr<ShadedModel> model) {
 		partTmp.texture = *(texturePos.first);
 		ref.modelParts.push_back(partTmp);
 
+		ref.transparency = 1;
 		models.push_back(ref);
 	}
+
 	return (models.size() - 1);
 }
 
@@ -263,6 +282,7 @@ size_t GraphicsGL::addModel(shared_ptr<ObjModel> model) {
 	if (model) {
 		InternalModelReference ref;
 		ref.name = model->name;
+		ref.transparency = 1;
 
 		for (ModelPart& part : model->modelParts) {
 			shared_ptr<TriangleObject>& triangles = part.triangles;
@@ -288,6 +308,8 @@ size_t GraphicsGL::addModel(shared_ptr<ObjModel> model) {
 			partTmp.triangles = triangles;
 			partTmp.shader = *(shaderPos.first);
 			partTmp.texture = *(texturePos.first);
+
+			if (part.material.transparency < ref.transparency) ref.transparency = part.material.transparency;
 			ref.modelParts.push_back(partTmp);
 		}
 
@@ -304,8 +326,11 @@ size_t GraphicsGL::addGfxObjects(size_t modelHandle, std::string name, Vector3f 
 	obj.rotationVector = rotationVector;
 	obj.rotationAngle = rotationAngle;
 
-	perspectiveObjs.push_back(obj);
-	return (perspectiveObjs.size() - 1);
+	objs.push_back(obj);
+
+	size_t pos = objs.size() - 1;
+	perspectiveObjs.push_back(pos);
+	return pos;
 }
 
 size_t GraphicsGL::addOrthoGfxObject(size_t modelHandle, std::string name, Vector3f translation, Vector3f rotationVector, GLfloat rotationAngle) {
@@ -316,8 +341,11 @@ size_t GraphicsGL::addOrthoGfxObject(size_t modelHandle, std::string name, Vecto
 	obj.rotationVector = rotationVector;
 	obj.rotationAngle = rotationAngle;
 
-	orthographicObjs.push_back(obj);
-	return (orthographicObjs.size() - 1);
+	objs.push_back(obj);
+
+	size_t pos = objs.size() - 1;
+	orthographicObjs.push_back(pos);
+	return pos;
 }
 
 size_t GraphicsGL::getModelHandleByName(std::string name) {
@@ -332,7 +360,7 @@ size_t GraphicsGL::getModelHandleByName(std::string name) {
 
 size_t GraphicsGL::getGfxObjectHandleByName(std::string name) {
 	for (size_t n = 0; n < perspectiveObjs.size(); n++) {
-		if (perspectiveObjs[n].name == name) {
+		if (objs[n].name == name) {
 			return n;
 		}
 	}
@@ -348,6 +376,12 @@ void GraphicsGL::prepareScene() {
 	for (const shared_ptr<ShaderProgramGL>& shader : shaderStore) {
 		shader->prepareShaders();
 	}
+
+	// now sort perspective objects for transparency
+	std::stable_sort(perspectiveObjs.begin(), perspectiveObjs.end(), [&](const size_t& a, const size_t& b) {
+		return models[objs[a].modelHandle].transparency > models[objs[b].modelHandle].transparency;
+	});
+
 }
 
 void GraphicsGL::draw() {
@@ -380,8 +414,8 @@ void GraphicsGL::draw() {
 	};
 
 	// first draw the perspective objects
-	for (GraphicsObject &obj : perspectiveObjs) {
-		drawObj(obj);
+	for (size_t &obj : perspectiveObjs) {
+		drawObj(objs[obj]);
 	}
 
 	// now draw orthographic objects
@@ -393,8 +427,8 @@ void GraphicsGL::draw() {
 	glPushMatrix();
 	glLoadIdentity();
 	glDisable(GL_DEPTH_TEST); // disable depth buffering
-	for (GraphicsObject &obj : orthographicObjs) {
-		drawObj(obj);
+	for (size_t &obj : orthographicObjs) {
+		drawObj(objs[obj]);
 	}
 	glPopMatrix();
 	glEnable(GL_DEPTH_TEST); // enable depth buffering
@@ -402,7 +436,10 @@ void GraphicsGL::draw() {
 	glPopMatrix();
 	glMatrixMode(GL_MODELVIEW);
 
-	// SDL_GL_SwapBuffers();
+#if SDL_VERSION_ATLEAST(2,0,0)
 	SDL_GL_SwapWindow(mainwindow);
+#else
+	SDL_GL_SwapBuffers();
+#endif
 }
 
