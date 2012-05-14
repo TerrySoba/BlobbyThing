@@ -12,12 +12,11 @@
 ErrorLogging* ErrorLogging::instance = 0;
 
 ErrorLogging::ErrorLogging() {
-	// TODO Auto-generated constructor stub
 
 }
 
 ErrorLogging::~ErrorLogging() {
-	// TODO Auto-generated destructor stub
+
 }
 
 ErrorLogging* ErrorLogging::getInstance() {
