@@ -9,43 +9,23 @@
 
 #include "common.h"
 
-#include "MultiSpline.h"
+#include <boost/property_tree/ptree.hpp>
+#include <boost/property_tree/xml_parser.hpp>
 
 int main(int argc, char* argv[]) {
 
-//	srand(time(NULL));
+//	using boost::property_tree::ptree;
+//	ptree pt;
 //
-//	const int length = 1234567;
+//	pt.put("BlobbyThing.models.shadow", "shadow.obj");
+//	pt.put("BlobbyThing.models.beach", "beach.obj");
+//	pt.put("BlobbyThing.settings.resolution_x", "1280");
+//	pt.put("BlobbyThing.settings.resolution_y", "720");
 //
-//	Spline3d s;
+//	boost::property_tree::xml_writer_settings<char> settings(' ', 2);
+//	write_xml("test.xml", pt, std::locale(), settings);
 //
-//	std::vector<Vector4d> vec;
-//	double pos = 0;
-//	for (int i = 0; i < length; i++) {
-//		double x1 = (rand()%1000) / 1000.0;
-//		double x2 = pos;
-//		double x3 = (i%2 == 0)?0:-1;
-//		vec.push_back(Vector4d(pos,x1,x2,x3));
-//		pos += (rand() % 10000 + 1) / 10000.0;
-//	}
-////	vec.push_back(Vector4d(1,1,1, 1));
-////	vec.push_back(Vector4d(1.1,5,3, 2));
-////	vec.push_back(Vector4d(2.1,5,3, 2));
-////	vec.push_back(Vector4d(3,2,2, 66));
-////	vec.push_back(Vector4d(4,0,1, 7));
-////	vec.push_back(Vector4d(5,1,0, 19));
-////	vec.push_back(Vector4d(6,1,-1, 0));
-//
-//	uint32_t startTime = SDL_GetTicks();
-//	s.setPoints(vec);
-//	uint32_t endTime = SDL_GetTicks();
-//
-//	LOG("Operation took ", (endTime - startTime) / 1000.0," seconds. That is ", int(length / ((endTime - startTime) / 1000.0)), " per second.");
-//
-////	for(double d = 0; d < 5; d+=0.01) {
-////		Vector3d p = s.evaluate(d);
-////		std::cout << d << ", " << p(0) << ", " << p(1) << ", " << p(2) << std::endl;
-////	}
+//	std::cout << pt.get("BlobbyThing.models.shadow", "Hallo Welt!2345");
 //
 //	return 0;
 
