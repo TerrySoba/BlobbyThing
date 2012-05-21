@@ -18,7 +18,7 @@
 #include "WavefrontOBJLoader.h"
 #include <tuple>
 #include "common.h"
-
+#include "OpenGLES_Utility.h"
 
 
 struct GraphicsObject {
@@ -28,7 +28,6 @@ struct GraphicsObject {
 	Vector3f rotationVector;
 	GLfloat rotationAngle; // in degree
 };
-
 
 class GraphicsGL {
 public:
@@ -55,22 +54,22 @@ public:
 	 *  \param nearClipping distance from camera to near clipping plane
 	 *  \param farClipping distance from camera to far clipping plane
 	 */
-	void setCamera(GLdouble fovy, GLdouble nearClipping = 0.1, GLdouble farClipping = 100.0);
+	void setCamera(GLfloat fovy, GLfloat nearClipping = 0.1, GLfloat farClipping = 100.0);
 
 
 	/*! \brief Set camera position and direction of camera
 	 *
 	 *  This is identical to gluLookAt(), see there for details.
 	 */
-	void lookAt(GLdouble eyex,
-			    GLdouble eyey,
-			    GLdouble eyez,
-			    GLdouble centerx,
-			    GLdouble centery,
-			    GLdouble centerz,
-			    GLdouble upx,
-			    GLdouble upy,
-			    GLdouble upz);
+	void lookAt(GLfloat eyex,
+			    GLfloat eyey,
+			    GLfloat eyez,
+			    GLfloat centerx,
+			    GLfloat centery,
+			    GLfloat centerz,
+			    GLfloat upx,
+			    GLfloat upy,
+			    GLfloat upz);
 
 
 
@@ -190,13 +189,19 @@ private:
 	std::vector<InternalModelReference> models;
 
 	struct OpenGLCamera_t {
-		GLdouble fovy;         // field of view in degree
-		GLdouble nearClipping;
-		GLdouble farClipping;
-		GLdouble eye[3];       // position of camera
-		GLdouble center[3];    // look at position
-		GLdouble up[3];        // up vector of camera
+		GLfloat fovy;         // field of view in degree
+		GLfloat nearClipping;
+		GLfloat farClipping;
+		GLfloat eye[3];       // position of camera
+		GLfloat center[3];    // look at position
+		GLfloat up[3];        // up vector of camera
 	} openGLCamera;
+
+
+	// projection matrices
+	ProjectionMatrix projectionMatrix;
+	ProjectionMatrix modelViewMatrix;
+
 
 };
 

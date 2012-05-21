@@ -22,7 +22,7 @@ public:
 	}
 	virtual GLsizei getWidth() { return width; }
 	virtual GLsizei getHeight() { return height; }
-	virtual GLint getInternalFormat() { return GL_ALPHA8; }
+	virtual GLint getInternalFormat() { return GL_ALPHA; }
 	virtual GLenum getFormat() { return GL_ALPHA; }
 	virtual GLenum getType() { return GL_UNSIGNED_BYTE; }
 

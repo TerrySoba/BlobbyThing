@@ -8,9 +8,12 @@
 #ifndef GL_INCLUDES_H_
 #define GL_INCLUDES_H_
 
-#include <GL/glew.h>
-#include <GL/gl.h>
-#include <GL/glext.h>
-#include <GL/glu.h>
+//#include <GL/glew.h>
+//#include <GL/gl.h>
+//#include <GL/glext.h>
+//#include <GL/glu.h>
 
+#include <GLES2/gl2.h>
+#include <GLES2/gl2ext.h>
+#include <GLES2/gl2platform.h>
 #endif /* GL_INCLUDES_H_ */
