@@ -68,13 +68,25 @@ bool SDLTextureObject::load() {
 	if (nOfColors == 4) { // contains an alpha channel{
 		if (surface->format->Rmask == 0x000000ff)
 			format = GL_RGBA;
-		else
+		else {
+#ifdef GL_ES_VERSION_2_0
+			ERR("BGRA not supported using OpenGL ES");
+			return false;
+#else
 			format = GL_BGRA;
+#endif
+		}
 	} else if (nOfColors == 3) { // no alpha channel
 		if (surface->format->Rmask == 0x000000ff)
 			format = GL_RGB;
-		else
+		else {
+#ifdef GL_ES_VERSION_2_0
+			ERR("BGR not supported using OpenGL ES");
+			return false;
+#else
 			format = GL_BGR;
+#endif
+		}
 	} else {
 		ERR("the image is not truecolor..  this will probably break");
 	}
