@@ -56,12 +56,12 @@ public:
 		size_t count = 0;
 		for (; iterators.first != iterators.second; iterators.first++) {
 			count++;
-			Transition& transistion = iterators.first->second;
-			if (transistion.condition()) {
-				if (transistion.action) { // check if action is set
-					transistion.action();
+			Transition& transition = iterators.first->second;
+			if (transition.condition()) {
+				if (transition.action) { // check if action is set
+					transition.action();
 				}
-				gameState = transistion.toState;
+				gameState = transition.toState;
 				break; // do not evaluate any further conditions
 			}
 		}
@@ -109,7 +109,7 @@ public:
 	 *  \warning This method prints directly to stdout and should thereby only be
 	 *           used for debugging purposes.
 	 */
-	void printTransistionDebug() {
+	void printTransitionDebug() {
 		// at first set marked in every Transition to false
 		for (auto& transition : transitions) {
 			transition.second.marked = false;

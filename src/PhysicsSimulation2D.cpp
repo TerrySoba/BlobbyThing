@@ -18,8 +18,6 @@ PhysicsSimulation2D::PhysicsSimulation2D(double intervalTime) {
 	domain.corners[LOWER_LEFT](1) =   0;
 	domain.corners[UPPER_RIGHT](0) = 10;
 	domain.corners[UPPER_RIGHT](1) = 100;
-
-
 }
 
 PhysicsSimulation2D::~PhysicsSimulation2D() {

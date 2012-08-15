@@ -8,8 +8,6 @@
 #include "Spline.h"
 #include "ErrorLogging.h"
 
-
-
 using namespace Eigen;
 
 Spline::Spline() {

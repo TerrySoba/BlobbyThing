@@ -51,19 +51,6 @@ int BlobbyThingGame::run() {
 	// create camera path
 	// gl.lookAt(-x / 30.0 + 10, y / 30.0 - 10, 14, 0, 3, 0, 0, 1, 0);
 
-	std::vector<Vector4d> cameraPath;
-	cameraPath.push_back(Vector4d(0,       -14, 30,  1));
-	cameraPath.push_back(Vector4d(0.0001,  -14, 30,  1));
-	cameraPath.push_back(Vector4d(10,        5, 10,  30));
-	cameraPath.push_back(Vector4d(20,       15, 10,  30));
-	cameraPath.push_back(Vector4d(30,       15, 10,  10));
-	cameraPath.push_back(Vector4d(40,        0, 40,  -10));
-	cameraPath.push_back(Vector4d(59.9999, -14, 30,  1));
-	cameraPath.push_back(Vector4d(60      ,-14, 30,  1));
-
-	Spline3d spline;
-	spline.setPoints(cameraPath);
-
 	shared_ptr<TextureFont> font = make_shared<TextureFont>();
 	font->load("font.ytf");
 
@@ -158,11 +145,11 @@ int BlobbyThingGame::run() {
 	}, 600); // was 800
 
 	loop.addCycleTask([&]() {
-		time += 1.0 / 100.0;
-		if (time > 60.0)
-			time -= 60.0;
-		Vector3d camPos = spline.evaluate(time);
-		gl.lookAt(camPos[0], camPos[1], camPos[2], 0, 3, 0, 0, 1, 0);
+//		time += 1.0 / 100.0;
+//		if (time > 60.0)
+//			time -= 60.0;
+//		Vector3d camPos = spline.evaluate(time);
+//		gl.lookAt(camPos[0], camPos[1], camPos[2], 0, 3, 0, 0, 1, 0);
 		stateMachine.evaluate();
 		return TaskReturnvalue::OK;
 	}, 100);
@@ -354,7 +341,7 @@ int BlobbyThingGame::run() {
 	//					               [&](){ return keyPressed; },
 	//					               [&](){ keyPressed = false; LOG("START <- SERVE"); });
 
-	stateMachine.printTransistionDebug();
+	stateMachine.printTransitionDebug();
 
 	/*
 	 *   ---------- END GAME RULES ---------------
@@ -462,12 +449,12 @@ TaskReturnvalue BlobbyThingGame::handleEvents() {
 		case SDL_MOUSEMOTION:
 			x = event.motion.x;
 			y = event.motion.y;
-
+//
 //								gl.lookAt(5,5,20,
 //										  -x / 30.0 +10,y / 30.0 - 10,0,
 //										  0,1,0);
 
-			// gl.lookAt(-x / 30.0 + 10, y / 30.0 - 10, 14, 0, 3, 0, 0, 1, 0);
+			gl.lookAt(-x / 30.0 + 10, y / 30.0 - 10, 14, 0, 3, 0, 0, 1, 0);
 
 			break;
 
