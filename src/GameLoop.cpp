@@ -49,7 +49,7 @@ void GameLoop::run() {
 		currentTime = (uint64_t)SDL_GetTicks() * (uint64_t)1000;
 
 		// execute CycleTasks first and in interleaved order
-		bool loop = false;
+		bool loop;
 		do {
 			loop = false;
 			for (CycleTask &task : this->timedTasks) {

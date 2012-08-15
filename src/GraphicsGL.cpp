@@ -35,11 +35,6 @@ GraphicsGL::~GraphicsGL() {
 
 bool GraphicsGL::init() {
 
-
-
-
-
-
 #if SDL_VERSION_ATLEAST(2,0,0)
 	mainwindow = SDL_CreateWindow(windowName.c_str(), SDL_WINDOWPOS_CENTERED,
 			SDL_WINDOWPOS_CENTERED, screenWidth, screenHeight,
