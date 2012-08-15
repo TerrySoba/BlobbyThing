@@ -1,0 +1,124 @@
+# Blender MTL File: 'beach_background_6.blend'
+# Material Count: 11
+newmtl Material.001_SandTextureDiffuse
+Ns 96.078431
+Ka 0.000000 0.000000 0.000000
+Kd 0.640000 0.433680 0.045600
+Ks 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 1
+map_Kd sand_texture_diffuse.png
+vertex_shader stone.vert
+fragment_shader stone.frag
+
+
+newmtl Material.002_OceanTextureDiffuse
+Ns 96.078431
+Ka 0.000000 0.000000 0.000000
+Kd 0.000000 0.160000 0.640000
+Ks 0.500000 0.500000 0.500000
+Ni 1.000000
+d 1.000000
+illum 2
+map_Kd ocean_texture_diffuse.png
+vertex_shader stone.vert
+fragment_shader stone.frag
+
+
+newmtl Material.003_NetTextureDiffuse
+Ns 96.078431
+Ka 0.000000 0.000000 0.000000
+Kd 0.400914 0.420139 0.640000
+Ks 0.500000 0.500000 0.500000
+Ni 1.000000
+d 0.800000
+illum 2
+map_Kd net_texture_diffuse.png
+
+
+newmtl Material.004_RockTextureDiffuse
+Ns 96.078431
+Ka 0.000000 0.000000 0.000000
+Kd 0.069710 0.069710 0.069710
+Ks 0.500000 0.500000 0.500000
+Ni 1.000000
+d 1.000000
+illum 2
+map_Kd rock_texture_diffuse.png
+
+newmtl Material.005_FieldTextureDiffuse
+Ns 96.078431
+Ka 0.000000 0.000000 0.000000
+Kd 0.640000 0.545232 0.000000
+Ks 0.650794 0.650794 0.650794
+Ni 1.000000
+d 1.000000
+illum 2
+map_Kd field_texture_diffuse.png
+vertex_shader stone.vert
+fragment_shader stone.frag
+
+
+newmtl Material.006_wooden_plank_9250003.JPG
+Ns 96.078431
+Ka 0.000000 0.000000 0.000000
+Kd 0.721312 0.721312 0.721312
+Ks 0.114754 0.114754 0.114754
+Ni 1.000000
+d 1.000000
+illum 2
+map_Kd wooden_plank.png
+
+
+newmtl Material_RockTextureDiffuse
+Ns 96.078431
+Ka 0.000000 0.000000 0.000000
+Kd 0.069710 0.069710 0.069710
+Ks 0.500000 0.500000 0.500000
+Ni 1.000000
+d 1.000000
+illum 2
+map_Kd rock_texture_diffuse.png
+
+
+newmtl _PlayerADiffuse
+Ns 0
+Ka 0.000000 0.000000 0.000000
+Kd 0.8 0.8 0.8
+Ks 0.8 0.8 0.8
+d 1
+illum 2
+map_Kd player_texture_diffuse.png
+
+
+newmtl _PlayerBDiffuse
+Ns 0
+Ka 0.000000 0.000000 0.000000
+Kd 0.8 0.8 0.8
+Ks 0.8 0.8 0.8
+d 1
+illum 2
+map_Kd player2_texture_diffuse.png
+
+
+newmtl _VolleyBallTextureDiffuse
+Ns 0
+Ka 0.000000 0.000000 0.000000
+Kd 0.8 0.8 0.8
+Ks 0.8 0.8 0.8
+d 1
+illum 2
+map_Kd volleyball_texture_out.png
+
+
+newmtl _wooden_plank_9250003.JPG
+Ns 0
+Ka 0.000000 0.000000 0.000000
+Kd 0.8 0.8 0.8
+Ks 0.8 0.8 0.8
+d 1
+illum 2
+map_Kd wooden_plank.png
+
+
