@@ -13,7 +13,7 @@
 #include "icon_img.h"
 #include "SDLTextureObject.h"
 #include "benchmarking.h"
-
+#include <boost/foreach.hpp>
 
 GraphicsGL::GraphicsGL(uint32_t screenWidth, uint32_t screenHeight, uint32_t colorDepth, std::string windowName) {
 	this->screenWidth = screenWidth;
@@ -242,7 +242,7 @@ void GraphicsGL::initGL() {
 
 //void GraphicsGL::loadShaders() {
 //	auto safePrepareShaders = [&](std::vector<GraphicsObject>& objs) {
-//		for (GraphicsObject& obj : objs) {
+//		BOOST_FOREACH(GraphicsObject& obj, objs) {
 //			shared_ptr<ShaderProgramGL> shader = models[obj.modelHandle]->getShaderProgram();
 //			if (shader) {
 //				shader->prepareShaders();
@@ -285,7 +285,7 @@ size_t GraphicsGL::addModel(shared_ptr<ObjModel> model) {
 		ref.name = model->name;
 		ref.transparency = 1;
 
-		for (ModelPart& part : model->modelParts) {
+		BOOST_FOREACH(ModelPart& part, model->modelParts) {
 			shared_ptr<TriangleObject>& triangles = part.triangles;
 			shared_ptr<TextureObject> texture = make_shared<SDLTextureObject>(part.material.diffuseMapPath.c_str());
 			shared_ptr<ShaderProgramGL> shader = make_shared<ShaderProgramGL>();
@@ -370,11 +370,11 @@ size_t GraphicsGL::getGfxObjectHandleByName(std::string name) {
 }
 
 void GraphicsGL::prepareScene() {
-	for (const shared_ptr<TextureObject>& texture : textureStore) {
+	BOOST_FOREACH(const shared_ptr<TextureObject>& texture, textureStore) {
 		texture->generateOpenGLTexture();
 	}
 
-	for (const shared_ptr<ShaderProgramGL>& shader : shaderStore) {
+	BOOST_FOREACH(const shared_ptr<ShaderProgramGL>& shader, shaderStore) {
 		shader->prepareShaders();
 	}
 
@@ -395,7 +395,7 @@ void GraphicsGL::draw() {
 		glTranslatef(obj.translation[0], obj.translation[1], obj.translation[2]);
 		glRotatef(obj.rotationAngle, obj.rotationVector[0], obj.rotationVector[1], obj.rotationVector[2]);
 
-		for (auto& part : model.modelParts) {
+		BOOST_FOREACH(auto& part, model.modelParts) {
 			// bind texture
 			part.texture->bindTexture();
 
@@ -415,7 +415,7 @@ void GraphicsGL::draw() {
 	};
 
 	// first draw the perspective objects
-	for (size_t &obj : perspectiveObjs) {
+	BOOST_FOREACH(size_t &obj, perspectiveObjs) {
 		drawObj(objs[obj]);
 	}
 
@@ -428,7 +428,7 @@ void GraphicsGL::draw() {
 	glPushMatrix();
 	glLoadIdentity();
 	glDisable(GL_DEPTH_TEST); // disable depth buffering
-	for (size_t &obj : orthographicObjs) {
+	BOOST_FOREACH(size_t &obj, orthographicObjs) {
 		drawObj(objs[obj]);
 	}
 	glPopMatrix();

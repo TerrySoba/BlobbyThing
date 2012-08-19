@@ -9,6 +9,7 @@
 #include "ErrorLogging.h"
 #include "MathUtils.h"
 #include <algorithm>
+#include <boost/foreach.hpp>
 
 PhysicsSimulation2D::PhysicsSimulation2D(double intervalTime) {
 	this->intervalTime = intervalTime;
@@ -99,12 +100,12 @@ void PhysicsSimulation2D::addPolygon(std::vector<Vector2d> polygon, double corne
 	// DEBUG: output new polygon
 	// LOG("New Polygon:");
 
-	for (PhysicsStaticLine2D& line : lines) {
+	BOOST_FOREACH(PhysicsStaticLine2D& line, lines) {
 		addLine(line.start, line.end);
 		// LOG("Line: ", line.start, " -> ", line.end);
 	}
 
-	for (PhysicsCircle2D& circle : circles) {
+	BOOST_FOREACH(PhysicsCircle2D& circle, circles) {
 		addCircle(circle.position[0], circle.position[1], circle.radius, circle.speed[0], circle.speed[1], circle.mass, false);
 	}
 
@@ -317,7 +318,7 @@ void PhysicsSimulation2D::calc() {
 	}
 
 	// now call actions in all circles
-	for (PhysicsCircle2D& circle : this->circles) {
+	BOOST_FOREACH(PhysicsCircle2D& circle, this->circles) {
 		if (circle.action) circle.action(circle);
 	}
 }
