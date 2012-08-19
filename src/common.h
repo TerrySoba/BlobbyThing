@@ -11,8 +11,11 @@
 #include "ErrorLogging.h"
 #include <memory>
 
-using std::shared_ptr;
-using std::make_shared;
+#include <boost/shared_ptr.hpp>
+#include <boost/make_shared.hpp>
+
+using boost::shared_ptr;
+using boost::make_shared;
 
 #define checked_fread(dest, size, nmemb, fp) _checked_fread(dest, size, nmemb, fp, _LOG_PREFIX)
 

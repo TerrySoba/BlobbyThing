@@ -287,8 +287,8 @@ size_t GraphicsGL::addModel(shared_ptr<ObjModel> model) {
 
 		BOOST_FOREACH(ModelPart& part, model->modelParts) {
 			shared_ptr<TriangleObject>& triangles = part.triangles;
-			shared_ptr<TextureObject> texture = make_shared<SDLTextureObject>(part.material.diffuseMapPath.c_str());
-			shared_ptr<ShaderProgramGL> shader = make_shared<ShaderProgramGL>();
+			shared_ptr<TextureObject> texture(new SDLTextureObject(part.material.diffuseMapPath.c_str()));
+			shared_ptr<ShaderProgramGL> shader(new ShaderProgramGL());
 
 			// check if shader path is given. If not use default shaders
 			if (!(part.material.fragmentShaderPath.size() && part.material.vertexShaderPath.size())) {
