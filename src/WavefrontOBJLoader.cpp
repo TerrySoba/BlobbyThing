@@ -9,7 +9,7 @@
 #include "WavefrontOBJLoader.h"
 #include "ErrorLogging.h"
 #include "VectorTriangleObject.h"
-
+#include <boost/foreach.hpp>
 #include "libgen.h"
 #include "common.h"
 
@@ -438,13 +438,13 @@ std::vector<shared_ptr<ObjModel>> WavefrontOBJLoader::load(const char* path) {
 	/* now convert data into triangles */
 	std::map<ModelMaterialIndex, std::vector<Polygon>> triangles;
 
-	for (auto &fa : faces) {
-		for (Face& f : fa.second) {
+	BOOST_FOREACH(auto &fa, faces) {
+		BOOST_FOREACH(Face& f, fa.second) {
 			// create a Polygon from the faces
 			Polygon p;
 			MyGLVertex vertex;
 
-			for (FaceIndex& fi : f) {
+			BOOST_FOREACH(FaceIndex& fi, f) {
 				for (int n = 0; n < 3; n++) {
 					vertex.v[n] = vertices.at(fi.vertexIndex-1)[n];
 					vertex.n[n] = normals.at(fi.normalIndex-1)[n];
@@ -468,11 +468,13 @@ std::vector<shared_ptr<ObjModel>> WavefrontOBJLoader::load(const char* path) {
 
 	std::map<std::string /* model name */, std::vector<ModelPart>> models;
 
-	for (const std::pair<ModelMaterialIndex, std::vector<Polygon>> &modelPart: triangles) {
+	typedef const std::pair<ModelMaterialIndex, std::vector<Polygon>> IndexPolygon;
+
+	BOOST_FOREACH(IndexPolygon &modelPart, triangles) {
 		// first insert triangles
 		shared_ptr<VectorTriangleObject> vertexes = make_shared<VectorTriangleObject>();
 		// VectorTriangleObject* vertexes = ;
-		for (const Polygon& p: modelPart.second) {
+		BOOST_FOREACH(const Polygon& p, modelPart.second) {
 			if (p.size() >= 3) {
 				for (int i = 0; i < 3; i++) {
 					vertexes->addVertex(p.at(i));
@@ -490,7 +492,7 @@ std::vector<shared_ptr<ObjModel>> WavefrontOBJLoader::load(const char* path) {
 		models[modelName].push_back(part);
 	}
 
-	for (auto& modelTmp : models) {
+	BOOST_FOREACH(auto& modelTmp, models) {
 		shared_ptr<ObjModel> model = make_shared<ObjModel>();
 		model->name = modelTmp.first;
 		model->modelParts = modelTmp.second;
