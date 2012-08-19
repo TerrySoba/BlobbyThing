@@ -13,7 +13,7 @@
 #include <string>
 #include <functional>
 #include <iostream>
-
+#include <boost/foreach.hpp>
 
 /*! \brief A state machine for use in games
  *
@@ -111,7 +111,7 @@ public:
 	 */
 	void printTransitionDebug() {
 		// at first set marked in every Transition to false
-		for (auto& transition : transitions) {
+		BOOST_FOREACH(auto& transition, transitions) {
 			transition.second.marked = false;
 		}
 
@@ -119,7 +119,7 @@ public:
 		recursiveMarker(startState);
 
 		// now look for unmarked transitions. These will never be reached.
-		for (auto& transition : transitions) {
+		BOOST_FOREACH(auto& transition, transitions) {
 			if (!transition.second.marked) {
 				std::cout << "Found unreachable transition("
 						  << transition.second.id

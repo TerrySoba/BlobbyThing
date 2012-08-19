@@ -72,7 +72,7 @@ public:
 	 *
 	 *  \return a reference to the added circle
 	 */
-	size_t addCircle(double posX, double posY, double radius, double vX, double vY, double mass, bool movable, std::function<void(PhysicsCircle2D&)> action = nullptr);
+	size_t addCircle(double posX, double posY, double radius, double vX, double vY, double mass, bool movable, std::function<void(PhysicsCircle2D&)> action = NULL);
 	size_t addLine(Vector2d start, Vector2d end);
 
 

@@ -15,7 +15,10 @@ if (MSVC)
 
 else (MSVC)
     add_definitions(-std=c++0x -O2 -ggdb)
+    add_definitions(-DEIGEN_DONT_ALIGN_STATICALLY)
 endif (MSVC)
+
+
 
 add_subdirectory(src)
 # link_libraries(${PROJECT_NAME}_lib ${SDL_LIBRARY} ${SDLIMAGE_LIBRARY} ${GLEW_LIBRARY} ${OPENGL_LIBRARIES} rt z m icui18n icuuc icudata dl)

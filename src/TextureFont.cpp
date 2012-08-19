@@ -27,7 +27,7 @@ CharacterInformation* TextureFont::getCharacter(uint32_t unicode) {
 	if (hasCharacter(unicode)) {
 		return &characterMap[unicode];
 	} else {
-		return nullptr;
+		return NULL;
 	}
 }
 
