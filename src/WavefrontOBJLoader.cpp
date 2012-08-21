@@ -10,7 +10,9 @@
 #include "ErrorLogging.h"
 #include "VectorTriangleObject.h"
 #include <boost/foreach.hpp>
-// #include "libgen.h"
+#ifndef _MSC_VER
+#include "libgen.h"
+#endif
 #include "common.h"
 
 #ifdef _MSC_VER
