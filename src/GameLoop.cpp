@@ -24,7 +24,7 @@ void GameLoop::setDrawTask(std::function<void(void)> task) {
 	drawTask = task;
 }
 
-void GameLoop::addCycleTask(std::function<TaskReturnvalue(void)> task, float frequency) {
+void GameLoop::addCycleTask(std::function<TaskReturnvalue::TaskReturnvalue(void)> task, float frequency) {
 	CycleTask t;
 	t.elapsedTime = 0;
 	t.cycleTime = 1000000.0 / frequency;

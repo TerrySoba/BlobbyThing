@@ -404,11 +404,13 @@ void GraphicsGL::draw() {
 			// glUseProgram(0);
 
 			// now draw triangle data
-			MyGLVertex* data = part.triangles->getGLVertexes();
-			glVertexPointer(3, GL_FLOAT, sizeof(MyGLVertex), &data->v);
-			glTexCoordPointer(2, GL_FLOAT, sizeof(MyGLVertex), &data->vt);
-			glNormalPointer(GL_FLOAT, sizeof(MyGLVertex), &data->n);
-			glDrawArrays(GL_TRIANGLES, 0, part.triangles->getSize());
+			if (part.triangles->getSize() > 0) {
+				MyGLVertex* data = part.triangles->getGLVertexes();
+				glVertexPointer(3, GL_FLOAT, sizeof(MyGLVertex), &data->v);
+				glTexCoordPointer(2, GL_FLOAT, sizeof(MyGLVertex), &data->vt);
+				glNormalPointer(GL_FLOAT, sizeof(MyGLVertex), &data->n);
+				glDrawArrays(GL_TRIANGLES, 0, part.triangles->getSize());
+			}
 		}
 
 		glPopMatrix();
