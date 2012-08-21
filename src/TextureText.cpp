@@ -7,6 +7,7 @@
 
 #include "TextureText.h"
 #include <unicode/unistr.h>
+#include <math.h>
 
 TextureText::TextureText(shared_ptr<TextureFont> font, std::string name) {
 	shared_ptr<VectorTriangleObject> triangleObject = make_shared<VectorTriangleObject>();
@@ -62,7 +63,7 @@ void TextureText::setText(const char* text) {
 			bottomLeft *= scale;
 
 			MyGLVertex v;
-			v.n = {0,0,1}; // face to camera
+			v.n = Eigen::Vector3f(0,0,1); // face to camera
 			v.v =     topLeft;
 			v.vt = texTopLeft;
 			this->triangleObject->addVertex(v);

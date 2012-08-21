@@ -12,7 +12,7 @@ find_package (GLEW REQUIRED)
 include_directories(${SDL_INCLUDE_DIR} ${SDLIMAGE_INCLUDE_DIR} ${Boost_INCLUDE_DIRS} ${ICU_INCLUDE_DIRS} ${OPENGL_INCLUDE_DIR} ${GLEW_INCLUDE_DIR})
 
 if (MSVC)
-
+    add_definitions(/D "EIGEN_DONT_ALIGN_STATICALLY")
 else (MSVC)
     add_definitions(-std=c++0x -O2 -ggdb)
     add_definitions(-DEIGEN_DONT_ALIGN_STATICALLY)

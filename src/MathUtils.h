@@ -9,6 +9,7 @@
 #define MATHUTILS_H_
 
 #include "Eigen/Dense"
+#include <stdint.h>
 
 using Eigen::Vector3f;
 using Eigen::Vector2f;
@@ -56,6 +57,10 @@ inline int32_t positiveModulo(int32_t value, int32_t modulo) {
 		return tmp + modulo;
 	}
 }
+
+#ifdef _MSC_VER
+#define round(X) static_cast<int64_t>(X+0.5)
+#endif
 
 
 

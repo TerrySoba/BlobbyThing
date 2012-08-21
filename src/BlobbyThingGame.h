@@ -13,6 +13,17 @@
 #include "GameLoop.h"
 #include "GraphicsGL.h"
 
+namespace GameState {
+	enum GameState {
+		START_SCREEN = 1,
+		PLAYER_A_SERVE = 2,
+		PLAYER_B_SERVE = 3,
+		PLAYER_A_SCORE = 4,
+		PLAYER_B_SCORE = 5,
+		BALL_ACTIVE = 6
+	};
+}
+
 class BlobbyThingGame {
 public:
 	BlobbyThingGame(uint32_t screenWidth, uint32_t screenHeight, uint32_t colorDepth, std::string windowName = "BlobbyThing");
@@ -21,7 +32,7 @@ public:
 	int run();
 
 private: // methods
-	TaskReturnvalue handleEvents();
+	TaskReturnvalue::TaskReturnvalue handleEvents();
 	void initKeyStatus();
 
 private: // types
@@ -38,20 +49,9 @@ private: // types
 		bool keyD;
 	};
 
-	enum class GameState {
-		START_SCREEN = 1,
-	    PLAYER_A_SERVE = 2,
-	    PLAYER_B_SERVE = 3,
-	    PLAYER_A_SCORE = 4,
-	    PLAYER_B_SCORE = 5,
-	    BALL_ACTIVE = 6
-	};
-
 private: // variables
 	KeyStatus keyStatus;
 	GraphicsGL gl;
-
-
 };
 
 #endif /* BLOBBYTHINGGAME_H_ */

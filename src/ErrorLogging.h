@@ -27,6 +27,57 @@ enum LogLevel {
 	ERROR
 };
 
+#ifdef _MSC_VER
+// Microsoft Visual C++ does not support variadic templates, so we have to simulate them
+template <typename A>
+std::string toStrVariadic(const A& a) {
+	std::stringstream oss;
+	oss << a;
+	return oss.str();
+}
+
+template <typename A, typename B>
+std::string toStrVariadic(const A& a, const B& b) {
+	std::stringstream oss;
+	oss << a << b;
+	return oss.str();
+}
+
+template <typename A, typename B, typename C>
+std::string toStrVariadic(const A& a, const B& b, const C& c) {
+	std::stringstream oss;
+	oss << a << b << c;
+	return oss.str();
+}
+
+template <typename A, typename B, typename C, typename D>
+std::string toStrVariadic(const A& a, const B& b, const C& c, const D& d) {
+	std::stringstream oss;
+	oss << a << b << c << d;
+	return oss.str();
+}
+
+template <typename A, typename B, typename C, typename D, typename E>
+std::string toStrVariadic(const A& a, const B& b, const C& c, const D& d, const E& e) {
+	std::stringstream oss;
+	oss << a << b << c << d << e;
+	return oss.str();
+}
+
+template <typename A, typename B, typename C, typename D, typename E, typename F>
+std::string toStrVariadic(const A& a, const B& b, const C& c, const D& d, const E& e, const F& f) {
+	std::stringstream oss;
+	oss << a << b << c << d << e << f;
+	return oss.str();
+}
+
+template <typename A, typename B, typename C, typename D, typename E, typename F, typename G, typename H, typename I>
+std::string toStrVariadic(const A& a, const B& b, const C& c, const D& d, const E& e, const F& f, const G& g, const H& h, const I& i) {
+	std::stringstream oss;
+	oss << a << b << c << d << e << f << g << h << i;
+	return oss.str();
+}
+#else
 template<typename T>
 void addVarSS(std::stringstream& oss,T value) {
 	oss << value;
@@ -44,6 +95,7 @@ std::string toStrVariadic(Args... args) {
 	addVarSS(oss, args...);
 	return oss.str();
 }
+#endif
 
 /*! \brief General logging class.
  *

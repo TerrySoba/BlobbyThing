@@ -10,7 +10,9 @@
 
 #include <GL/glew.h>
 #include <GL/gl.h>
+#ifndef _MSC_VER
 #include <GL/glext.h>
+#endif
 #include <GL/glu.h>
 
 #endif /* GL_INCLUDES_H_ */

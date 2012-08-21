@@ -10,8 +10,12 @@
 #include "ErrorLogging.h"
 #include "VectorTriangleObject.h"
 #include <boost/foreach.hpp>
-#include "libgen.h"
+// #include "libgen.h"
 #include "common.h"
+
+#ifdef _MSC_VER
+#define strtok_r(tok, delim, state) strtok(tok, delim)
+#endif
 
 struct FaceIndex {
 	uint32_t vertexIndex;

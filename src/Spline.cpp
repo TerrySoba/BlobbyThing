@@ -7,6 +7,7 @@
 
 #include "Spline.h"
 #include "ErrorLogging.h"
+#include <stdint.h>
 
 using namespace Eigen;
 

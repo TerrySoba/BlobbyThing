@@ -63,10 +63,10 @@ int BlobbyThingGame::run() {
 	shared_ptr<TextureText> fpsText = make_shared<TextureText>(font, "fpsText");
 	shared_ptr<TextureText> startText = make_shared<TextureText>(titleFont, "startText");
 
-	playerAScoreText->setText(u8"Score 0");
-	playerBScoreText->setText(u8"Score 0");
+	playerAScoreText->setText("Score 0");
+	playerBScoreText->setText("Score 0");
 	fpsText->setText("fps:000");
-	const char* titleStr = u8"Press F1 to start!";
+	const char* titleStr = "Press F1 to start!";
 	startText->setText(titleStr);
 	PhysicsSimulation2D physics(1e-2 / 4);
 
@@ -132,20 +132,20 @@ int BlobbyThingGame::run() {
 		return 1;
 	}
 
-	GameStateMachine<GameState> stateMachine(GameState::START_SCREEN);
+	GameStateMachine<GameState::GameState> stateMachine(GameState::START_SCREEN);
 
-	loop.addCycleTask([&]() {
+	loop.addCycleTask([&]() -> TaskReturnvalue::TaskReturnvalue {
 		fpsText->setText((boost::format("fps %1%") % fpsCounter).str().c_str());
 		fpsCounter = 0;
 		return TaskReturnvalue::OK;
 	}, 1);
 
-	loop.addCycleTask([&]() {
+	loop.addCycleTask([&]() -> TaskReturnvalue::TaskReturnvalue {
 		physics.calc();
 		return TaskReturnvalue::OK;
 	}, 600); // was 800
 
-	loop.addCycleTask([&]() {
+	loop.addCycleTask([&]() -> TaskReturnvalue::TaskReturnvalue {
 //		time += 1.0 / 100.0;
 //		if (time > 60.0)
 //			time -= 60.0;
@@ -229,7 +229,7 @@ int BlobbyThingGame::run() {
 	});
 
 
-	loop.addCycleTask([&]() {
+	loop.addCycleTask([&]() -> TaskReturnvalue::TaskReturnvalue {
 		physics.getCircle(playerACircleIndex).speed[0] *= 0.5;
 		physics.getCircle(playerBCircleIndex).speed[0] *= 0.5;
 
@@ -355,7 +355,7 @@ int BlobbyThingGame::run() {
 	return 0;
 }
 
-TaskReturnvalue BlobbyThingGame::handleEvents() {
+TaskReturnvalue::TaskReturnvalue BlobbyThingGame::handleEvents() {
 
 	// physics.getCircle(bigCircleIndex).speed = {10 * sin(i/15.0),10 * cos(i/15.0)};
 

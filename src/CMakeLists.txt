@@ -3,20 +3,36 @@ project(BlobbyThing_lib)
 
 add_library(
     ${PROJECT_NAME}
-    BlobbyThingGame.cpp 
+    BlobbyThingGame.cpp
+	BlobbyThingGame.h
     GraphicsGL.cpp
+	GraphicsGL.h
     PhysicsSimulation2D.cpp
+	PhysicsSimulation2D.h
     ShaderProgramGL.cpp
+	ShaderProgramGL.h
     TextureObject.cpp
+	TextureObject.h
     VectorTriangleObject.cpp
-    ErrorLogging.cpp main.cpp
-    SDLTextureObject.cpp
+	VectorTriangleObject.h
+    ErrorLogging.cpp
+	ErrorLogging.h
+	SDLTextureObject.cpp
+	SDLTextureObject.h
     Spline.cpp
+	Spline.h
     TextureText.cpp
+	TextureText.h
     WavefrontOBJLoader.cpp
+	WavefrontOBJLoader.h
     GameLoop.cpp
+	GameLoop.h
     MemoryTextureObject.cpp
+	MemoryTextureObject.h
     ShadedModelProxy.cpp
+	ShadedModelProxy.h
     TextureFont.cpp
+	TextureFont.h
     TriangleObject.cpp
+	TriangleObject.h
 )

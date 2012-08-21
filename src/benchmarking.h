@@ -8,7 +8,7 @@
 #ifndef BENCHMARKING_H_
 #define BENCHMARKING_H_
 
-// #include "SDL.h"
+#include "SDL.h"
 #include <time.h>
 
 class TakeTimeNow {
@@ -23,9 +23,13 @@ public:
 
 private:
 	uint64_t getTicks() {
+#ifdef _MSC_VER
+		return SDL_GetTicks() * 1000000;
+#else
 		struct timespec ts;
 		clock_gettime(CLOCK_REALTIME, &ts);
 		return ts.tv_sec * 1000000000 + ts.tv_nsec;
+#endif
 	}
 	uint64_t start;
 };
