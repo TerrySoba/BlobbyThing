@@ -107,7 +107,8 @@ private:
 	bool circleLineCollision(size_t lineIndex, size_t circleIndex);
 
 	std::map<
-		std::tuple<size_t /* line index */,size_t /* circle index */>,
+		//std::tuple<size_t /* line index */,size_t /* circle index */>,
+		std::array<size_t,2>,
 		std::function<void (PhysicsStaticLine2D&, PhysicsCircle2D&)>
 	        > lineCircleCollisionActions;
 

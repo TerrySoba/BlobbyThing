@@ -239,7 +239,10 @@ bool PhysicsSimulation2D::circleLineCollision(size_t lineIndex, size_t circleInd
 		circle.position += circle.speed * (intervalTime - t_collision);
 
 		// activate collision action if it exists
-		auto i = std::make_tuple(lineIndex, circleIndex);
+		// auto i = std::make_tuple(lineIndex, circleIndex);
+		std::array<size_t, 2> i;
+		i[0] = lineIndex;
+		i[1] = circleIndex;
 
 		if (lineCircleCollisionActions.count(i) > 0) {
 			lineCircleCollisionActions[i](line, circle);
@@ -252,7 +255,10 @@ bool PhysicsSimulation2D::circleLineCollision(size_t lineIndex, size_t circleInd
 }
 
 void PhysicsSimulation2D::addLineCircleCollisionAction(size_t lineIndex, size_t circleIndex, std::function<void (PhysicsStaticLine2D&, PhysicsCircle2D&)> action) {
-	auto i = std::make_tuple(lineIndex, circleIndex);
+	// auto i = std::make_tuple(lineIndex, circleIndex);
+	std::array<size_t, 2> i;
+	i[0] = lineIndex;
+	i[1] = circleIndex;
 	lineCircleCollisionActions[i] = action;
 }
 

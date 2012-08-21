@@ -15,6 +15,19 @@
 
 #ifdef _MSC_VER
 #define strtok_r(tok, delim, state) strtok(tok, delim)
+
+std::string dirname(std::string path) {
+	char path_buffer[_MAX_PATH];
+	char drive[_MAX_DRIVE];
+	char dir[_MAX_DIR];
+	char fname[_MAX_FNAME];
+	char ext[_MAX_EXT];
+
+	_splitpath( path.c_str(), drive, dir, fname, ext );
+
+	return std::string(dir);
+}
+
 #endif
 
 struct FaceIndex {
@@ -308,8 +321,8 @@ std::vector<shared_ptr<ObjModel>> WavefrontOBJLoader::load(const char* path) {
 					token = strtok_r(NULL, " \n\r", &saveptr);
 					if (token) {
 						char* endptr;
-						vertex[i] = strtof(token, &endptr);
-						if (token == endptr) { // check if conversion worked
+						int foundValues = sscanf(token, "%f", &vertex[i]);
+						if (foundValues != 1) { // check if conversion worked
 							ERR("Invalid float format.");
 							vertexOK = false;
 						}
@@ -362,8 +375,8 @@ std::vector<shared_ptr<ObjModel>> WavefrontOBJLoader::load(const char* path) {
 					token = strtok_r(NULL, " \n\r", &saveptr);
 					if (token) {
 						char* endptr;
-						texCoord[i] = strtof(token, &endptr);
-						if (token == endptr) { // check if conversion worked
+						int foundValues = sscanf(token, "%f", &texCoord[i]);
+						if (foundValues != 1) { // check if conversion worked
 							ERR("Invalid float format.");
 							vertexOK = false;
 						}
@@ -387,8 +400,8 @@ std::vector<shared_ptr<ObjModel>> WavefrontOBJLoader::load(const char* path) {
 					token = strtok_r(NULL, " \n\r", &saveptr);
 					if (token) {
 						char* endptr;
-						normal[i] = strtof(token, &endptr);
-						if (token == endptr) { // check if conversion worked
+						int foundValues = sscanf(token, "%f", &normal[i]);
+						if (foundValues != 1) { // check if conversion worked
 							ERR("Invalid float format.");
 							vertexOK = false;
 						}
