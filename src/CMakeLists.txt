@@ -35,4 +35,7 @@ add_library(
 	TextureFont.h
     TriangleObject.cpp
 	TriangleObject.h
+	Exception.h
+	Exception.cpp
+	StringTools.h
 )

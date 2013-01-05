@@ -19,9 +19,7 @@ else (MSVC)
 endif (MSVC)
 
 
-
 add_subdirectory(src)
-# link_libraries(${PROJECT_NAME}_lib ${SDL_LIBRARY} ${SDLIMAGE_LIBRARY} ${GLEW_LIBRARY} ${OPENGL_LIBRARIES} rt z m icui18n icuuc icudata dl)
 link_libraries(${PROJECT_NAME}_lib ${SDL_LIBRARY} ${SDLIMAGE_LIBRARY} ${GLEW_LIBRARY} ${OPENGL_LIBRARIES} ${ICU_LIBRARIES})
 add_executable(
     ${PROJECT_NAME}

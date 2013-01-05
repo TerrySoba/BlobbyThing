@@ -32,7 +32,7 @@ public:
 	TextureFont();
 	virtual ~TextureFont();
 
-	bool load(const char* path);
+	bool load(const std::string& path);
 
 	shared_ptr<TextureObject> getTextureObject() { return texture; }
 
