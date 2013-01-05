@@ -24,7 +24,7 @@ ErrorLogging* ErrorLogging::getInstance() {
 	return instance;
 }
 
-void ErrorLogging::log(LogLevel level, std::string logPrefix, std::string text) {
+void ErrorLogging::log(LogLevel level, const std::string& logPrefix, const std::string& text) {
 	switch(level) {
 	case LOGGING:
 		std::cout << "LOG:" << logPrefix << text << std::endl;

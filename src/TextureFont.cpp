@@ -7,9 +7,13 @@
 
 #include "TextureFont.h"
 #include "ErrorLogging.h"
+#include "Exception.h"
 #include <cstring>
 #include <stdint.h>
-#include <cstdlib>
+#include <fstream>
+
+using blobby::string::join;
+using blobby::string::format;
 
 TextureFont::TextureFont() {
 
@@ -32,12 +36,11 @@ CharacterInformation* TextureFont::getCharacter(uint32_t unicode) {
 }
 
 
-bool TextureFont::load(const char* path) {
-	FILE* fp = fopen(path, "rb");
+bool TextureFont::load(const std::string& path) {
+	std::fstream fp(path, std::ios_base::in | std::ios_base::binary);
 
-	if (!fp) {
-		ERR("Could not open font file: ", path);
-		return false;
+	if (!fp.is_open()) {
+		THROW_BLOBBY_EXCEPTION(format("Could not open font file: %1%", path));
 	}
 
 	// now read file signature
@@ -45,10 +48,8 @@ bool TextureFont::load(const char* path) {
 	buffer[6] = 0;
 	checked_fread(buffer, 1, 6, fp);
 	// check if signature matches
-	if (strcmp(buffer, "ytf252") != 0) {
-		ERR("Font file did not have matching signature: ", buffer);
-		fclose(fp);
-		return false;
+	if (memcmp(buffer, "ytf252", 6) != 0) {
+		THROW_BLOBBY_EXCEPTION(format("Font file did not have matching signature: %1%", buffer));
 	}
 
 	// read version of file
@@ -57,9 +58,7 @@ bool TextureFont::load(const char* path) {
 
 	// this parser is for version 3. Check if version matches.
 	if (version != 3) {
-		ERR("This parser only supports version 3, but version ", version, " was found in fontfile.");
-		fclose(fp);
-		return false;
+		THROW_BLOBBY_EXCEPTION(format("This parser only supports version 3, but version %1% was found in fontfile.", version));
 	}
 
 	// read font name
@@ -112,8 +111,6 @@ bool TextureFont::load(const char* path) {
 
 		characterMap.insert(std::make_pair(info.unicode, info));
 	}
-
-	fclose(fp);
 
 	// now log some debug information
 	// LOG("loaded font file ", path);

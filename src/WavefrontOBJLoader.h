@@ -44,11 +44,11 @@ public:
 	WavefrontOBJLoader();
 	virtual ~WavefrontOBJLoader();
 
-	static std::vector<shared_ptr<ObjModel>> load(const char* path);
+	static std::vector<shared_ptr<ObjModel>> load(const std::string& path);
 
 private:
 
-	static std::map<std::string, ObjMaterial> loadMaterial(const char* path);
+	static std::map<std::string, ObjMaterial> loadMaterial(const std::string& path);
 
 };
 

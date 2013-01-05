@@ -13,7 +13,7 @@
 #include "WavefrontOBJLoader.h"
 
 #include "GameStateMachine.h"
-
+#include "Exception.h"
 #include "MultiSpline.h"
 #include <boost/foreach.hpp>
 

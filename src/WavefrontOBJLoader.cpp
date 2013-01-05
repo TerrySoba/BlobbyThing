@@ -8,12 +8,15 @@
 
 #include "WavefrontOBJLoader.h"
 #include "ErrorLogging.h"
+#include "Exception.h"
 #include "VectorTriangleObject.h"
 #include <boost/foreach.hpp>
 #ifndef _MSC_VER
 #include "libgen.h"
 #endif
 #include "common.h"
+
+using blobby::string::format;
 
 #ifdef _MSC_VER
 #define strtok_r(tok, delim, state) strtok(tok, delim)
@@ -31,6 +34,19 @@ std::string dirname(std::string path) {
 }
 
 #endif
+
+/**
+ * Returns the directory portion of a path.
+ *
+ * \param [in] path To be split.
+ * \return the directory portion of the given path.
+ */
+std::string dirName(const std::string& path)
+{
+	std::vector<char> data(path.size()+1);
+	memcpy(data.data(), path.c_str(), path.size()+1);
+	return std::string(dirname(data.data()));
+}
 
 struct FaceIndex {
 	uint32_t vertexIndex;
@@ -66,23 +82,24 @@ WavefrontOBJLoader::~WavefrontOBJLoader() {
 	// TODO Auto-generated destructor stub
 }
 
-std::map<std::string, ObjMaterial> WavefrontOBJLoader::loadMaterial(const char* path) {
+std::map<std::string, ObjMaterial> WavefrontOBJLoader::loadMaterial(const std::string& path) {
 	std::map<std::string, ObjMaterial> mtl;
-
 
 	const size_t lineBufferSize = 1000;
 	char lineBuffer[lineBufferSize];
-	FILE* fp = fopen(path, "r");
+	// FILE* fp = fopen(path.c_str(), "r");
+	std::fstream fp(path, std::ios_base::in);
 
-	if (!fp) {
-		ERR("Could not open file: ", path);
-		return mtl;
+	if (!fp.is_open()) {
+		THROW_BLOBBY_EXCEPTION(format("Could not open file: %1%", path));
 	}
 
 	// this loop is some kind of state machine, these are the variables...
 	std::string mtlname = "";
 
-	while (!feof(fp)) {
+	uint32_t lineNumber = 0;
+	while (!fp.eof()) {
+		lineNumber++;
 		char cur;
 		size_t linePos = 0;
 		/* read a single line */
@@ -90,10 +107,9 @@ std::map<std::string, ObjMaterial> WavefrontOBJLoader::loadMaterial(const char* 
 			checked_fread(&cur, 1, 1, fp); // read one character
 			lineBuffer[linePos++] = cur;
 			if (linePos >= lineBufferSize) {
-				ERR("Line too long!");
-				return mtl;
+				THROW_BLOBBY_EXCEPTION(format("%2%:%1%) Line too long.", lineNumber, path));
 			}
-		} while (!feof(fp) && cur != '\n' && cur != '\r');
+		} while (!fp.eof() && cur != '\n' && cur != '\r');
 		lineBuffer[linePos] = '\0'; // terminate string with null
 
 		/* now parse line */
@@ -123,11 +139,7 @@ std::map<std::string, ObjMaterial> WavefrontOBJLoader::loadMaterial(const char* 
 				if (token[0] == '/' || token[0] == '\\') { // absolute path
 					mtl[mtlname].diffuseMapPath = token;
 				} else { // relative path
-					char* pathTmp = new char[strlen(path)+1];
-					strcpy(pathTmp, path);
-					// LOG("pathTmp: ", pathTmp, "  token: ", token);
-					mtl[mtlname].diffuseMapPath = (boost::format("%1%/%2%")%dirname(pathTmp)%token).str();
-					delete[] pathTmp;
+					mtl[mtlname].diffuseMapPath = (boost::format("%1%/%2%")%dirName(path)%token).str();
 				}
 			}
 			continue;
@@ -139,12 +151,8 @@ std::map<std::string, ObjMaterial> WavefrontOBJLoader::loadMaterial(const char* 
 				if (token[0] == '/' || token[0] == '\\') { // absolute path
 					mtl[mtlname].fragmentShaderPath = token;
 				} else { // relative path
-					char* pathTmp = new char[strlen(path) + 1];
-					strcpy(pathTmp, path);
-					// LOG("pathTmp: ", pathTmp, "  token: ", token);
 					mtl[mtlname].fragmentShaderPath = (boost::format("%1%/%2%")
-							% dirname(pathTmp) % token).str();
-					delete[] pathTmp;
+							% dirName(path) % token).str();
 				}
 			}
 			continue;
@@ -156,12 +164,8 @@ std::map<std::string, ObjMaterial> WavefrontOBJLoader::loadMaterial(const char* 
 				if (token[0] == '/' || token[0] == '\\') { // absolute path
 					mtl[mtlname].vertexShaderPath = token;
 				} else { // relative path
-					char* pathTmp = new char[strlen(path) + 1];
-					strcpy(pathTmp, path);
-					// LOG("pathTmp: ", pathTmp, "  token: ", token);
 					mtl[mtlname].vertexShaderPath = (boost::format("%1%/%2%")
-							% dirname(pathTmp) % token).str();
-					delete[] pathTmp;
+							% dirName(path) % token).str();
 				}
 			}
 			continue;
@@ -174,7 +178,7 @@ std::map<std::string, ObjMaterial> WavefrontOBJLoader::loadMaterial(const char* 
 				if (sscanf(token, "%f", &specular) == 1) {
 					mtl[mtlname].specular = specular;
 				} else {
-					ERR("Invalid format of specular value");
+					THROW_BLOBBY_EXCEPTION(format("%1%:%2% Invalid format of specular value.", path, lineNumber));
 				}
 			}
 			continue;
@@ -187,7 +191,7 @@ std::map<std::string, ObjMaterial> WavefrontOBJLoader::loadMaterial(const char* 
 				if (sscanf(token, "%f", &transparency) == 1) {
 					mtl[mtlname].transparency = transparency;
 				} else {
-					ERR("Invalid format of transparency value");
+					THROW_BLOBBY_EXCEPTION(format("%1%:%2% Invalid format of transparency value.", path, lineNumber));
 				}
 			}
 			continue;
@@ -202,7 +206,7 @@ std::map<std::string, ObjMaterial> WavefrontOBJLoader::loadMaterial(const char* 
 						mtl[mtlname].ambientColor[i] = color[i];
 					}
 				} else {
-					ERR("Invalid format of ambient color");
+					THROW_BLOBBY_EXCEPTION(format("%1%:%2% Invalid format of ambient color.", path, lineNumber));
 				}
 			}
 			continue;
@@ -217,7 +221,7 @@ std::map<std::string, ObjMaterial> WavefrontOBJLoader::loadMaterial(const char* 
 						mtl[mtlname].diffuseColor[i] = color[i];
 					}
 				} else {
-					ERR("Invalid format of diffuse color");
+					THROW_BLOBBY_EXCEPTION(format("%1%:%2% Invalid format of diffuse color.", path, lineNumber));
 				}
 			}
 			continue;
@@ -227,35 +231,31 @@ std::map<std::string, ObjMaterial> WavefrontOBJLoader::loadMaterial(const char* 
 			token = strtok_r(NULL, "\n\r", &saveptr);
 			if (token) {
 				float color[3];
-				if (sscanf(token, "%f %f %f", &(color[0]), &(color[1]),	&(color[2])) == 3) {
+				if (sscanf(token, "%f %f %f", &(color[0]), &(color[1]), &(color[2])) == 3) {
 					for (int i = 0; i < 3; i++) {
 						mtl[mtlname].specularColor[i] = color[i];
 					}
 				} else {
-					ERR("Invalid format of specular color");
+					THROW_BLOBBY_EXCEPTION(format("%1%:%2% Invalid format of specular color.", path, lineNumber));
 				}
 			}
 			continue;
 		}
 	}
 
-	if (fp) {
-		fclose(fp);
-	}
-
 	return mtl;
 }
 
 
-std::vector<shared_ptr<ObjModel>> WavefrontOBJLoader::load(const char* path) {
+std::vector<shared_ptr<ObjModel>> WavefrontOBJLoader::load(const std::string& path) {
 	std::vector<shared_ptr<ObjModel>> modelsRet;
 	const size_t lineBufferSize = 1000;
 	char lineBuffer[lineBufferSize];
-	FILE* fp = fopen(path, "r");
+	// FILE* fp = fopen(path.c_str(), "r");
+	std::fstream fp(path, std::ios_base::in);
 
-	if (!fp) {
-		ERR("Could not open file: ", path);
-		return modelsRet;
+	if (!fp.is_open()) {
+		THROW_BLOBBY_EXCEPTION(format("Could not open file: %1%", path));
 	}
 
 	std::vector<Vector3f> vertices;
@@ -278,7 +278,9 @@ std::vector<shared_ptr<ObjModel>> WavefrontOBJLoader::load(const char* path) {
 
 	std::map<std::string, ObjMaterial> mtlLib;
 
-	while (!feof(fp)) {
+	uint32_t lineNumber = 0;
+	while (!fp.eof()) {
+		lineNumber++;
 		char cur;
 		size_t linePos = 0;
 		/* read a single line */
@@ -286,10 +288,9 @@ std::vector<shared_ptr<ObjModel>> WavefrontOBJLoader::load(const char* path) {
 			checked_fread(&cur, 1, 1, fp); // read one character
 			lineBuffer[linePos++] = cur;
 			if (linePos >= lineBufferSize) {
-				ERR("Line too long!");
-				return modelsRet;
+				THROW_BLOBBY_EXCEPTION(format("%1%:%2% Line too long!.", path, lineNumber));
 			}
-		} while (!feof(fp) && cur != '\n' && cur != '\r');
+		} while (!fp.eof() && cur != '\n' && cur != '\r');
 		lineBuffer[linePos] = '\0'; // nullterminate string
 
 		// now we have a single line in lineBuffer
@@ -311,13 +312,12 @@ std::vector<shared_ptr<ObjModel>> WavefrontOBJLoader::load(const char* path) {
 				token = strtok_r(NULL, " \n\r", &saveptr);
 				if (token) {
 					currentObjectName = token;
-					LOG("Found object named: ", token);
+					LOG(format("%1%:%2% Found object named: %3% ", path, lineNumber, token));
 				}
 				continue;
 			} // end object name
 
 			if (token[0] == 'v') { // found vertex
-				bool vertexOK = true;
 				Vector3f vertex;
 				for (int i = 0; i < 3; i++) {
 					token = strtok_r(NULL, " \n\r", &saveptr);
@@ -325,53 +325,40 @@ std::vector<shared_ptr<ObjModel>> WavefrontOBJLoader::load(const char* path) {
 						char* endptr;
 						int foundValues = sscanf(token, "%f", &vertex[i]);
 						if (foundValues != 1) { // check if conversion worked
-							ERR("Invalid float format.");
-							vertexOK = false;
+							THROW_BLOBBY_EXCEPTION(format("%1%:%2% Invalid float format.", path, lineNumber));
 						}
 					} else { // token was invalid
-						ERR("Too few tokens in vertex.");
-						vertexOK = false;
+						THROW_BLOBBY_EXCEPTION(format("%1%:%2% Too few tokens in vertex.", path, lineNumber));
 					}
-
 				}
-				if (vertexOK) {
-					vertices.push_back(vertex);
-					// LOG("Found vertex %f, %f, %f", vertex[0], vertex[1], vertex[2]);
-				}
+				vertices.push_back(vertex);
 				continue;
 			} // end vertex
 
-
 			if (token[0] == 'f') { // found face
-				// std::vector<Face> faces;
 				Face face;
-				bool faceOK = true;
 				while ((token = strtok_r(NULL, " \n\r", &saveptr))) {
 					FaceIndex faceIndex;
 					int foundValues = sscanf(token, "%d/%d/%d",
 							&faceIndex.vertexIndex, &faceIndex.textureIndex,
 							&faceIndex.normalIndex);
 					if (foundValues != 3) {
-						faceOK = false;
-						ERR("Invalid face description. Probably missing normals and/or texture coordinates!");
-						break;
+						THROW_BLOBBY_EXCEPTION(format("%1%:%2% Invalid face description. Probably missing normals and/or texture coordinates.", path, lineNumber));
 					}
 					face.push_back(faceIndex);
 				}
 
-				if (faceOK) {
-					auto index = std::make_pair(currentObjectName, currentMaterial);
-					faces[index].push_back(face);
-				}
+				auto index = std::make_pair(currentObjectName, currentMaterial);
+				faces[index].push_back(face);
 
 				continue;
 			} // end face
-
 		}
+
+
 
 		if (strlen(token) == 2) {
 			if (token[0] == 'v' && token[1] == 't') { // found texture coordinate
-				bool vertexOK = true;
 				Vector2f texCoord;
 				for (int i = 0; i < 2; i++) {
 					token = strtok_r(NULL, " \n\r", &saveptr);
@@ -379,24 +366,17 @@ std::vector<shared_ptr<ObjModel>> WavefrontOBJLoader::load(const char* path) {
 						char* endptr;
 						int foundValues = sscanf(token, "%f", &texCoord[i]);
 						if (foundValues != 1) { // check if conversion worked
-							ERR("Invalid float format.");
-							vertexOK = false;
+							THROW_BLOBBY_EXCEPTION(format("%1%:%2% Invalid float format.", path, lineNumber));
 						}
 					} else { // token was invalid
-						ERR("Too few tokens in texture coordinate.");
-						vertexOK = false;
+						THROW_BLOBBY_EXCEPTION(format("%1%:%2% Too few tokens in texture coordinate.", path, lineNumber));
 					}
-
 				}
-				if (vertexOK) {
-					texCoords.push_back(texCoord);
-					// LOG("Found texture coord %f, %f", texCoord[0], texCoord[1]);
-				}
+				texCoords.push_back(texCoord);
 				continue;
 			} // end texture coord
 
 			if (token[0] == 'v' && token[1] == 'n') { // found normal
-				bool vertexOK = true;
 				Vector3f normal;
 				for (int i = 0; i < 3; i++) {
 					token = strtok_r(NULL, " \n\r", &saveptr);
@@ -404,19 +384,14 @@ std::vector<shared_ptr<ObjModel>> WavefrontOBJLoader::load(const char* path) {
 						char* endptr;
 						int foundValues = sscanf(token, "%f", &normal[i]);
 						if (foundValues != 1) { // check if conversion worked
-							ERR("Invalid float format.");
-							vertexOK = false;
+							THROW_BLOBBY_EXCEPTION(format("%1%:%2% Invalid float format.", path, lineNumber));
 						}
 					} else { // token was invalid
-						ERR("Too few tokens in normal.");
-						vertexOK = false;
+						THROW_BLOBBY_EXCEPTION(format("%1%:%2% Too few tokens in normal.", path, lineNumber));
 					}
 
 				}
-				if (vertexOK) {
-					normals.push_back(normal);
-					// LOG("Found normal %f, %f, %f", normal[0], normal[1], normal[2]);
-				}
+				normals.push_back(normal);
 				continue;
 
 			} // end vertex
@@ -427,10 +402,7 @@ std::vector<shared_ptr<ObjModel>> WavefrontOBJLoader::load(const char* path) {
 			// load material library
 			token = strtok_r(NULL, "\n\r", &saveptr);
 			if (token) {
-				char* tmpPath = new char[strlen(path)+1];
-				strcpy(tmpPath, path);
-				std::string mtllibPath = (boost::format("%1%/%2%") % dirname(tmpPath) % token).str();
-				delete[] tmpPath;
+				std::string mtllibPath = format("%1%/%2%", dirName(path), token);
 				mtlLib = loadMaterial(mtllibPath.c_str());
 			}
 
@@ -450,8 +422,8 @@ std::vector<shared_ptr<ObjModel>> WavefrontOBJLoader::load(const char* path) {
 
 	} // while !feof()
 
-	if (fp) {
-		fclose(fp);
+	if (fp.is_open()) {
+		fp.close();
 	}
 
 	/* now convert data into triangles */
