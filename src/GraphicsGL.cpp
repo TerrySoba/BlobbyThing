@@ -63,7 +63,7 @@ bool GraphicsGL::init() {
 			0xff000000);
 
 #if SDL_VERSION_ATLEAST(2,0,0)
-	SDL_SetWindowIcon(mainwindow, icon);
+    SDL_SetWindowIcon(mainwindow, icon);
 #else
 	SDL_WM_SetIcon(icon, NULL);
 #endif

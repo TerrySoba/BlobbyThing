@@ -4,38 +4,38 @@ project(BlobbyThing_lib)
 add_library(
     ${PROJECT_NAME}
     BlobbyThingGame.cpp
-	BlobbyThingGame.h
+    BlobbyThingGame.h
     GraphicsGL.cpp
-	GraphicsGL.h
+    GraphicsGL.h
     PhysicsSimulation2D.cpp
-	PhysicsSimulation2D.h
+    PhysicsSimulation2D.h
     ShaderProgramGL.cpp
-	ShaderProgramGL.h
+    ShaderProgramGL.h
     TextureObject.cpp
-	TextureObject.h
+    TextureObject.h
     VectorTriangleObject.cpp
-	VectorTriangleObject.h
+    VectorTriangleObject.h
     ErrorLogging.cpp
-	ErrorLogging.h
-	SDLTextureObject.cpp
-	SDLTextureObject.h
+    ErrorLogging.h
+    SDLTextureObject.cpp
+    SDLTextureObject.h
     Spline.cpp
-	Spline.h
+    Spline.h
     TextureText.cpp
-	TextureText.h
+    TextureText.h
     WavefrontOBJLoader.cpp
-	WavefrontOBJLoader.h
+    WavefrontOBJLoader.h
     GameLoop.cpp
-	GameLoop.h
+    GameLoop.h
     MemoryTextureObject.cpp
-	MemoryTextureObject.h
+    MemoryTextureObject.h
     ShadedModelProxy.cpp
-	ShadedModelProxy.h
+    ShadedModelProxy.h
     TextureFont.cpp
-	TextureFont.h
+    TextureFont.h
     TriangleObject.cpp
-	TriangleObject.h
-	Exception.h
-	Exception.cpp
-	StringTools.h
+    TriangleObject.h
+    Exception.h
+    Exception.cpp
+    StringTools.h
 )
