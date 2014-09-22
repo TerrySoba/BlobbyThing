@@ -38,4 +38,6 @@ add_library(
     Exception.h
     Exception.cpp
     StringTools.h
+	DecodeUtf8.h
+	DecodeUtf8.cpp
 )
