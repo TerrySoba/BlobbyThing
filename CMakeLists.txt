@@ -31,3 +31,13 @@ add_executable(
     ${PROJECT_NAME}
     src/main.cpp)
 
+
+	
+#if windows install files
+if(WIN32)
+	INSTALL(TARGETS ${PROJECT_NAME}
+		RUNTIME DESTINATION bin
+		LIBRARY DESTINATION lib
+		ARCHIVE DESTINATION lib
+	)
+endif()
