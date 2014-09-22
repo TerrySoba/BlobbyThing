@@ -13,16 +13,16 @@
 #include "GameLoop.h"
 #include "GraphicsGL.h"
 
-namespace GameState {
-	enum GameState {
-		START_SCREEN = 1,
-		PLAYER_A_SERVE = 2,
-		PLAYER_B_SERVE = 3,
-		PLAYER_A_SCORE = 4,
-		PLAYER_B_SCORE = 5,
-		BALL_ACTIVE = 6
-	};
-}
+
+enum class GameState {
+	START_SCREEN = 1,
+	PLAYER_A_SERVE = 2,
+	PLAYER_B_SERVE = 3,
+	PLAYER_A_SCORE = 4,
+	PLAYER_B_SCORE = 5,
+	BALL_ACTIVE = 6
+};
+
 
 class BlobbyThingGame {
 public:
@@ -32,7 +32,7 @@ public:
 	int run();
 
 private: // methods
-	TaskReturnvalue::TaskReturnvalue handleEvents();
+	TaskReturnvalue handleEvents();
 	void initKeyStatus();
 
 private: // types

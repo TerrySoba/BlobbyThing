@@ -26,13 +26,13 @@ ErrorLogging* ErrorLogging::getInstance() {
 
 void ErrorLogging::log(LogLevel level, const std::string& logPrefix, const std::string& text) {
 	switch(level) {
-	case LOGGING:
+	case LogLevel::LOGGING:
 		std::cout << "LOG:" << logPrefix << text << std::endl;
 		break;
-	case WARNING:
+	case LogLevel::WARNING:
 		std::cout << "WARN:" << logPrefix << text << std::endl;
 		break;
-	case ERROR:
+	case LogLevel::ERROR:
 		std::cerr << "ERR:" << logPrefix << text << std::endl;
 		break;
 	}
