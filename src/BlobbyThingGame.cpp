@@ -131,20 +131,20 @@ int BlobbyThingGame::run() {
 		return 1;
 	}
 
-	GameStateMachine<GameState::GameState> stateMachine(GameState::START_SCREEN);
+	GameStateMachine<GameState> stateMachine(GameState::START_SCREEN);
 
-	loop.addCycleTask([&]() -> TaskReturnvalue::TaskReturnvalue {
+	loop.addCycleTask([&]() -> TaskReturnvalue {
 		fpsText->setText((boost::format("fps %1%") % fpsCounter).str().c_str());
 		fpsCounter = 0;
 		return TaskReturnvalue::OK;
 	}, 1);
 
-	loop.addCycleTask([&]() -> TaskReturnvalue::TaskReturnvalue {
+	loop.addCycleTask([&]() -> TaskReturnvalue {
 		physics.calc();
 		return TaskReturnvalue::OK;
 	}, 600); // was 800
 
-	loop.addCycleTask([&]() -> TaskReturnvalue::TaskReturnvalue {
+	loop.addCycleTask([&]() -> TaskReturnvalue {
 //		time += 1.0 / 100.0;
 //		if (time > 60.0)
 //			time -= 60.0;
@@ -228,7 +228,7 @@ int BlobbyThingGame::run() {
 	});
 
 
-	loop.addCycleTask([&]() -> TaskReturnvalue::TaskReturnvalue {
+	loop.addCycleTask([&]() -> TaskReturnvalue {
 		physics.getCircle(playerACircleIndex).speed[0] *= 0.5;
 		physics.getCircle(playerBCircleIndex).speed[0] *= 0.5;
 
@@ -354,7 +354,7 @@ int BlobbyThingGame::run() {
 	return 0;
 }
 
-TaskReturnvalue::TaskReturnvalue BlobbyThingGame::handleEvents() {
+TaskReturnvalue BlobbyThingGame::handleEvents() {
 
 	// physics.getCircle(bigCircleIndex).speed = {10 * sin(i/15.0),10 * cos(i/15.0)};
 

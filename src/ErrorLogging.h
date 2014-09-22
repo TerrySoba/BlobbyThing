@@ -18,11 +18,11 @@
 #define _MY_STR_(x) _MY_STR_HELPER(x)
 #define _LOG_PREFIX __FILE__ ":" _MY_STR_(__LINE__) "> "
 
-#define LOG(...)  ErrorLogging::getInstance()->log(LOGGING, _LOG_PREFIX, blobby::string::join(__VA_ARGS__))
-#define WARN(...) ErrorLogging::getInstance()->log(WARNING, _LOG_PREFIX, blobby::string::join(__VA_ARGS__))
-#define ERR(...)  ErrorLogging::getInstance()->log(ERROR,   _LOG_PREFIX, blobby::string::join(__VA_ARGS__))
+#define LOG(...)  ErrorLogging::getInstance()->log(LogLevel::LOGGING, _LOG_PREFIX, blobby::string::join(__VA_ARGS__))
+#define WARN(...) ErrorLogging::getInstance()->log(LogLevel::WARNING, _LOG_PREFIX, blobby::string::join(__VA_ARGS__))
+#define ERR(...)  ErrorLogging::getInstance()->log(LogLevel::ERROR,   _LOG_PREFIX, blobby::string::join(__VA_ARGS__))
 
-enum LogLevel {
+enum class LogLevel {
 	LOGGING,
 	WARNING,
 	ERROR

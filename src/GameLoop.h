@@ -11,12 +11,12 @@
 #include <functional>
 #include <vector>
 #include <cstdint>
-namespace TaskReturnvalue {
-enum TaskReturnvalue {
+
+enum class TaskReturnvalue {
 	OK,
 	EXIT
 };
-}
+
 
 /*! \brief The main loop of a game.
  *
@@ -47,7 +47,7 @@ public:
 	 *  \param frequency the frequency the callback is to be executed in Hz
 	 *  \return none
 	 */
-	void addCycleTask(std::function<TaskReturnvalue::TaskReturnvalue(void)> task, float frequency);
+	void addCycleTask(std::function<TaskReturnvalue(void)> task, float frequency);
 
 	/*! \brief Run the mainloop.
 	 *
@@ -65,7 +65,7 @@ private:
 		uint64_t cycleTime;   // in us
 		uint64_t elapsedTime; // in us
 
-		std::function<TaskReturnvalue::TaskReturnvalue(void)> task;
+		std::function<TaskReturnvalue(void)> task;
 	};
 
 	std::vector<CycleTask> timedTasks;  //!< the tasks to be called at a given frequency
