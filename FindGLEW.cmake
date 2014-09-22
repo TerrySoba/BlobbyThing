@@ -31,11 +31,17 @@ FIND_PATH(GLEW_INCLUDE_DIR GL/glew.h
   /opt/include
 )
 
+if(CMAKE_SIZEOF_VOID_P EQUAL 8)
+  set(VC_LIB_PATH_SUFFIX lib/Release/Win64)
+else()
+  set(VC_LIB_PATH_SUFFIX lib/Release/Win32)
+endif()
+
 FIND_LIBRARY(GLEW_LIBRARY 
   NAMES GLEW glew32
   HINTS
   $ENV{GLEWDIR}
-  PATH_SUFFIXES lib64 lib
+  PATH_SUFFIXES lib64 lib ${VC_LIB_PATH_SUFFIX}
   PATHS
   ~/Library/Frameworks
   /Library/Frameworks
