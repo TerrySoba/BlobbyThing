@@ -9,7 +9,6 @@
 #include "GameLoop.h"
 
 #include "ErrorLogging.h"
-#include <boost/foreach.hpp>
 
 GameLoop::GameLoop() {
 	// TODO Auto-generated constructor stub
@@ -39,7 +38,7 @@ void GameLoop::addCycleTask(std::function<TaskReturnvalue::TaskReturnvalue(void)
 void GameLoop::run() {
 	// at first initialize all tasks with current time
 	uint64_t currentTime = (uint64_t)SDL_GetTicks() * (uint64_t)1000;
-	BOOST_FOREACH(CycleTask &task, this->timedTasks) {
+	for(CycleTask &task: this->timedTasks) {
 		task.elapsedTime = currentTime;
 	}
 
@@ -53,7 +52,7 @@ void GameLoop::run() {
 		bool loop;
 		do {
 			loop = false;
-			BOOST_FOREACH(CycleTask &task, this->timedTasks) {
+			for(CycleTask &task: this->timedTasks) {
 				if (task.elapsedTime < currentTime) {
 					if (task.task() == TaskReturnvalue::EXIT) {
 						exit = true;

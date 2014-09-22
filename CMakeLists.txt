@@ -12,7 +12,7 @@ find_package (SDL2_image REQUIRED)
 
 find_package (Boost REQUIRED)
 find_package (OpenGL REQUIRED)
-find_package (ICU 4.4 REQUIRED)
+# find_package (ICU 4.4 REQUIRED)
 find_package (GLEW REQUIRED)
 
 include_directories(${SDL2_INCLUDE_DIRS} ${SDL2_INCLUDE_DIR} ${SDL2_IMAGE_INCLUDE_DIRS} ${SDL2_image_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS} ${ICU_INCLUDE_DIRS} ${OPENGL_INCLUDE_DIR} ${GLEW_INCLUDE_DIR})

@@ -15,7 +15,6 @@
 #include "GameStateMachine.h"
 #include "Exception.h"
 #include "MultiSpline.h"
-#include <boost/foreach.hpp>
 
 BlobbyThingGame::BlobbyThingGame(uint32_t screenWidth, uint32_t screenHeight, uint32_t colorDepth, std::string windowName)
                             : gl(screenWidth, screenHeight, colorDepth, windowName) {
@@ -86,7 +85,7 @@ int BlobbyThingGame::run() {
 	gl.setCamera(49.134);
 	gl.lookAt(5, 5, 20, 0, 1, 0, 0, 1, 0);
 
-	BOOST_FOREACH(shared_ptr<ObjModel>& model, beach) {
+	for(auto& model: beach) {
 		size_t modelHandle = gl.addModel(model);
 		gl.addGfxObjects(modelHandle, model->name);
 	}

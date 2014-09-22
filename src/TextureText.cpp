@@ -6,7 +6,7 @@
  */
 
 #include "TextureText.h"
-#include <unicode/unistr.h>
+#include "DecodeUtf8.h"
 #include <math.h>
 
 TextureText::TextureText(shared_ptr<TextureFont> font, std::string name) {
@@ -31,15 +31,18 @@ void TextureText::clear() {
 
 void TextureText::setText(const char* text) {
 	clear();
-	UnicodeString str(text, "UTF-8");
+
+	std::vector<uint32_t> str = decodeUtf8(text);
+
+	// UnicodeString str(text, "UTF-8");
 	float texWidth = this->textureObject->getWidth();
 	float texHeight = this->textureObject->getHeight();
 
 	float zJitter = 0.01;
 
-	for (int32_t pos = 0; pos < str.length(); pos++) {
+	for (int32_t pos = 0; pos < str.size(); pos++) {
 		// at first get character information
-		uint32_t unicode = str.char32At(pos);
+		uint32_t unicode = str.at(pos);
 		CharacterInformation* info = font->getCharacter(unicode);
 		if (info) {
 			zJitter *= -1;
@@ -95,10 +98,11 @@ void TextureText::setText(const char* text) {
 }
 
 uint32_t TextureText::getTextWidth(const char* text) {
-	UnicodeString str(text, "UTF-8");
+	// UnicodeString str(text, "UTF-8");
+	std::vector<uint32_t> str = decodeUtf8(text);
 	uint32_t textWidth = 0;
-	for (int32_t pos = 0; pos < str.length(); pos++) {
-		uint32_t unicode = str.char32At(pos);
+	for (int32_t pos = 0; pos < str.size(); pos++) {
+		uint32_t unicode = str.at(pos);
 		CharacterInformation* info = font->getCharacter(unicode);
 		if (info) {
 			textWidth += round(info->horiAdvance);

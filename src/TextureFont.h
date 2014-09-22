@@ -12,7 +12,6 @@
 #include <vector>
 #include <stdint.h>
 #include "MemoryTextureObject.h"
-#include <boost/shared_ptr.hpp>
 #include "common.h"
 
 struct CharacterInformation {
