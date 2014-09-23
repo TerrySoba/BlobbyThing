@@ -1,19 +1,23 @@
 cmake_minimum_required(VERSION 2.8)
 project(BlobbyThing)
 
+add_subdirectory(3rd_party)
+
 set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR})
 
 #INCLUDE(FindPkgConfig)
 #PKG_SEARCH_MODULE(SDL2 REQUIRED sdl2)
 #PKG_SEARCH_MODULE(SDL2_image REQUIRED SDL2_image)
 
-find_package (SDL2 REQUIRED)
-find_package (SDL2_image REQUIRED)
-
-find_package (Boost REQUIRED)
 find_package (OpenGL REQUIRED)
-# find_package (ICU 4.4 REQUIRED)
-find_package (GLEW REQUIRED)
+
+#if windows install files
+if(NOT WIN32)
+	find_package (Boost REQUIRED)
+	find_package (SDL2 REQUIRED)
+	find_package (SDL2_image REQUIRED)
+	find_package (GLEW REQUIRED)
+endif()
 
 include_directories(${SDL2_INCLUDE_DIRS} ${SDL2_INCLUDE_DIR} ${SDL2_IMAGE_INCLUDE_DIRS} ${SDL2_image_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS} ${ICU_INCLUDE_DIRS} ${OPENGL_INCLUDE_DIR} ${GLEW_INCLUDE_DIR})
 
@@ -40,4 +44,8 @@ if(WIN32)
 		LIBRARY DESTINATION lib
 		ARCHIVE DESTINATION lib
 	)
+	
+	# install assets
+	INSTALL(DIRECTORY fonts models shaders DESTINATION bin)
+	
 endif()
