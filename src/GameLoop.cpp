@@ -26,7 +26,7 @@ void GameLoop::setDrawTask(std::function<void(void)> task) {
 void GameLoop::addCycleTask(std::function<TaskReturnvalue(void)> task, float frequency) {
 	CycleTask t;
 	t.elapsedTime = 0;
-	t.cycleTime = 1000000.0 / frequency;
+	t.cycleTime = static_cast<uint64_t>(1000000.0 / frequency);
 	if (t.cycleTime <= 0) {
 		LOG("Frequency of ", frequency, " Hz results in cycle time < 1us. Setting frequency to 1MHz.");
 		t.cycleTime = 1;

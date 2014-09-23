@@ -102,7 +102,7 @@ bool GraphicsGL::init() {
 
 void GraphicsGL::setupGLMatrices() {
 	// glClearColor(0, 0, 0, 0);
-	glClearColor(0.3, .6, 1, 0); // sky color
+	glClearColor(0.3f, .6f, 1.0, 0.0f); // sky color
 	glClearDepth(1.0f);
 
 	glViewport(0, 0, this->screenWidth, this->screenHeight);
@@ -131,18 +131,18 @@ void GraphicsGL::setupGLMatrices() {
 	// set light source
 
 
-	GLfloat lAmbient[4] = {.2, .2, .2, 1};
+	GLfloat lAmbient[4] = {.2f, .2f, .2f, 1.0f};
 	glLightfv(GL_LIGHT0, GL_AMBIENT, lAmbient);
 
-	GLfloat lDiffuse[4] = {1, 1, 1, 1};
+	GLfloat lDiffuse[4] = {1.0f, 1.0f, 1.0f, 1.0f};
 	glLightfv(GL_LIGHT0, GL_DIFFUSE, lDiffuse);
 
-	GLfloat lSpecular[4] = {1, 1, 0.8, 1};
+	GLfloat lSpecular[4] = {1.0f, 1.0f, 0.8f, 1.0f};
 	glLightfv(GL_LIGHT0, GL_SPECULAR, lSpecular);
 
 
 	// set material parameters
-	GLfloat mSpecular[4] = {1, 1, 1, 1};
+	GLfloat mSpecular[4] = {1.0f, 1.0f, 1.0f, 1.0f};
 	glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, mSpecular);
 
 	GLfloat mShininess[1] = {100};

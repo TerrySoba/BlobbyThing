@@ -10,7 +10,7 @@
 #include "MathUtils.h"
 #include <algorithm>
 
-PhysicsSimulation2D::PhysicsSimulation2D(double intervalTime) {
+PhysicsSimulation2D::PhysicsSimulation2D(float intervalTime) {
 	this->intervalTime = intervalTime;
 
 	// default domain
@@ -24,7 +24,7 @@ PhysicsSimulation2D::~PhysicsSimulation2D() {
 	// TODO Auto-generated destructor stub
 }
 
-size_t PhysicsSimulation2D::addCircle(double posX, double posY, double radius, double vX, double vY, double mass, bool movable, std::function<void(PhysicsCircle2D&)> action) {
+size_t PhysicsSimulation2D::addCircle(float posX, float posY, float radius, float vX, float vY, float mass, bool movable, std::function<void(PhysicsCircle2D&)> action) {
 	PhysicsCircle2D circle;
 	circle.position[0] = posX;
 	circle.position[1] = posY;
@@ -45,7 +45,7 @@ size_t PhysicsSimulation2D::addCircle(double posX, double posY, double radius, d
 	return (circles.size() - 1);
 }
 
-size_t PhysicsSimulation2D::addLine(Vector2d start, Vector2d end) {
+size_t PhysicsSimulation2D::addLine(Vector2f start, Vector2f end) {
 	PhysicsStaticLine2D line;
 	line.start = start;
 	line.end = end;
@@ -58,7 +58,7 @@ PhysicsCircle2D& PhysicsSimulation2D::getCircle(size_t index) {
 	return circles[index];
 }
 
-void PhysicsSimulation2D::addPolygon(std::vector<Vector2d> polygon, double cornerRadius) {
+void PhysicsSimulation2D::addPolygon(std::vector<Vector2f> polygon, float cornerRadius) {
 	if (polygon.size() < 3) {
 		// we only support polygons with at least 3 vertexes
 		return;
@@ -76,21 +76,21 @@ void PhysicsSimulation2D::addPolygon(std::vector<Vector2d> polygon, double corne
 		size_t leftIndex = positiveModulo(cornerIndex - 1, polygon.size());
 		size_t rightIndex = positiveModulo(cornerIndex + 1, polygon.size());
 
-		Vector2d leftVector = (polygon[leftIndex] - polygon[cornerIndex]);
+		Vector2f leftVector = (polygon[leftIndex] - polygon[cornerIndex]);
 		leftVector /= leftVector.norm();
-		Vector2d rightVector = (polygon[rightIndex] - polygon[cornerIndex]);
+		Vector2f rightVector = (polygon[rightIndex] - polygon[cornerIndex]);
 		rightVector /= rightVector.norm();
 
-		Vector2d v = leftVector + rightVector;
+		Vector2f v = leftVector + rightVector;
 		v /= v.norm();
 
 		// calculate angle between left and right vector
-		double alpha = acos(leftVector.dot(rightVector)); // left and right vector both have length 1
+		float alpha = acos(leftVector.dot(rightVector)); // left and right vector both have length 1
 
-		double l = cornerRadius / sin(alpha / 2);
+		float l = cornerRadius / sin(alpha / 2);
 		circles[cornerIndex].position = l * v + polygon[cornerIndex];
 
-		double m = cornerRadius / tan(alpha / 2);
+		float m = cornerRadius / tan(alpha / 2);
 
 		lines[cornerIndex].start = m * leftVector + polygon[cornerIndex];
 		lines[rightIndex].end = m * rightVector + polygon[cornerIndex];
@@ -124,17 +124,17 @@ void PhysicsSimulation2D::circleCollision(size_t circle1Index, size_t circle2Ind
 		return;
 	}
 
-	Vector2d line = circle1.position - circle2.position;
+	Vector2f line = circle1.position - circle2.position;
 	line /= line.norm();
 
-	double v1n_s = line.dot(circle1.speed);
-	double v2n_s = line.dot(circle2.speed);
+	float v1n_s = line.dot(circle1.speed);
+	float v2n_s = line.dot(circle2.speed);
 
-	Vector2d v1n = line * v1n_s; // calculate normal speed of circle 1
-	Vector2d v2n = line * v2n_s; // calculate normal speed of circle 2
+	Vector2f v1n = line * v1n_s; // calculate normal speed of circle 1
+	Vector2f v2n = line * v2n_s; // calculate normal speed of circle 2
 
-	double& v1 = v1n_s;
-	double& v2 = v2n_s;
+	float& v1 = v1n_s;
+	float& v2 = v2n_s;
 
 
 	// LOG(fmt("Normal speeds: %1% and %2%") % v1 % v2);
@@ -145,11 +145,11 @@ void PhysicsSimulation2D::circleCollision(size_t circle1Index, size_t circle2Ind
 		// LOG("Circles are never going to meet. Nothing was changed.");
 	} else {
 		// now calculate elastic collision in 1 dimension
-		double c1 = 2 * ( (circle1.mass * v1 + circle2.mass * v2) / (circle1.mass + circle2.mass)) - v1;
-		double c2 = 2 * ( (circle1.mass * v1 + circle2.mass * v2) / (circle1.mass + circle2.mass)) - v2;
+		float c1 = 2 * ( (circle1.mass * v1 + circle2.mass * v2) / (circle1.mass + circle2.mass)) - v1;
+		float c2 = 2 * ( (circle1.mass * v1 + circle2.mass * v2) / (circle1.mass + circle2.mass)) - v2;
 
-		Vector2d c1n = line * c1;
-		Vector2d c2n = line * c2;
+		Vector2f c1n = line * c1;
+		Vector2f c2n = line * c2;
 
 		if (!circle1.movable) { // if circle1 is not movable, simply invert speed of circle2 in normal direction
 			circle2.speed = circle2.speed - 2*v2n;
@@ -186,8 +186,8 @@ bool PhysicsSimulation2D::circleLineCollision(size_t lineIndex, size_t circleInd
 	}
 
 	// calculate line vector and line normal vector
-	Vector2d lineVector = line.end - line.start;
-	Vector2d lineNormal(-lineVector(1), lineVector(0));
+	Vector2f lineVector = line.end - line.start;
+	Vector2f lineNormal(-lineVector(1), lineVector(0));
 	lineNormal /= lineNormal.norm();
 
 	// check if ball moves towards the wall
@@ -201,8 +201,8 @@ bool PhysicsSimulation2D::circleLineCollision(size_t lineIndex, size_t circleInd
 	radiusLine.start += circle.radius * lineNormal;
 	radiusLine.end += circle.radius * lineNormal;
 
-	Vector2d b = circle.position - radiusLine.start;
-	Eigen::Matrix2d A;
+	Vector2f b = circle.position - radiusLine.start;
+	Eigen::Matrix2f A;
 	A.col(0) = radiusLine.end - radiusLine.start;
 	A.col(1) = -circle.speed;
 
@@ -213,9 +213,9 @@ bool PhysicsSimulation2D::circleLineCollision(size_t lineIndex, size_t circleInd
 	// to determine how long it will take the circle
 	// to cross the line at the current speed, and where on the line
 	// the circle will meet.
-	Vector2d solution = A.lu().solve(b);
-	double& t_collision = solution(1);
-	double& collision_pos = solution(0);
+	Vector2f solution = A.lu().solve(b);
+	float& t_collision = solution(1);
+	float& collision_pos = solution(0);
 
 	// we only have a certain collision if the collision time is positive
 	// and is smaller than the simulation interval time
@@ -274,7 +274,7 @@ void PhysicsSimulation2D::calc() {
 		PhysicsCircle2D &circle = circles[n];
 
 		// apply gravity
-		Vector2d g(0, -9.81); //!< usual gravity on earth in [m/s²]
+		Vector2f g(0, -9.81); //!< usual gravity on earth in [m/s²]
 
 		if (circle.movable) {
 			circle.speed += this->intervalTime * g;
@@ -296,7 +296,7 @@ void PhysicsSimulation2D::calc() {
 
 		// check for collisions of circles
 		for (size_t j = n + 1; j < circles.size(); j++) {
-			double distance = (circles[n].position - circles[j].position).norm();
+			float distance = (circles[n].position - circles[j].position).norm();
 			if (distance <= circles[n].radius + circles[j].radius) {
 				this->circleCollision(n, j);
 			}

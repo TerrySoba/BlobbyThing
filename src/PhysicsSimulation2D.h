@@ -19,10 +19,10 @@
 #include <functional>
 
 struct PhysicsCircle2D {
-	Vector2d position; //!< center of circle in [m]
-	double radius;     //!< radius of circle in [m]
-	Vector2d speed;    //!< speed of circle in [m/s]
-	double mass;       //!< mass of circle in [kg]
+	Vector2f position; //!< center of circle in [m]
+	float radius;     //!< radius of circle in [m]
+	Vector2f speed;    //!< speed of circle in [m/s]
+	float mass;       //!< mass of circle in [kg]
 
 	std::function<void(PhysicsCircle2D&)> action;
 
@@ -30,8 +30,8 @@ struct PhysicsCircle2D {
 };
 
 struct PhysicsStaticLine2D {
-	Vector2d start; //!< start of line in [m]
-	Vector2d end;   //!< end of line in [m]
+	Vector2f start; //!< start of line in [m]
+	Vector2f end;   //!< end of line in [m]
 };
 
 enum {
@@ -40,7 +40,7 @@ enum {
 };
 
 struct PhysicsQuad2D {
-	Vector2d corners[2]; //!< The lower left and upper right corner
+	Vector2f corners[2]; //!< The lower left and upper right corner
 };
 
 /*! \brief Does simulation of 2D objects
@@ -57,7 +57,7 @@ public:
 	 *
 	 *  \param intervalTime time of simulation interval in seconds
 	 */
-	PhysicsSimulation2D(double intervalTime);
+	PhysicsSimulation2D(float intervalTime);
 	virtual ~PhysicsSimulation2D();
 
 	/*! \brief add a circle to the physics engine
@@ -73,8 +73,8 @@ public:
 	 *
 	 *  \return a reference to the added circle
 	 */
-	size_t addCircle(double posX, double posY, double radius, double vX, double vY, double mass, bool movable, std::function<void(PhysicsCircle2D&)> action = std::function<void(PhysicsCircle2D&)>());
-	size_t addLine(Vector2d start, Vector2d end);
+	size_t addCircle(float posX, float posY, float radius, float vX, float vY, float mass, bool movable, std::function<void(PhysicsCircle2D&)> action = std::function<void(PhysicsCircle2D&)>());
+	size_t addLine(Vector2f start, Vector2f end);
 
 
 	/*! \brief add a static(nonmoving) polygon
@@ -93,7 +93,7 @@ public:
 	 *  \param polygon corner points of the polygon
 	 *  \param cornerRadius radius of circles in corners of polygon
 	 */
-	void addPolygon(std::vector<Vector2d> polygon, double cornerRadius = 0.1);
+	void addPolygon(std::vector<Vector2f> polygon, float cornerRadius = 0.1);
 
 	PhysicsCircle2D& getCircle(size_t index);
 
@@ -121,7 +121,7 @@ private:
 	PhysicsQuad2D domain;
 	std::vector<PhysicsCircle2D> circles;
 	std::vector<PhysicsStaticLine2D> lines;
-	double intervalTime;
+	float intervalTime;
 };
 
 #endif /* PHYSICSSIMULATION2D_H_ */

@@ -35,12 +35,12 @@ void TextureText::setText(const char* text) {
 	std::vector<uint32_t> str = decodeUtf8(text);
 
 	// UnicodeString str(text, "UTF-8");
-	float texWidth = this->textureObject->getWidth();
-	float texHeight = this->textureObject->getHeight();
+	float texWidth = static_cast<float>(this->textureObject->getWidth());
+	float texHeight = static_cast<float>(this->textureObject->getHeight());
 
-	float zJitter = 0.01;
+	float zJitter = 0.01f;
 
-	for (int32_t pos = 0; pos < str.size(); pos++) {
+	for (size_t pos = 0; pos < str.size(); pos++) {
 		// at first get character information
 		uint32_t unicode = str.at(pos);
 		CharacterInformation* info = font->getCharacter(unicode);
@@ -101,11 +101,11 @@ uint32_t TextureText::getTextWidth(const char* text) {
 	// UnicodeString str(text, "UTF-8");
 	std::vector<uint32_t> str = decodeUtf8(text);
 	uint32_t textWidth = 0;
-	for (int32_t pos = 0; pos < str.size(); pos++) {
+	for (size_t pos = 0; pos < str.size(); pos++) {
 		uint32_t unicode = str.at(pos);
 		CharacterInformation* info = font->getCharacter(unicode);
 		if (info) {
-			textWidth += round(info->horiAdvance);
+			textWidth += static_cast<uint32_t>(round(info->horiAdvance));
 		}
 	}
 	return textWidth;

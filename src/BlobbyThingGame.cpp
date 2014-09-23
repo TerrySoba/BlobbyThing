@@ -67,7 +67,7 @@ int BlobbyThingGame::run() {
 	fpsText->setText("fps:000");
 	const char* titleStr = "Press F1 to start!";
 	startText->setText(titleStr);
-	PhysicsSimulation2D physics(1e-2 / 4);
+	PhysicsSimulation2D physics(1e-2f / 4.0f);
 
 	std::vector<shared_ptr<ObjModel>> ballShadow = WavefrontOBJLoader::load("models/shadow.obj");
 	std::vector<shared_ptr<ObjModel>> beach = WavefrontOBJLoader::load("models/beach_background_export.obj");
@@ -98,11 +98,28 @@ int BlobbyThingGame::run() {
 
 	auto textWidth = playerAScoreText->getTextWidth("Score 99 ");
 
-	gl.addOrthoGfxObject(gl.addModel(playerAScoreText), "PlayerAScoreText", Vector3f(10, gl.getScreenHeight() - 100, 0), Vector3f(0,0,1), 0);
-	gl.addOrthoGfxObject(gl.addModel(playerBScoreText), "PlayerBScoreText", Vector3f(float(gl.getScreenWidth() - textWidth), gl.getScreenHeight() - 100, 0), Vector3f(0,0,1), 0);
+	gl.addOrthoGfxObject(
+		gl.addModel(playerAScoreText),
+		"PlayerAScoreText",
+		Vector3f(10.0, static_cast<float>(gl.getScreenHeight() - 100), 0.0),
+		Vector3f(0,0,1), 0);
+
+	gl.addOrthoGfxObject(
+		gl.addModel(playerBScoreText),
+		"PlayerBScoreText",
+		Vector3f(static_cast<float>(gl.getScreenWidth() - textWidth), static_cast<float>(gl.getScreenHeight() - 100), 0),
+		Vector3f(0,0,1), 0);
+
 	auto titleWidth = startText->getTextWidth(titleStr);
-	gl.addOrthoGfxObject(gl.addModel(startText), "StartText", Vector3f(float(gl.getScreenWidth()/2 - titleWidth/2), gl.getScreenHeight() / 2, 0), Vector3f(0,0,1), 0);
-	gl.addOrthoGfxObject(gl.addModel(fpsText), "FPSText", Vector3f(10, gl.getScreenHeight() - 200, 0), Vector3f(0,0,1), 0);
+	gl.addOrthoGfxObject(
+		gl.addModel(startText),
+		"StartText",
+		Vector3f(static_cast<float>(gl.getScreenWidth() / 2.0 - titleWidth / 2.0), static_cast<float>(gl.getScreenHeight() / 2.0), 0), Vector3f(0, 0, 1), 0);
+	
+	gl.addOrthoGfxObject(
+		gl.addModel(fpsText),
+		"FPSText",
+		Vector3f(10, static_cast<float>(gl.getScreenHeight() - 200), 0), Vector3f(0,0,1), 0);
 
 	gl.prepareScene();
 	size_t fpsCounter = 0;
@@ -155,22 +172,22 @@ int BlobbyThingGame::run() {
 	}, 100);
 
 	// add volleyball net physics
-	std::vector<Vector2d> net;
-	net.push_back(Vector2d(-0.1, 0));
-	net.push_back(Vector2d(0.1, 0));
-	net.push_back(Vector2d(0.1, 4));
-	net.push_back(Vector2d(-0.1, 4));
-	physics.addPolygon(net, 0.01);
+	std::vector<Vector2f> net;
+	net.push_back(Vector2f(-0.1, 0));
+	net.push_back(Vector2f(0.1, 0));
+	net.push_back(Vector2f(0.1, 4));
+	net.push_back(Vector2f(-0.1, 4));
+	physics.addPolygon(net, 0.01f);
 
-	size_t rightLineID = physics.addLine(Vector2d(0,0), Vector2d(10,0));
-	size_t leftLineID = physics.addLine(Vector2d(-10,0), Vector2d(0,0));
+	size_t rightLineID = physics.addLine(Vector2f(0,0), Vector2f(10,0));
+	size_t leftLineID = physics.addLine(Vector2f(-10,0), Vector2f(0,0));
 
 	size_t playerACircleIndex = physics.addCircle(0, 10, 1, -3, 0, 3, true,
 			[&](PhysicsCircle2D& circle) {
 				gl.getGfxObject(playerA_id).translation[0] = circle.position(0);
 				gl.getGfxObject(playerA_id).translation[1] = circle.position(1);
 				gl.getGfxObject(ballShadow2_id).translation[0] = circle.position(0);
-				gl.getGfxObject(ballShadow2_id).translation[1] = 0.021;
+				gl.getGfxObject(ballShadow2_id).translation[1] = 0.021f;
 			});
 
 	size_t playerBCircleIndex = physics.addCircle(-5, 10, 1, -3, 0, 3, true,
@@ -178,7 +195,7 @@ int BlobbyThingGame::run() {
 				gl.getGfxObject(playerB_id).translation[0] = circle.position(0);
 				gl.getGfxObject(playerB_id).translation[1] = circle.position(1);
 				gl.getGfxObject(ballShadow3_id).translation[0] = circle.position(0);
-				gl.getGfxObject(ballShadow3_id).translation[1] = 0.022;
+				gl.getGfxObject(ballShadow3_id).translation[1] = 0.022f;
 			});
 
 	size_t smallCircleIndex = physics.addCircle(-3, 5, .5, 9, 7, 1, true,
@@ -186,7 +203,7 @@ int BlobbyThingGame::run() {
 		gl.getGfxObject(ball_id).translation[0] = circle.position(0);
 		gl.getGfxObject(ball_id).translation[1] = circle.position(1);
 		gl.getGfxObject(ballShadow1_id).translation[0] = circle.position(0);
-		gl.getGfxObject(ballShadow1_id).translation[1] = 0.02;
+		gl.getGfxObject(ballShadow1_id).translation[1] = 0.02f;
 	});
 
 
@@ -202,19 +219,19 @@ int BlobbyThingGame::run() {
 	});
 
 	physics.addLineCircleCollisionAction(rightLineID, playerACircleIndex, [&](PhysicsStaticLine2D& line, PhysicsCircle2D& circle){
-		circle.speed[1] = circle.speed[1] * 0.2;
+		circle.speed[1] = circle.speed[1] * 0.2f;
 	});
 
 	physics.addLineCircleCollisionAction(leftLineID, playerACircleIndex, [&](PhysicsStaticLine2D& line, PhysicsCircle2D& circle){
-		circle.speed[1] = circle.speed[1] * 0.2;
+		circle.speed[1] = circle.speed[1] * 0.2f;
 	});
 
 	physics.addLineCircleCollisionAction(rightLineID, playerBCircleIndex, [&](PhysicsStaticLine2D& line, PhysicsCircle2D& circle){
-		circle.speed[1] = circle.speed[1] * 0.2;
+		circle.speed[1] = circle.speed[1] * 0.2f;
 	});
 
 	physics.addLineCircleCollisionAction(leftLineID, playerBCircleIndex, [&](PhysicsStaticLine2D& line, PhysicsCircle2D& circle){
-		circle.speed[1] = circle.speed[1] * 0.2;
+		circle.speed[1] = circle.speed[1] * 0.2f;
 	});
 
 	physics.addcircleCircleCollisionAction(playerACircleIndex, smallCircleIndex, [&](PhysicsCircle2D& circle1, PhysicsCircle2D& circle2){
@@ -271,13 +288,13 @@ int BlobbyThingGame::run() {
 	 */
 
 	auto resetBallPos = [&](){
-		physics.getCircle(smallCircleIndex).speed = Vector2d(0,0);
-		physics.getCircle(smallCircleIndex).position = Vector2d(0,10);
+		physics.getCircle(smallCircleIndex).speed = Vector2f(0,0);
+		physics.getCircle(smallCircleIndex).position = Vector2f(0,10);
 
-		physics.getCircle(playerACircleIndex).speed = Vector2d(0,0);
-		physics.getCircle(playerACircleIndex).position = Vector2d(5,4);
-		physics.getCircle(playerBCircleIndex).speed = Vector2d(0,0);
-		physics.getCircle(playerBCircleIndex).position = Vector2d(-5,4);
+		physics.getCircle(playerACircleIndex).speed = Vector2f(0,0);
+		physics.getCircle(playerACircleIndex).position = Vector2f(5,4);
+		physics.getCircle(playerBCircleIndex).speed = Vector2f(0,0);
+		physics.getCircle(playerBCircleIndex).position = Vector2f(-5,4);
 	};
 
 	stateMachine.addTransition(GameState::START_SCREEN,

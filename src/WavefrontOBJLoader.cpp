@@ -21,7 +21,6 @@ using blobby::string::format;
 #define strtok_r(tok, delim, state) strtok(tok, delim)
 
 std::string dirname(std::string path) {
-	char path_buffer[_MAX_PATH];
 	char drive[_MAX_DRIVE];
 	char dir[_MAX_DIR];
 	char fname[_MAX_FNAME];
@@ -321,7 +320,6 @@ std::vector<shared_ptr<ObjModel>> WavefrontOBJLoader::load(const std::string& pa
 				for (int i = 0; i < 3; i++) {
 					token = strtok_r(NULL, " \n\r", &saveptr);
 					if (token) {
-						char* endptr;
 						int foundValues = sscanf(token, "%f", &vertex[i]);
 						if (foundValues != 1) { // check if conversion worked
 							THROW_BLOBBY_EXCEPTION(format("%1%:%2% Invalid float format.", path, lineNumber));
@@ -362,7 +360,6 @@ std::vector<shared_ptr<ObjModel>> WavefrontOBJLoader::load(const std::string& pa
 				for (int i = 0; i < 2; i++) {
 					token = strtok_r(NULL, " \n\r", &saveptr);
 					if (token) {
-						char* endptr;
 						int foundValues = sscanf(token, "%f", &texCoord[i]);
 						if (foundValues != 1) { // check if conversion worked
 							THROW_BLOBBY_EXCEPTION(format("%1%:%2% Invalid float format.", path, lineNumber));
@@ -380,7 +377,6 @@ std::vector<shared_ptr<ObjModel>> WavefrontOBJLoader::load(const std::string& pa
 				for (int i = 0; i < 3; i++) {
 					token = strtok_r(NULL, " \n\r", &saveptr);
 					if (token) {
-						char* endptr;
 						int foundValues = sscanf(token, "%f", &normal[i]);
 						if (foundValues != 1) { // check if conversion worked
 							THROW_BLOBBY_EXCEPTION(format("%1%:%2% Invalid float format.", path, lineNumber));
