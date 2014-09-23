@@ -3,7 +3,7 @@
 
 #include <vector>
 #include <cstdint>
-
+#include <string>
 
 std::vector<uint32_t> decodeUtf8(const std::string& utf8);
 

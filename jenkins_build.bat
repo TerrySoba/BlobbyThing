@@ -15,4 +15,4 @@ rem cmake .. -G "Visual Studio 12 2013" -DCMAKE_INSTALL_PREFIX:PATH=%CD%/install
 nmake
 nmake install
 cd install
-7z a BlobbyThing.zip bin
+7z a %JOB_NAME%_%BUILD_ID%.zip bin
