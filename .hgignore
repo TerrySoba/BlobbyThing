@@ -12,6 +12,6 @@ Makefile
 syntax: regexp
 src/latex
 src/html
-#src/Eigen
 Debug/
 CMakeFiles/
+build/
