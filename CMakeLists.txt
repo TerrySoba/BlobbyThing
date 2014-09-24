@@ -16,7 +16,16 @@ if(NOT WIN32)
     find_package (GLEW REQUIRED)
 endif()
 
-include_directories(${SDL2_INCLUDE_DIRS} ${SDL2_INCLUDE_DIR} ${SDL2_IMAGE_INCLUDE_DIRS} ${SDL2_image_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS} ${ICU_INCLUDE_DIRS} ${OPENGL_INCLUDE_DIR} ${GLEW_INCLUDE_DIR})
+include_directories(
+    ${SDL2_INCLUDE_DIRS}
+    ${SDL2_INCLUDE_DIR}
+    ${SDL2_IMAGE_INCLUDE_DIRS}
+    ${SDL2_image_INCLUDE_DIRS}
+    ${Boost_INCLUDE_DIRS}
+    ${ICU_INCLUDE_DIRS}
+    ${OPENGL_INCLUDE_DIR}
+    ${GLEW_INCLUDE_DIR}
+    ${EIGEN_INCLUDE_DIRS})
 
 add_definitions(-DEIGEN_DONT_ALIGN_STATICALLY)
 
@@ -26,7 +35,14 @@ endif ()
 
 
 add_subdirectory(src)
-link_libraries(${PROJECT_NAME}_lib ${SDL2_LIBRARIES} ${SDL2_LIBRARY} ${SDL2_IMAGE_LIBRARIES} ${SDL2_image_LIBRARIES} ${GLEW_LIBRARY} ${OPENGL_LIBRARIES})
+link_libraries(${PROJECT_NAME}_lib
+    ${SDL2_LIBRARIES}
+    ${SDL2_LIBRARY}
+    ${SDL2_IMAGE_LIBRARIES}
+    ${SDL2_image_LIBRARIES}
+    ${GLEW_LIBRARY}
+    ${OPENGL_LIBRARIES})
+
 add_executable(
     ${PROJECT_NAME}
     src/main.cpp)

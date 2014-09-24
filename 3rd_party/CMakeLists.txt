@@ -1,4 +1,4 @@
-#if windows install files
+add_subdirectory(eigen)
 if(WIN32)
 	add_subdirectory(windows)
 endif()
