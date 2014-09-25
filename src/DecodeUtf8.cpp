@@ -45,7 +45,7 @@ std::vector<uint32_t> decodeUtf8(const std::string& utf8)
 {
 	std::vector<uint32_t> unicode;
 
-	const uint8_t* s = reinterpret_cast<const uint8_t*>(utf8.data());
+    const uint8_t* s = reinterpret_cast<const uint8_t*>(utf8.c_str());
 	uint32_t codepoint = 0;
 	uint32_t state = 0;
 
