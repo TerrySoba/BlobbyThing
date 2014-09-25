@@ -17,9 +17,9 @@
  *  \param lines the number of lines of the image
  */
 void FlipVertically(void* ptr, size_t pitch, size_t lineLength, size_t lines) {
-    uint8_t* linebuffer = new uint8_t[lineLength];
+    std::vector<uint8_t> linebuffer(lineLength);
     for (size_t line = 0; line < lines / 2; line++) {
-        memcpy(linebuffer,
+        memcpy(linebuffer.data(),
                        &(((uint8_t*) (ptr))[pitch * line]),
                        lineLength); // save line to buffer
 
@@ -28,10 +28,9 @@ void FlipVertically(void* ptr, size_t pitch, size_t lineLength, size_t lines) {
                        lineLength); // overwrite old line
 
         memcpy(&(((uint8_t*) (ptr))[pitch * (lines - line - 1)]),
-                       linebuffer,
+                       linebuffer.data(),
                        lineLength); // restore line from buffer
     }
-    delete linebuffer;
 }
 
 inline void FlipSDLSurfaceVertically(SDL_Surface* surface) {

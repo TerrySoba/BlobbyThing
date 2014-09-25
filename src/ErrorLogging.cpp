@@ -9,7 +9,7 @@
 
 #include <stdio.h>
 
-ErrorLogging* ErrorLogging::instance = 0;
+std::shared_ptr<ErrorLogging> ErrorLogging::m_instance;
 
 ErrorLogging::ErrorLogging() {
 
@@ -19,9 +19,9 @@ ErrorLogging::~ErrorLogging() {
 
 }
 
-ErrorLogging* ErrorLogging::getInstance() {
-    if (!instance) instance = new ErrorLogging();
-    return instance;
+std::shared_ptr<ErrorLogging> ErrorLogging::getInstance() {
+    if (!m_instance) m_instance.reset(new ErrorLogging);
+    return m_instance;
 }
 
 void ErrorLogging::log(LogLevel level, const std::string& logPrefix, const std::string& text) {

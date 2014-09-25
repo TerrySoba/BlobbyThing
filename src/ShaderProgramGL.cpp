@@ -54,13 +54,12 @@ std::string readCompleteFile(const char* path, size_t bufferSize = 1024) {
         return text;
     }
 
-    char* buffer = new char[bufferSize+1];
+    std::vector<char> buffer(bufferSize+1);
     while (!feof(fp)) {
-        size_t readElem = fread(buffer, 1, bufferSize, fp);
+        size_t readElem = fread(buffer.data(), 1, bufferSize, fp);
         buffer[readElem] = '\0';
-        text += std::string(buffer, readElem);
+        text += std::string(buffer.data(), readElem);
     }
-    delete[] buffer;
 
     fclose(fp);
 
@@ -76,16 +75,14 @@ void ShaderProgramGL::useProgram() {
 std::string getShaderInfoLog(GLuint shaderHandle) {
     int infologLength = 0;
     int charsWritten = 0;
-    char *infoLog;
     std::string logString;
 
     glGetShaderiv(shaderHandle, GL_INFO_LOG_LENGTH, &infologLength);
 
     if (infologLength > 0) {
-        infoLog = new char[infologLength];
-        glGetShaderInfoLog(shaderHandle, infologLength, &charsWritten, infoLog);
-        logString = std::string(infoLog, charsWritten);
-        delete[] infoLog;
+        std::vector<char> infoLog(infologLength);
+        glGetShaderInfoLog(shaderHandle, infologLength, &charsWritten, infoLog.data());
+        logString = std::string(infoLog.data(), charsWritten);
     }
 
     return logString;
@@ -94,16 +91,14 @@ std::string getShaderInfoLog(GLuint shaderHandle) {
 std::string getProgramInfoLog(GLuint programHandle) {
     int infologLength = 0;
     int charsWritten = 0;
-    char *infoLog;
     std::string logString;
 
     glGetProgramiv(programHandle, GL_INFO_LOG_LENGTH, &infologLength);
 
     if (infologLength > 0) {
-        infoLog = new char[infologLength];
-        glGetProgramInfoLog(programHandle, infologLength, &charsWritten, infoLog);
-        logString = std::string(infoLog, charsWritten);
-        delete[] infoLog;
+        std::vector<char> infoLog(infologLength);
+        glGetProgramInfoLog(programHandle, infologLength, &charsWritten, infoLog.data());
+        logString = std::string(infoLog.data(), charsWritten);
     }
 
     return logString;
