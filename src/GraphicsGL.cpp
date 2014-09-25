@@ -7,12 +7,14 @@
 
 #include "GraphicsGL.h"
 #include "ShaderProgramGL.h"
-#include <algorithm>
+
 #include "Eigen/Geometry"
 #include "SDL_image.h"
 #include "icon_img.h"
 #include "SDLTextureObject.h"
 #include "benchmarking.h"
+
+#include <algorithm>
 
 GraphicsGL::GraphicsGL(uint32_t screenWidth, uint32_t screenHeight, uint32_t colorDepth, std::string windowName) {
     this->screenWidth = screenWidth;
@@ -253,7 +255,7 @@ void GraphicsGL::initGL() {
 //  safePrepareShaders(this->orthographicObjs);
 //}
 
-size_t GraphicsGL::addModel(shared_ptr<ShadedModel> model) {
+size_t GraphicsGL::addModel(std::shared_ptr<ShadedModel> model) {
     if (model) {
         InternalModelReference ref;
         ref.name = model->getName();
@@ -276,7 +278,7 @@ size_t GraphicsGL::addModel(shared_ptr<ShadedModel> model) {
     return (models.size() - 1);
 }
 
-size_t GraphicsGL::addModel(shared_ptr<ObjModel> model) {
+size_t GraphicsGL::addModel(std::shared_ptr<ObjModel> model) {
     // models.push_back(model);
 
     if (model) {
@@ -285,9 +287,9 @@ size_t GraphicsGL::addModel(shared_ptr<ObjModel> model) {
         ref.transparency = 1;
 
         for(ModelPart& part: model->modelParts) {
-            shared_ptr<TriangleObject>& triangles = part.triangles;
-            shared_ptr<TextureObject> texture(new SDLTextureObject(part.material.diffuseMapPath.c_str()));
-            shared_ptr<ShaderProgramGL> shader(new ShaderProgramGL());
+            std::shared_ptr<TriangleObject>& triangles = part.triangles;
+            std::shared_ptr<TextureObject> texture(new SDLTextureObject(part.material.diffuseMapPath.c_str()));
+            std::shared_ptr<ShaderProgramGL> shader(new ShaderProgramGL());
 
             // check if shader path is given. If not use default shaders
             if (!(part.material.fragmentShaderPath.size() && part.material.vertexShaderPath.size())) {
@@ -369,11 +371,11 @@ size_t GraphicsGL::getGfxObjectHandleByName(std::string name) {
 }
 
 void GraphicsGL::prepareScene() {
-    for(const shared_ptr<TextureObject>& texture: textureStore) {
+    for(const std::shared_ptr<TextureObject>& texture: textureStore) {
         texture->generateOpenGLTexture();
     }
 
-    for(const shared_ptr<ShaderProgramGL>& shader: shaderStore) {
+    for(const std::shared_ptr<ShaderProgramGL>& shader: shaderStore) {
         shader->prepareShaders();
     }
 

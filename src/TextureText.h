@@ -8,8 +8,6 @@
 #ifndef TEXTURETEXT_H_
 #define TEXTURETEXT_H_
 
-#include "common.h"
-
 #include "ShadedModel.h"
 #include "VectorTriangleObject.h"
 #include "MemoryTextureObject.h"
@@ -18,12 +16,12 @@
 
 class TextureText: public ShadedModel {
 public:
-    TextureText(shared_ptr<TextureFont> font, std::string name);
+    TextureText(std::shared_ptr<TextureFont> font, std::string name);
     virtual ~TextureText();
 
-    virtual shared_ptr<TriangleObject> getTriangleObject() { return triangleObject; }
-    virtual shared_ptr<TextureObject> getTextureObject() { return textureObject; }
-    shared_ptr<ShaderProgramGL> getShaderProgram() { return shader; }
+    virtual std::shared_ptr<TriangleObject> getTriangleObject() { return triangleObject; }
+    virtual std::shared_ptr<TextureObject> getTextureObject() { return textureObject; }
+    std::shared_ptr<ShaderProgramGL> getShaderProgram() { return shader; }
     virtual std::string getName();
 
     void clear();
@@ -37,10 +35,10 @@ public:
     uint32_t getTextWidth(const char* text);
 
 private:
-    shared_ptr<VectorTriangleObject> triangleObject;
-    shared_ptr<TextureObject> textureObject;
-    shared_ptr<TextureFont> font;
-    shared_ptr<ShaderProgramGL> shader;
+    std::shared_ptr<VectorTriangleObject> triangleObject;
+    std::shared_ptr<TextureObject> textureObject;
+    std::shared_ptr<TextureFont> font;
+    std::shared_ptr<ShaderProgramGL> shader;
     std::string name;
 
     float left; //!< Position of next character from left

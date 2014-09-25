@@ -5,16 +5,11 @@
  *      Author: yoshi252
  */
 
-#ifndef COMMON_H_
-#define COMMON_H_
+#ifndef CHECKED_FREAD_H_
+#define CHECKED_FREAD
 
 #include "ErrorLogging.h"
-#include <memory>
 #include <fstream>
-
-
-using std::shared_ptr;
-using std::make_shared;
 
 #define checked_fread(dest, size, nmemb, fp) _checked_fread(dest, size, nmemb, fp, _LOG_PREFIX)
 
@@ -25,4 +20,4 @@ inline void _checked_fread(void* dest, size_t size, size_t nmemb, std::fstream& 
     }
 }
 
-#endif /* COMMON_H_ */
+#endif

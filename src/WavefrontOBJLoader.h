@@ -30,7 +30,7 @@ struct ObjMaterial {
 };
 
 struct ModelPart {
-    shared_ptr<TriangleObject> triangles;
+    std::shared_ptr<TriangleObject> triangles;
     ObjMaterial material;
 };
 
@@ -44,7 +44,7 @@ public:
     WavefrontOBJLoader();
     virtual ~WavefrontOBJLoader();
 
-    static std::vector<shared_ptr<ObjModel>> load(const std::string& path);
+    static std::vector<std::shared_ptr<ObjModel>> load(const std::string& path);
 
 private:
 

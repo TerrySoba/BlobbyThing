@@ -8,6 +8,7 @@
 #include "TextureFont.h"
 #include "ErrorLogging.h"
 #include "Exception.h"
+#include "checked_fread.h"
 #include <cstring>
 #include <stdint.h>
 #include <fstream>

@@ -10,7 +10,6 @@
 
 #include "gl_includes.h"
 #include <vector>
-#include "common.h"
 #include "MathUtils.h"
 
 struct MyGLVertex {

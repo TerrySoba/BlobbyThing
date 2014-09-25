@@ -11,7 +11,6 @@
 
 #include "ErrorLogging.h"
 #include <functional>
-#include "common.h"
 #include "MathUtils.h"
 #include <map>
 #include <tuple>

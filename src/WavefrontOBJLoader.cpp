@@ -10,10 +10,14 @@
 #include "ErrorLogging.h"
 #include "Exception.h"
 #include "VectorTriangleObject.h"
+#include "checked_fread.h"
+
 #ifndef _MSC_VER
 #include "libgen.h"
 #endif
-#include "common.h"
+
+#include <fstream>
+
 
 using blobby::string::format;
 
@@ -245,8 +249,8 @@ std::map<std::string, ObjMaterial> WavefrontOBJLoader::loadMaterial(const std::s
 }
 
 
-std::vector<shared_ptr<ObjModel>> WavefrontOBJLoader::load(const std::string& path) {
-    std::vector<shared_ptr<ObjModel>> modelsRet;
+std::vector<std::shared_ptr<ObjModel>> WavefrontOBJLoader::load(const std::string& path) {
+    std::vector<std::shared_ptr<ObjModel>> modelsRet;
     const size_t lineBufferSize = 1000;
     char lineBuffer[lineBufferSize];
     // FILE* fp = fopen(path.c_str(), "r");
@@ -458,7 +462,7 @@ std::vector<shared_ptr<ObjModel>> WavefrontOBJLoader::load(const std::string& pa
 
     for(IndexPolygon &modelPart: triangles) {
         // first insert triangles
-        shared_ptr<VectorTriangleObject> vertexes = make_shared<VectorTriangleObject>();
+        auto vertexes = std::make_shared<VectorTriangleObject>();
         // VectorTriangleObject* vertexes = ;
         for(const Polygon& p: modelPart.second) {
             if (p.size() >= 3) {
@@ -479,7 +483,7 @@ std::vector<shared_ptr<ObjModel>> WavefrontOBJLoader::load(const std::string& pa
     }
 
     for(auto& modelTmp: models) {
-        shared_ptr<ObjModel> model = make_shared<ObjModel>();
+        auto model = std::make_shared<ObjModel>();
         model->name = modelTmp.first;
         model->modelParts = modelTmp.second;
         modelsRet.push_back(model);
