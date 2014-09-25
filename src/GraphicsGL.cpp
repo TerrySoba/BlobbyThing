@@ -287,9 +287,9 @@ size_t GraphicsGL::addModel(std::shared_ptr<ObjModel> model) {
         ref.transparency = 1;
 
         for(ModelPart& part: model->modelParts) {
-            std::shared_ptr<TriangleObject>& triangles = part.triangles;
-            std::shared_ptr<TextureObject> texture(new SDLTextureObject(part.material.diffuseMapPath.c_str()));
-            std::shared_ptr<ShaderProgramGL> shader(new ShaderProgramGL());
+            auto& triangles = part.triangles;
+            auto texture = std::make_shared<SDLTextureObject>(part.material.diffuseMapPath.c_str());
+            auto shader = std::make_shared<ShaderProgramGL>();
 
             // check if shader path is given. If not use default shaders
             if (!(part.material.fragmentShaderPath.size() && part.material.vertexShaderPath.size())) {

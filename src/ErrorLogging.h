@@ -11,6 +11,7 @@
 #include <iostream>
 #include <string>
 #include <sstream>
+#include <memory>
 
 #include "StringTools.h"
 
@@ -50,7 +51,7 @@ enum class LogLevel {
 class ErrorLogging {
 public:
 
-    static ErrorLogging* getInstance();
+    static std::shared_ptr<ErrorLogging> getInstance();
     virtual ~ErrorLogging();
 
     void log(LogLevel level, const std::string& logPrefix, const std::string& text);
@@ -59,7 +60,7 @@ protected:
     ErrorLogging();
 
 private:
-    static ErrorLogging* instance;
+    static std::shared_ptr<ErrorLogging> m_instance;
 };
 
 #endif /* ERRORLOGGING_H_ */
