@@ -8,10 +8,10 @@
 #include "VectorTriangleObject.h"
 
 VectorTriangleObject::VectorTriangleObject() {
-	// TODO Auto-generated constructor stub
+    // TODO Auto-generated constructor stub
 
 }
 
 VectorTriangleObject::~VectorTriangleObject() {
-	// TODO Auto-generated destructor stub
+    // TODO Auto-generated destructor stub
 }

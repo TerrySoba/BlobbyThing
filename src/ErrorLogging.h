@@ -23,9 +23,9 @@
 #define ERR(...)  ErrorLogging::getInstance()->log(LogLevel::ERROR,   _LOG_PREFIX, blobby::string::join(__VA_ARGS__))
 
 enum class LogLevel {
-	LOGGING,
-	WARNING,
-	ERROR
+    LOGGING,
+    WARNING,
+    ERROR
 };
 
 /*! \brief General logging class.
@@ -50,16 +50,16 @@ enum class LogLevel {
 class ErrorLogging {
 public:
 
-	static ErrorLogging* getInstance();
-	virtual ~ErrorLogging();
+    static ErrorLogging* getInstance();
+    virtual ~ErrorLogging();
 
-	void log(LogLevel level, const std::string& logPrefix, const std::string& text);
+    void log(LogLevel level, const std::string& logPrefix, const std::string& text);
 
 protected:
-	ErrorLogging();
+    ErrorLogging();
 
 private:
-	static ErrorLogging* instance;
+    static ErrorLogging* instance;
 };
 
 #endif /* ERRORLOGGING_H_ */

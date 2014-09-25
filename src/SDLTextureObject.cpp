@@ -17,124 +17,124 @@
  *  \param lines the number of lines of the image
  */
 void FlipVertically(void* ptr, size_t pitch, size_t lineLength, size_t lines) {
-	uint8_t* linebuffer = new uint8_t[lineLength];
-	for (size_t line = 0; line < lines / 2; line++) {
-		memcpy(linebuffer,
-				       &(((uint8_t*) (ptr))[pitch * line]),
-				       lineLength); // save line to buffer
+    uint8_t* linebuffer = new uint8_t[lineLength];
+    for (size_t line = 0; line < lines / 2; line++) {
+        memcpy(linebuffer,
+                       &(((uint8_t*) (ptr))[pitch * line]),
+                       lineLength); // save line to buffer
 
-		memcpy(&(((uint8_t*) (ptr))[pitch * line]),
-					   &(((uint8_t*) (ptr))[pitch * (lines - line - 1)]),
-					   lineLength); // overwrite old line
+        memcpy(&(((uint8_t*) (ptr))[pitch * line]),
+                       &(((uint8_t*) (ptr))[pitch * (lines - line - 1)]),
+                       lineLength); // overwrite old line
 
-		memcpy(&(((uint8_t*) (ptr))[pitch * (lines - line - 1)]),
-					   linebuffer,
-					   lineLength); // restore line from buffer
-	}
-	delete linebuffer;
+        memcpy(&(((uint8_t*) (ptr))[pitch * (lines - line - 1)]),
+                       linebuffer,
+                       lineLength); // restore line from buffer
+    }
+    delete linebuffer;
 }
 
 inline void FlipSDLSurfaceVertically(SDL_Surface* surface) {
-	FlipVertically(surface->pixels, surface->pitch, surface->w * surface->format->BytesPerPixel, surface->h);
+    FlipVertically(surface->pixels, surface->pitch, surface->w * surface->format->BytesPerPixel, surface->h);
 }
 
 // #define FlipSDLSurfaceVertically(surface) FlipVertically(surface->pixels, surface->pitch, surface->w * surface->format->BytesPerPixel, surface->h)
 
 SDLTextureObject::SDLTextureObject(const char* path) : TextureObject() {
-	this->path = path;
-	load();
+    this->path = path;
+    load();
 }
 
 bool SDLTextureObject::load() {
 
-	// LOG("Loading texture \"", path, "\"");
-	surface = IMG_Load(path.c_str());
-	if(!surface) {
-	    ERR("IMG_Load: ", IMG_GetError());
-	    return false;
-	}
+    // LOG("Loading texture \"", path, "\"");
+    surface = IMG_Load(path.c_str());
+    if(!surface) {
+        ERR("IMG_Load: ", IMG_GetError());
+        return false;
+    }
 
-	// we need to flip the image vertically
-	FlipSDLSurfaceVertically(surface);
-	// LOG("Finished loading texture: ", path);
+    // we need to flip the image vertically
+    FlipSDLSurfaceVertically(surface);
+    // LOG("Finished loading texture: ", path);
 
-	// now fill internal structures
-	this->width = surface->w;
-	this->height = surface->h;
-	this->internalFormat = surface->format->BytesPerPixel;
+    // now fill internal structures
+    this->width = surface->w;
+    this->height = surface->h;
+    this->internalFormat = surface->format->BytesPerPixel;
 
-	int nOfColors = surface->format->BytesPerPixel;
-	GLenum format = GL_RGB;
-	if (nOfColors == 4) { // contains an alpha channel{
-		if (surface->format->Rmask == 0x000000ff)
-			format = GL_RGBA;
-		else
-			format = GL_BGRA;
-	} else if (nOfColors == 3) { // no alpha channel
-		if (surface->format->Rmask == 0x000000ff)
-			format = GL_RGB;
-		else
-			format = GL_BGR;
-	} else {
-		ERR("the image is not truecolor..  this will probably break");
-	}
-	this->format = format;
+    int nOfColors = surface->format->BytesPerPixel;
+    GLenum format = GL_RGB;
+    if (nOfColors == 4) { // contains an alpha channel{
+        if (surface->format->Rmask == 0x000000ff)
+            format = GL_RGBA;
+        else
+            format = GL_BGRA;
+    } else if (nOfColors == 3) { // no alpha channel
+        if (surface->format->Rmask == 0x000000ff)
+            format = GL_RGB;
+        else
+            format = GL_BGR;
+    } else {
+        ERR("the image is not truecolor..  this will probably break");
+    }
+    this->format = format;
 
-	this->type = GL_UNSIGNED_BYTE;
+    this->type = GL_UNSIGNED_BYTE;
 
-	return true;
+    return true;
 }
 
 size_t SDLTextureObject::getPixelSize() {
-	if (!surface) {
-		load();
-	}
+    if (!surface) {
+        load();
+    }
 
-	return surface->format->BytesPerPixel;
+    return surface->format->BytesPerPixel;
 }
 
 SDLTextureObject::~SDLTextureObject() {
-	if (surface) {
-		SDL_FreeSurface(surface);
-	}
+    if (surface) {
+        SDL_FreeSurface(surface);
+    }
 }
 
 const GLvoid * SDLTextureObject::getData() {
-	if (!surface) {
-		load();
-	}
-	return surface->pixels;
+    if (!surface) {
+        load();
+    }
+    return surface->pixels;
 }
 
 GLsizei SDLTextureObject::getWidth() {
-	return width;
+    return width;
 }
 
 GLsizei SDLTextureObject::getHeight() {
-	return height;
+    return height;
 }
 
 GLint SDLTextureObject::getInternalFormat() {
-	return internalFormat;
+    return internalFormat;
 }
 
 GLenum SDLTextureObject::getFormat() {
-	return format;
+    return format;
 }
 
 GLenum SDLTextureObject::getType() {
-	return type;
+    return type;
 }
 
 void SDLTextureObject::compact() {
-	if (surface) {
-		SDL_FreeSurface(surface);
-		surface = NULL;
-	}
+    if (surface) {
+        SDL_FreeSurface(surface);
+        surface = NULL;
+    }
 }
 
 std::string SDLTextureObject::getSourceName() {
-	return path;
+    return path;
 }
 
 

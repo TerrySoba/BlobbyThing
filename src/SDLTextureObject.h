@@ -14,35 +14,35 @@
 
 class SDLTextureObject : public TextureObject {
 public:
-	SDLTextureObject(const char* path);
-	virtual ~SDLTextureObject();
+    SDLTextureObject(const char* path);
+    virtual ~SDLTextureObject();
 
-	virtual const GLvoid * getData();
-	virtual GLsizei getWidth();
-	virtual GLsizei getHeight();
-	virtual GLint   getInternalFormat();
-	virtual GLenum  getFormat();
-	virtual GLenum  getType();
+    virtual const GLvoid * getData();
+    virtual GLsizei getWidth();
+    virtual GLsizei getHeight();
+    virtual GLint   getInternalFormat();
+    virtual GLenum  getFormat();
+    virtual GLenum  getType();
 
-	std::string getSourceName();
+    std::string getSourceName();
 
-	size_t getPixelSize();
+    size_t getPixelSize();
 
-	virtual void compact();
+    virtual void compact();
 
 private:
 
-	bool load();
+    bool load();
 
-	SDL_Surface* surface;
+    SDL_Surface* surface;
 
-	std::string path;
+    std::string path;
 
-	GLsizei width;
-	GLsizei height;
-	GLint   internalFormat;
-	GLenum  format;
-	GLenum  type;
+    GLsizei width;
+    GLsizei height;
+    GLint   internalFormat;
+    GLenum  format;
+    GLenum  type;
 
 };
 

@@ -13,8 +13,8 @@
 #include <cstdint>
 
 enum class TaskReturnvalue {
-	OK,
-	EXIT
+    OK,
+    EXIT
 };
 
 
@@ -29,47 +29,47 @@ enum class TaskReturnvalue {
  */
 class GameLoop {
 public:
-	GameLoop();
-	virtual ~GameLoop();
+    GameLoop();
+    virtual ~GameLoop();
 
-	/*! \brief Set the callback for drawing the screen.
-	 *
-	 *  If a callback for the draw task was already set the callback will
-	 *  be replaced.
-	 *  \param task a callback to be used to draw the screen
-	 *  \return none
-	 */
-	void setDrawTask(std::function<void(void)> task);
+    /*! \brief Set the callback for drawing the screen.
+     *
+     *  If a callback for the draw task was already set the callback will
+     *  be replaced.
+     *  \param task a callback to be used to draw the screen
+     *  \return none
+     */
+    void setDrawTask(std::function<void(void)> task);
 
-	/*! \brief Add a task that is to be executed at a given frequency.
-	 *
-	 *  \param task a callback that is to be called at a given frequency
-	 *  \param frequency the frequency the callback is to be executed in Hz
-	 *  \return none
-	 */
-	void addCycleTask(std::function<TaskReturnvalue(void)> task, float frequency);
+    /*! \brief Add a task that is to be executed at a given frequency.
+     *
+     *  \param task a callback that is to be called at a given frequency
+     *  \param frequency the frequency the callback is to be executed in Hz
+     *  \return none
+     */
+    void addCycleTask(std::function<TaskReturnvalue(void)> task, float frequency);
 
-	/*! \brief Run the mainloop.
-	 *
-	 *  This loop will run as long as the cycle tasks do not return
-	 *  TaskReturnvalue::EXIT.
-	 *
-	 *  \warning If you did not set a drawing callback using setDrawTask()
-	 *           a std::bad_function_call exception will be raised.
-	 */
-	void run();
+    /*! \brief Run the mainloop.
+     *
+     *  This loop will run as long as the cycle tasks do not return
+     *  TaskReturnvalue::EXIT.
+     *
+     *  \warning If you did not set a drawing callback using setDrawTask()
+     *           a std::bad_function_call exception will be raised.
+     */
+    void run();
 
 private:
 
-	struct CycleTask {
-		uint64_t cycleTime;   // in us
-		uint64_t elapsedTime; // in us
+    struct CycleTask {
+        uint64_t cycleTime;   // in us
+        uint64_t elapsedTime; // in us
 
-		std::function<TaskReturnvalue(void)> task;
-	};
+        std::function<TaskReturnvalue(void)> task;
+    };
 
-	std::vector<CycleTask> timedTasks;  //!< the tasks to be called at a given frequency
-	std::function<void(void)> drawTask; //!< the task to draw the screen
+    std::vector<CycleTask> timedTasks;  //!< the tasks to be called at a given frequency
+    std::function<void(void)> drawTask; //!< the task to draw the screen
 
 };
 

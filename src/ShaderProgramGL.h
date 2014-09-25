@@ -19,46 +19,46 @@
  */
 class ShaderProgramGL {
 public:
-	ShaderProgramGL();
-	virtual ~ShaderProgramGL();
+    ShaderProgramGL();
+    virtual ~ShaderProgramGL();
 
-	/*! \brief set shader sources
-	 *
-	 *  This method may be called anytime, even before initialization
-	 *  of the OpenGL context.
-	 *
-	 *  \param vertexShaderPath path to the vertex shader source code
-	 *  \param fragmentShaderPath path to the fragment shader source code
-	 *
-	 *  \return false if at least one of the files does no exist, else true
-	 */
-	bool setShaders(std::string vertexShaderPath, std::string fragmentShaderPath);
+    /*! \brief set shader sources
+     *
+     *  This method may be called anytime, even before initialization
+     *  of the OpenGL context.
+     *
+     *  \param vertexShaderPath path to the vertex shader source code
+     *  \param fragmentShaderPath path to the fragment shader source code
+     *
+     *  \return false if at least one of the files does no exist, else true
+     */
+    bool setShaders(std::string vertexShaderPath, std::string fragmentShaderPath);
 
-	/*! \brief compile, link and attach the shaders to the program
-	 *
-	 *  This method first compiles the shaders, then links them and finally
-	 *  attaches them to the shader program.
-	 *  If errors happen they will be logged using the ERR("...") macro.
-	 *
-	 *  \return false if an error occurred, else true.
-	 *
-	 *  \warning You MUST initialize the OpenGL context before calling this method!
-	 */
-	bool prepareShaders();
+    /*! \brief compile, link and attach the shaders to the program
+     *
+     *  This method first compiles the shaders, then links them and finally
+     *  attaches them to the shader program.
+     *  If errors happen they will be logged using the ERR("...") macro.
+     *
+     *  \return false if an error occurred, else true.
+     *
+     *  \warning You MUST initialize the OpenGL context before calling this method!
+     */
+    bool prepareShaders();
 
-	void useProgram();
+    void useProgram();
 
-	bool operator<(const ShaderProgramGL& other) const;
+    bool operator<(const ShaderProgramGL& other) const;
 
 private: // variables
-	std::string vertexShaderPath;
-	std::string fragmentShaderPath;
+    std::string vertexShaderPath;
+    std::string fragmentShaderPath;
 
-	GLuint vertexShaderHandle;
-	GLuint fragmentShaderHandle;
-	GLuint shaderProgramHandle;
+    GLuint vertexShaderHandle;
+    GLuint fragmentShaderHandle;
+    GLuint shaderProgramHandle;
 
-	bool ready; //!< true if shaderProgramHandle is ready to be used
+    bool ready; //!< true if shaderProgramHandle is ready to be used
 
 };
 

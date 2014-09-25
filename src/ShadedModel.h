@@ -22,13 +22,13 @@
 class ShadedModel {
 public:
 
-	virtual ~ShadedModel() {}
+    virtual ~ShadedModel() {}
 
-	virtual shared_ptr<TriangleObject> getTriangleObject() = 0;
-	virtual shared_ptr<TextureObject> getTextureObject() = 0;
-	virtual shared_ptr<ShaderProgramGL> getShaderProgram() = 0;
+    virtual shared_ptr<TriangleObject> getTriangleObject() = 0;
+    virtual shared_ptr<TextureObject> getTextureObject() = 0;
+    virtual shared_ptr<ShaderProgramGL> getShaderProgram() = 0;
 
-	virtual std::string getName() = 0;
+    virtual std::string getName() = 0;
 };
 
 #endif /* SHADEDMODEL_H_ */

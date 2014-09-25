@@ -15,7 +15,7 @@ namespace blobby {
  * \param [in] message The message of the exception. Will be returned by what().
  */
 Exception::Exception(const std::string& message) :
-	m_message(message)
+    m_message(message)
 {
 }
 
@@ -29,7 +29,7 @@ Exception::~Exception() throw() {
  * @return The message of the exception.
  */
 const char* Exception::what() const throw() {
-	return m_message.c_str();
+    return m_message.c_str();
 }
 
 } // namespace blobby

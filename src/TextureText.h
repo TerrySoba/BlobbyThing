@@ -18,33 +18,33 @@
 
 class TextureText: public ShadedModel {
 public:
-	TextureText(shared_ptr<TextureFont> font, std::string name);
-	virtual ~TextureText();
+    TextureText(shared_ptr<TextureFont> font, std::string name);
+    virtual ~TextureText();
 
-	virtual shared_ptr<TriangleObject> getTriangleObject() { return triangleObject; }
-	virtual shared_ptr<TextureObject> getTextureObject() { return textureObject; }
-	shared_ptr<ShaderProgramGL> getShaderProgram() { return shader; }
-	virtual std::string getName();
+    virtual shared_ptr<TriangleObject> getTriangleObject() { return triangleObject; }
+    virtual shared_ptr<TextureObject> getTextureObject() { return textureObject; }
+    shared_ptr<ShaderProgramGL> getShaderProgram() { return shader; }
+    virtual std::string getName();
 
-	void clear();
+    void clear();
 
-	/*! \brief set text to be displayed
-	 *
-	 *  \param text text to be displayed in utf-8 coding
-	 */
-	void setText(const char* text);
+    /*! \brief set text to be displayed
+     *
+     *  \param text text to be displayed in utf-8 coding
+     */
+    void setText(const char* text);
 
-	uint32_t getTextWidth(const char* text);
+    uint32_t getTextWidth(const char* text);
 
 private:
-	shared_ptr<VectorTriangleObject> triangleObject;
-	shared_ptr<TextureObject> textureObject;
-	shared_ptr<TextureFont> font;
-	shared_ptr<ShaderProgramGL> shader;
-	std::string name;
+    shared_ptr<VectorTriangleObject> triangleObject;
+    shared_ptr<TextureObject> textureObject;
+    shared_ptr<TextureFont> font;
+    shared_ptr<ShaderProgramGL> shader;
+    std::string name;
 
-	float left; //!< Position of next character from left
-	float top;  //!< Position of next character from top
+    float left; //!< Position of next character from left
+    float top;  //!< Position of next character from top
 };
 
 #endif /* TEXTURETEXT_H_ */
