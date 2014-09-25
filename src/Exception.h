@@ -11,8 +11,8 @@
 #include "ErrorLogging.h"
 
 #define THROW_BLOBBY_EXCEPTION(message) \
-	ERR("Blobby Exception: ", message); \
-	throw blobby::Exception(message)
+    ERR("Blobby Exception: ", message); \
+    throw blobby::Exception(message)
 
 namespace blobby {
 
@@ -24,12 +24,12 @@ namespace blobby {
  */
 class Exception : public std::exception {
 public:
-	Exception(const std::string& message);
-	virtual ~Exception() throw();
-	virtual const char* what() const throw();
+    Exception(const std::string& message);
+    virtual ~Exception() throw();
+    virtual const char* what() const throw();
 
 private:
-	std::string m_message;
+    std::string m_message;
 };
 
 } // namespace blobby

@@ -13,17 +13,17 @@
 
 class VectorTriangleObject: public TriangleObject {
 public:
-	VectorTriangleObject();
-	virtual ~VectorTriangleObject();
+    VectorTriangleObject();
+    virtual ~VectorTriangleObject();
 
-	virtual MyGLVertex* getGLVertexes() { return &(vertexes[0]); }
-	virtual size_t getSize() { return vertexes.size(); }
+    virtual MyGLVertex* getGLVertexes() { return &(vertexes[0]); }
+    virtual size_t getSize() { return vertexes.size(); }
 
-	void addVertex(const MyGLVertex& vertex) { vertexes.push_back(vertex); }
-	void clear() { vertexes.clear(); }
+    void addVertex(const MyGLVertex& vertex) { vertexes.push_back(vertex); }
+    void clear() { vertexes.clear(); }
 
 private:
-	std::vector<MyGLVertex> vertexes;
+    std::vector<MyGLVertex> vertexes;
 
 };
 

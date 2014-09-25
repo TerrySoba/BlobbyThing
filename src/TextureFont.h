@@ -15,32 +15,32 @@
 #include "common.h"
 
 struct CharacterInformation {
-	uint32_t unicode;
-	int32_t bearingLeft;
-	int32_t bearingTop;
-	double horiAdvance;
-	double vertAdvance;
-	int32_t imageLeft;
-	int32_t imageTop;
-	uint32_t imageWidth;
-	uint32_t imageHeight;
+    uint32_t unicode;
+    int32_t bearingLeft;
+    int32_t bearingTop;
+    double horiAdvance;
+    double vertAdvance;
+    int32_t imageLeft;
+    int32_t imageTop;
+    uint32_t imageWidth;
+    uint32_t imageHeight;
 };
 
 class TextureFont {
 public:
-	TextureFont();
-	virtual ~TextureFont();
+    TextureFont();
+    virtual ~TextureFont();
 
-	bool load(const std::string& path);
+    bool load(const std::string& path);
 
-	shared_ptr<TextureObject> getTextureObject() { return texture; }
+    shared_ptr<TextureObject> getTextureObject() { return texture; }
 
-	bool hasCharacter(uint32_t unicode);
-	CharacterInformation* getCharacter(uint32_t unicode);
+    bool hasCharacter(uint32_t unicode);
+    CharacterInformation* getCharacter(uint32_t unicode);
 
 private:
-	std::map<uint32_t, CharacterInformation> characterMap;
-	shared_ptr<MemoryTextureObject> texture; //!< texture in LuminanceAlpha format
+    std::map<uint32_t, CharacterInformation> characterMap;
+    shared_ptr<MemoryTextureObject> texture; //!< texture in LuminanceAlpha format
 
 };
 

@@ -10,38 +10,38 @@ namespace string {
 
 template<typename T>
 void addVarSS(std::stringstream& oss, const T& value) {
-	oss << value;
+    oss << value;
 }
 
 template<typename T, typename... Args>
 void addVarSS(std::stringstream& oss, const T& value, Args... args) {
-	oss << value;
-	addVarSS(oss, args...);
+    oss << value;
+    addVarSS(oss, args...);
 }
 
 template<typename... Args>
 std::string join(Args... args) {
-	std::stringstream oss;
-	addVarSS(oss, args...);
-	return oss.str();
+    std::stringstream oss;
+    addVarSS(oss, args...);
+    return oss.str();
 }
 
 template<typename T>
 void addVarFmt(boost::format& f, const T& value) {
-	f % value;
+    f % value;
 }
 
 template<typename T, typename... Args>
 void addVarFmt(boost::format& f, const T& value, Args... args) {
-	f % value;
-	addVarFmt(f, args...);
+    f % value;
+    addVarFmt(f, args...);
 }
 
 template<typename... Args>
 std::string format(const std::string& fmt, Args... args) {
-	boost::format f(fmt);
-	addVarFmt(f, args...);
-	return f.str();
+    boost::format f(fmt);
+    addVarFmt(f, args...);
+    return f.str();
 }
 
 

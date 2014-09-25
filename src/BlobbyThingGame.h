@@ -15,43 +15,43 @@
 
 
 enum class GameState {
-	START_SCREEN = 1,
-	PLAYER_A_SERVE = 2,
-	PLAYER_B_SERVE = 3,
-	PLAYER_A_SCORE = 4,
-	PLAYER_B_SCORE = 5,
-	BALL_ACTIVE = 6
+    START_SCREEN = 1,
+    PLAYER_A_SERVE = 2,
+    PLAYER_B_SERVE = 3,
+    PLAYER_A_SCORE = 4,
+    PLAYER_B_SCORE = 5,
+    BALL_ACTIVE = 6
 };
 
 
 class BlobbyThingGame {
 public:
-	BlobbyThingGame(uint32_t screenWidth, uint32_t screenHeight, uint32_t colorDepth, std::string windowName = "BlobbyThing");
-	virtual ~BlobbyThingGame();
+    BlobbyThingGame(uint32_t screenWidth, uint32_t screenHeight, uint32_t colorDepth, std::string windowName = "BlobbyThing");
+    virtual ~BlobbyThingGame();
 
-	int run();
+    int run();
 
 private: // methods
-	TaskReturnvalue handleEvents();
-	void initKeyStatus();
+    TaskReturnvalue handleEvents();
+    void initKeyStatus();
 
 private: // types
-	struct KeyStatus {
-		bool keyRight;
-		bool keyLeft;
-		bool keyUp;
-		bool keyDown;
-		bool keyF1;
-		bool keyF2;
-		bool keyW;
-		bool keyA;
-		bool keyS;
-		bool keyD;
-	};
+    struct KeyStatus {
+        bool keyRight;
+        bool keyLeft;
+        bool keyUp;
+        bool keyDown;
+        bool keyF1;
+        bool keyF2;
+        bool keyW;
+        bool keyA;
+        bool keyS;
+        bool keyD;
+    };
 
 private: // variables
-	KeyStatus keyStatus;
-	GraphicsGL gl;
+    KeyStatus keyStatus;
+    GraphicsGL gl;
 };
 
 #endif /* BLOBBYTHINGGAME_H_ */

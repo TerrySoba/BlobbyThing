@@ -12,25 +12,25 @@
 
 class ShadedModelProxy : public ShadedModel {
 public:
-	ShadedModelProxy(shared_ptr<TriangleObject> tri, shared_ptr<TextureObject> tex, shared_ptr<ShaderProgramGL> shader, std::string name) {
-		triangleObject = tri;
-		textureObject = tex;
-		this->shader = shader;
-		this->name = name;
-	}
+    ShadedModelProxy(shared_ptr<TriangleObject> tri, shared_ptr<TextureObject> tex, shared_ptr<ShaderProgramGL> shader, std::string name) {
+        triangleObject = tri;
+        textureObject = tex;
+        this->shader = shader;
+        this->name = name;
+    }
 
-	virtual ~ShadedModelProxy();
+    virtual ~ShadedModelProxy();
 
-	shared_ptr<TriangleObject> getTriangleObject() {return triangleObject;}
-	shared_ptr<TextureObject> getTextureObject() {return textureObject;}
-	shared_ptr<ShaderProgramGL> getShaderProgram() { return shader; }
-	std::string getName() {return name;}
+    shared_ptr<TriangleObject> getTriangleObject() {return triangleObject;}
+    shared_ptr<TextureObject> getTextureObject() {return textureObject;}
+    shared_ptr<ShaderProgramGL> getShaderProgram() { return shader; }
+    std::string getName() {return name;}
 
 private:
-	shared_ptr<TriangleObject> triangleObject;
-	shared_ptr<TextureObject> textureObject;
-	shared_ptr<ShaderProgramGL> shader;
-	std::string name;
+    shared_ptr<TriangleObject> triangleObject;
+    shared_ptr<TextureObject> textureObject;
+    shared_ptr<ShaderProgramGL> shader;
+    std::string name;
 };
 
 #endif /* SHADEDMODELPROXY_H_ */

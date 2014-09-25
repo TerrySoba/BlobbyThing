@@ -21,17 +21,17 @@ typedef Eigen::Matrix<float, 4, 1> Vector4f;
 
 template <typename T>
 inline T sgn(T value) {
-	return (value >= 0)?1:-1;
+    return (value >= 0)?1:-1;
 }
 
 template <typename T>
 inline T abs(T value) {
-	return (value >= 0)?value:-value;
+    return (value >= 0)?value:-value;
 }
 
 template <typename T>
 inline T min(T a, T b) {
-	return (a < b)?a:b;
+    return (a < b)?a:b;
 }
 
 /*! \brief calculates positive modulus
@@ -50,12 +50,12 @@ inline T min(T a, T b) {
  *  \return the rest of the integer division
  */
 inline int32_t positiveModulo(int32_t value, int32_t modulo) {
-	int32_t tmp = value % modulo;
-	if (tmp >= 0) {
-		return tmp;
-	} else {
-		return tmp + modulo;
-	}
+    int32_t tmp = value % modulo;
+    if (tmp >= 0) {
+        return tmp;
+    } else {
+        return tmp + modulo;
+    }
 }
 
 #ifdef _MSC_VER
