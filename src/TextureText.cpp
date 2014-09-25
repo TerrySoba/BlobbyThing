@@ -9,8 +9,8 @@
 #include "DecodeUtf8.h"
 #include <math.h>
 
-TextureText::TextureText(shared_ptr<TextureFont> font, std::string name) {
-    shared_ptr<VectorTriangleObject> triangleObject = make_shared<VectorTriangleObject>();
+TextureText::TextureText(std::shared_ptr<TextureFont> font, std::string name) {
+    auto triangleObject = std::make_shared<VectorTriangleObject>();
 
     this->triangleObject = triangleObject;
     this->textureObject = font->getTextureObject();
@@ -19,7 +19,7 @@ TextureText::TextureText(shared_ptr<TextureFont> font, std::string name) {
     left = 0;
     top = 0;
 
-    shader = make_shared<ShaderProgramGL>();
+    shader = std::make_shared<ShaderProgramGL>();
     shader->setShaders("shaders/font.vert", "shaders/font.frag");
 
 }

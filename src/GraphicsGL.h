@@ -12,14 +12,13 @@
 #include "SDL.h"
 #include <cstdint>
 #include <string>
-#include "ShadedModel.h"
 #include <map>
 #include <set>
-#include "WavefrontOBJLoader.h"
 #include <tuple>
-#include "common.h"
 
-
+#include "ErrorLogging.h"
+#include "ShadedModel.h"
+#include "WavefrontOBJLoader.h"
 
 struct GraphicsObject {
     std::string name;
@@ -81,8 +80,8 @@ public:
      *  \param model ObjModel to be added
      *  \return handle of the added model
      */
-    size_t addModel(shared_ptr<ObjModel> model);
-    size_t addModel(shared_ptr<ShadedModel> model);
+    size_t addModel(std::shared_ptr<ObjModel> model);
+    size_t addModel(std::shared_ptr<ShadedModel> model);
 
     /*! \brief add GraphicsObject to perspective draw list
      *
@@ -171,14 +170,14 @@ private:
       }
     };
 
-    std::vector<shared_ptr<TriangleObject>> geometryStore;
-    std::set<shared_ptr<ShaderProgramGL>, ptr_less<shared_ptr<ShaderProgramGL>>> shaderStore;
-    std::set<shared_ptr<TextureObject>, ptr_less<shared_ptr<TextureObject>>> textureStore;
+    std::vector<std::shared_ptr<TriangleObject>> geometryStore;
+    std::set<std::shared_ptr<ShaderProgramGL>, ptr_less<std::shared_ptr<ShaderProgramGL>>> shaderStore;
+    std::set<std::shared_ptr<TextureObject>, ptr_less<std::shared_ptr<TextureObject>>> textureStore;
 
     struct InternalModelPart {
-        shared_ptr<TriangleObject> triangles;
-        shared_ptr<ShaderProgramGL> shader;
-        shared_ptr<TextureObject> texture;
+        std::shared_ptr<TriangleObject> triangles;
+        std::shared_ptr<ShaderProgramGL> shader;
+        std::shared_ptr<TextureObject> texture;
     };
 
     struct InternalModelReference {

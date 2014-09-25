@@ -10,9 +10,9 @@
 
 #include <map>
 #include <vector>
-#include <stdint.h>
+#include <cstdint>
+#include <memory>
 #include "MemoryTextureObject.h"
-#include "common.h"
 
 struct CharacterInformation {
     uint32_t unicode;
@@ -33,14 +33,14 @@ public:
 
     bool load(const std::string& path);
 
-    shared_ptr<TextureObject> getTextureObject() { return texture; }
+    std::shared_ptr<TextureObject> getTextureObject() { return texture; }
 
     bool hasCharacter(uint32_t unicode);
     CharacterInformation* getCharacter(uint32_t unicode);
 
 private:
     std::map<uint32_t, CharacterInformation> characterMap;
-    shared_ptr<MemoryTextureObject> texture; //!< texture in LuminanceAlpha format
+    std::shared_ptr<MemoryTextureObject> texture; //!< texture in LuminanceAlpha format
 
 };
 

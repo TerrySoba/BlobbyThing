@@ -9,7 +9,6 @@
 #define BLOBBYTHINGGAME_H_
 
 #include <SDL.h>
-#include "common.h"
 #include "GameLoop.h"
 #include "GraphicsGL.h"
 

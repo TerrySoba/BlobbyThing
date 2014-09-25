@@ -6,7 +6,7 @@
  */
 
 #include "ShaderProgramGL.h"
-#include "common.h"
+#include "ErrorLogging.h"
 #include <cstdio>
 
 ShaderProgramGL::ShaderProgramGL() {

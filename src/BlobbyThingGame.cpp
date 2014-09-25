@@ -51,16 +51,16 @@ int BlobbyThingGame::run() {
     // create camera path
     // gl.lookAt(-x / 30.0 + 10, y / 30.0 - 10, 14, 0, 3, 0, 0, 1, 0);
 
-    shared_ptr<TextureFont> font = make_shared<TextureFont>();
+    auto font = std::make_shared<TextureFont>();
     font->load("fonts/font.ytf");
 
-    shared_ptr<TextureFont> titleFont = make_shared<TextureFont>();
+    auto titleFont = std::make_shared<TextureFont>();
     titleFont->load("fonts/test_font.ytf");
 
-    shared_ptr<TextureText> playerAScoreText = make_shared<TextureText>(font, "playerAScoreText");
-    shared_ptr<TextureText> playerBScoreText = make_shared<TextureText>(font, "playerBScoreText");
-    shared_ptr<TextureText> fpsText = make_shared<TextureText>(font, "fpsText");
-    shared_ptr<TextureText> startText = make_shared<TextureText>(titleFont, "startText");
+    auto playerAScoreText = std::make_shared<TextureText>(font, "playerAScoreText");
+    auto playerBScoreText = std::make_shared<TextureText>(font, "playerBScoreText");
+    auto fpsText = std::make_shared<TextureText>(font, "fpsText");
+    auto startText = std::make_shared<TextureText>(titleFont, "startText");
 
     playerAScoreText->setText("Score 0");
     playerBScoreText->setText("Score 0");
@@ -69,8 +69,8 @@ int BlobbyThingGame::run() {
     startText->setText(titleStr);
     PhysicsSimulation2D physics(1e-2f / 4.0f);
 
-    std::vector<shared_ptr<ObjModel>> ballShadow = WavefrontOBJLoader::load("models/shadow.obj");
-    std::vector<shared_ptr<ObjModel>> beach = WavefrontOBJLoader::load("models/beach_background_export.obj");
+    std::vector<std::shared_ptr<ObjModel>> ballShadow = WavefrontOBJLoader::load("models/shadow.obj");
+    std::vector<std::shared_ptr<ObjModel>> beach = WavefrontOBJLoader::load("models/beach_background_export.obj");
 
     if (SDL_Init(SDL_INIT_VIDEO) == -1) {
         ERR("Can't init SDL: ", SDL_GetError());
