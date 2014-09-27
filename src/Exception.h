@@ -10,9 +10,9 @@
 
 #include "ErrorLogging.h"
 
-#define THROW_BLOBBY_EXCEPTION(message) \
-    ERR("Blobby Exception: ", message); \
-    throw blobby::Exception(message)
+#define THROW_BLOBBY_EXCEPTION(...) \
+    ERR("Blobby Exception: ", __VA_ARGS__); \
+    throw blobby::Exception(blobby::string::join(__VA_ARGS__))
 
 namespace blobby {
 

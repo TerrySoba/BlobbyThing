@@ -51,14 +51,14 @@ public:
     bool operator<(const ShaderProgramGL& other) const;
 
 private: // variables
-    std::string vertexShaderPath;
-    std::string fragmentShaderPath;
+    std::string m_vertexShaderPath;
+    std::string m_fragmentShaderPath;
 
-    GLuint vertexShaderHandle;
-    GLuint fragmentShaderHandle;
-    GLuint shaderProgramHandle;
+    GLuint m_vertexShaderHandle;
+    GLuint m_fragmentShaderHandle;
+    GLuint m_shaderProgramHandle;
 
-    bool ready; //!< true if shaderProgramHandle is ready to be used
+    bool m_ready; //!< true if shaderProgramHandle is ready to be used
 
 };
 
