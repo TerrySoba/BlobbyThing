@@ -7,25 +7,28 @@
 
 #include "ShaderProgramGL.h"
 #include "ErrorLogging.h"
-#include <cstdio>
+#include "Exception.h"
+#include <fstream>
 
-ShaderProgramGL::ShaderProgramGL() {
-    this->vertexShaderHandle = 0;
-    this->fragmentShaderHandle = 0;
-    this->shaderProgramHandle = 0;
-    ready = false;
+ShaderProgramGL::ShaderProgramGL() :
+    m_vertexShaderHandle(0),
+    m_fragmentShaderHandle(0),
+    m_shaderProgramHandle(0),
+    m_ready(false)
+{
 }
 
 ShaderProgramGL::~ShaderProgramGL() {
     // TODO Auto-generated destructor stub
 }
 
-inline bool fileExists(const char* path) {
-    FILE* fp;
-    if ((fp = fopen(path, "rb"))) {
-        fclose(fp);
+inline bool fileExists(const std::string& path) {
+    std::ifstream f(path.c_str());
+    if (f.good()) {
+        f.close();
         return true;
     } else {
+        f.close();
         return false;
     }
 }
@@ -37,39 +40,42 @@ bool ShaderProgramGL::setShaders(std::string vertexShaderPath, std::string fragm
         return false;
     }
 
-    this->vertexShaderPath = vertexShaderPath;
-    this->fragmentShaderPath = fragmentShaderPath;
+    m_vertexShaderPath = vertexShaderPath;
+    m_fragmentShaderPath = fragmentShaderPath;
     return true;
 }
 
-std::string readCompleteFile(const char* path, size_t bufferSize = 1024) {
-    if (bufferSize == 0) {
-        return "";
+/**
+ * Loads the file at the given path and returns its contents
+ * in a string.
+ */
+std::string loadFile(const std::string& path)
+{
+    std::ifstream fp;
+    fp.open(path, std::ios_base::in | std::ios_base::binary);
+
+    if (!fp)
+    {
+        THROW_BLOBBY_EXCEPTION("Could not open file \"", path, "\"");
     }
 
-    std::string text = "";
-    FILE* fp = fopen(path, "rb");
-    if (!fp) {
-        ERR("Could not open file: ", path);
-        return text;
+    std::string ret;
+    std::vector<char> buf(1024);
+    while (fp.good())
+    {
+        fp.read(buf.data(), buf.size());
+        ret.insert(ret.end(), buf.begin(), buf.begin() + fp.gcount());
     }
 
-    std::vector<char> buffer(bufferSize+1);
-    while (!feof(fp)) {
-        size_t readElem = fread(buffer.data(), 1, bufferSize, fp);
-        buffer[readElem] = '\0';
-        text += std::string(buffer.data(), readElem);
-    }
-
-    fclose(fp);
-
-    return text;
+    return ret;
 }
 
 void ShaderProgramGL::useProgram() {
-    if (ready) {
-        glUseProgram(shaderProgramHandle);
+    if (!m_ready)
+    {
+        THROW_BLOBBY_EXCEPTION("prepareShaders() has to be called before this method.");
     }
+    glUseProgram(m_shaderProgramHandle);
 }
 
 std::string getShaderInfoLog(GLuint shaderHandle) {
@@ -105,47 +111,47 @@ std::string getProgramInfoLog(GLuint programHandle) {
 }
 
 bool ShaderProgramGL::prepareShaders() {
-    if (!ready) {
-        std::string vertexShaderSource = readCompleteFile(this->vertexShaderPath.c_str());
-        std::string fragmentShaderSource = readCompleteFile(this->fragmentShaderPath.c_str());
+    if (!m_ready) {
+        std::string vertexShaderSource = loadFile(m_vertexShaderPath);
+        std::string fragmentShaderSource = loadFile(m_fragmentShaderPath);
 
         // load shaders from files
-        vertexShaderHandle = glCreateShader(GL_VERTEX_SHADER);
-        fragmentShaderHandle = glCreateShader(GL_FRAGMENT_SHADER);
+        m_vertexShaderHandle = glCreateShader(GL_VERTEX_SHADER);
+        m_fragmentShaderHandle = glCreateShader(GL_FRAGMENT_SHADER);
 
         // pass shader source to driver
-        const char* vSS = vertexShaderSource.c_str();
-        glShaderSource(vertexShaderHandle, 1, &vSS, NULL);
+        auto vSS = vertexShaderSource.c_str();
+        glShaderSource(m_vertexShaderHandle, 1, &vSS, NULL);
 
         // pass shader source to driver
-        const char* fSS = fragmentShaderSource.c_str();
-        glShaderSource(fragmentShaderHandle, 1, &fSS, NULL);
+        auto fSS = fragmentShaderSource.c_str();
+        glShaderSource(m_fragmentShaderHandle, 1, &fSS, NULL);
 
-        glCompileShader(vertexShaderHandle);
+        glCompileShader(m_vertexShaderHandle);
         // LOG("VertexShader Log: ", getShaderInfoLog(vertexShaderHandle));
 
-        glCompileShader(fragmentShaderHandle);
+        glCompileShader(m_fragmentShaderHandle);
         // LOG("FragmentShader Log: ", getShaderInfoLog(fragmentShaderHandle));
 
-        shaderProgramHandle = glCreateProgram();
+        m_shaderProgramHandle = glCreateProgram();
 
-        glAttachShader(shaderProgramHandle, vertexShaderHandle);
-        glAttachShader(shaderProgramHandle, fragmentShaderHandle);
+        glAttachShader(m_shaderProgramHandle, m_vertexShaderHandle);
+        glAttachShader(m_shaderProgramHandle, m_fragmentShaderHandle);
 
-        glLinkProgram(shaderProgramHandle);
+        glLinkProgram(m_shaderProgramHandle);
 
-        LOG("ShaderProgram Log: ", getProgramInfoLog(shaderProgramHandle));
+        LOG("ShaderProgram Log: ", getProgramInfoLog(m_shaderProgramHandle));
 
         // glUseProgram(program);
 
-        ready = true;
+        m_ready = true;
     }
 
     return true;
 }
 
 bool ShaderProgramGL::operator<(const ShaderProgramGL& other) const {
-    auto thisName = std::make_pair(this->vertexShaderPath, this->fragmentShaderPath);
-    auto otherName = std::make_pair(other.vertexShaderPath, other.fragmentShaderPath);
+    auto thisName = std::make_pair(m_vertexShaderPath, m_fragmentShaderPath);
+    auto otherName = std::make_pair(other.m_vertexShaderPath, other.m_fragmentShaderPath);
     return (thisName < otherName);
 }
