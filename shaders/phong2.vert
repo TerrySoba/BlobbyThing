@@ -2,7 +2,7 @@
 
 uniform mat4 modelView;                 // shader modelview matrix uniform
 uniform mat4 projection;                // shader projection matrix uniform
-as
+
 varying vec3 normal, eyeVec, lightDir;
 void main()
 {
