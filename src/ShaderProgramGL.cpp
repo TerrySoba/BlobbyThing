@@ -140,7 +140,12 @@ bool ShaderProgramGL::prepareShaders() {
 
         glLinkProgram(m_shaderProgramHandle);
 
-        LOG("ShaderProgram Log: ", getProgramInfoLog(m_shaderProgramHandle));
+        GLint stat;
+        glGetProgramiv(m_shaderProgramHandle, GL_LINK_STATUS, &stat);
+        if (!stat) {
+            ERR("ShaderProgram Log: ", getProgramInfoLog(m_shaderProgramHandle));
+            THROW_BLOBBY_EXCEPTION("Could not link shader program.");
+        }
 
         // glUseProgram(program);
 
@@ -155,3 +160,34 @@ bool ShaderProgramGL::operator<(const ShaderProgramGL& other) const {
     auto otherName = std::make_pair(other.m_vertexShaderPath, other.m_fragmentShaderPath);
     return (thisName < otherName);
 }
+
+GLint ShaderProgramGL::getUniformHandle(const std::string& name)
+{
+    if (!m_ready)
+    {
+        THROW_BLOBBY_EXCEPTION("prepareShaders() has to be called before this method.");
+    }
+
+    GLint handle = 0;
+    if (m_uniformHandles.count(name) == 0)
+    {
+        handle = glGetUniformLocation(m_shaderProgramHandle, name.c_str());
+        if (handle < 0) {
+            THROW_BLOBBY_EXCEPTION("Could not get uniform location with given name: ", name);
+        }
+        m_uniformHandles[name] = handle;
+    } else {
+        handle = m_uniformHandles.at(name);
+    }
+
+    return handle;
+}
+
+void ShaderProgramGL::setUniformMatrix4fv(const std::string& name,
+                                          GLsizei count,
+                                          GLboolean transpose,
+                                          const GLfloat *value)
+{
+    glUniformMatrix4fv(getUniformHandle(name), count, transpose, value);
+}
+

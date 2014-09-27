@@ -10,6 +10,7 @@
 
 #include "gl_includes.h"
 #include <string>
+#include <map>
 
 /*! \brief Abstracts a single OpenGL shader program
  *
@@ -50,6 +51,14 @@ public:
 
     bool operator<(const ShaderProgramGL& other) const;
 
+    void setUniformMatrix4fv(const std::string& name,
+                             GLsizei count,
+                             GLboolean transpose,
+                             const GLfloat *value);
+
+private: // methods
+    GLint getUniformHandle(const std::string& name);
+
 private: // variables
     std::string m_vertexShaderPath;
     std::string m_fragmentShaderPath;
@@ -60,6 +69,7 @@ private: // variables
 
     bool m_ready; //!< true if shaderProgramHandle is ready to be used
 
+    std::map<std::string, GLint> m_uniformHandles;
 };
 
 #endif /* SHADERPROGRAMGL_H_ */
