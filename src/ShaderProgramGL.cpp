@@ -128,10 +128,10 @@ bool ShaderProgramGL::prepareShaders() {
         glShaderSource(m_fragmentShaderHandle, 1, &fSS, NULL);
 
         glCompileShader(m_vertexShaderHandle);
-        // LOG("VertexShader Log: ", getShaderInfoLog(vertexShaderHandle));
+        // LOG("VertexShader Log: ", getShaderInfoLog(m_vertexShaderHandle));
 
         glCompileShader(m_fragmentShaderHandle);
-        // LOG("FragmentShader Log: ", getShaderInfoLog(fragmentShaderHandle));
+        // LOG("FragmentShader Log: ", getShaderInfoLog(m_fragmentShaderHandle));
 
         m_shaderProgramHandle = glCreateProgram();
 
@@ -147,9 +147,15 @@ bool ShaderProgramGL::prepareShaders() {
             THROW_BLOBBY_EXCEPTION("Could not link shader program.");
         }
 
-        // glUseProgram(program);
+        // glUseProgram(m_shaderProgramHandle);
 
         m_ready = true;
+
+//        LOG("v:", m_vertexShaderPath," f:", m_fragmentShaderPath);
+//        LOG("gna: ", glGetUniformLocation(m_shaderProgramHandle, "modelView"));
+//        LOG("gna: ", glGetUniformLocation(m_shaderProgramHandle, "projection"));
+
+        // getUniformHandle("modelView");
     }
 
     return true;

@@ -25,7 +25,8 @@ include_directories(
     ${ICU_INCLUDE_DIRS}
     ${OPENGL_INCLUDE_DIR}
     ${GLEW_INCLUDE_DIR}
-    ${EIGEN_INCLUDE_DIRS})
+    ${EIGEN_INCLUDE_DIRS}
+    ${GLM_INCLUDE_DIRS})
 
 add_definitions(-DEIGEN_DONT_ALIGN_STATICALLY)
 

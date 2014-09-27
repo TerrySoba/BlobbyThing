@@ -14,6 +14,12 @@
 #include "SDLTextureObject.h"
 #include "benchmarking.h"
 
+#define GLM_FORCE_RADIANS
+
+#include "glm/glm.hpp"
+#include "glm/gtc/type_ptr.hpp"
+#include "glm/gtc/matrix_transform.hpp"
+
 #include <algorithm>
 
 GraphicsGL::GraphicsGL(uint32_t screenWidth, uint32_t screenHeight, uint32_t colorDepth, std::string windowName) {
@@ -80,6 +86,7 @@ bool GraphicsGL::init() {
     // SDL_GL_SetSwapInterval(1);
 
     // init GLEW
+    glewExperimental = GL_TRUE;
     GLenum err = glewInit();
     if (GLEW_OK != err) {
       /* Problem: glewInit failed, something is seriously wrong. */
@@ -403,6 +410,13 @@ void GraphicsGL::draw() {
             // use shader program
             part.shader->useProgram();
             // glUseProgram(0);
+
+            auto modelView = glm::mat4();
+
+            part.shader->setUniformMatrix4fv("projection",
+                                             1,
+                                             false,
+                                             glm::value_ptr(modelView));
 
             // now draw triangle data
             if (part.triangles->getSize() > 0) {
