@@ -127,16 +127,18 @@ void GraphicsGL::setupGLMatrices() {
 
     this->updateCamera();
 
-    // init modelview matrix
-    glMatrixMode(GL_MODELVIEW);
     glEnable(GL_TEXTURE_2D);
-
-    glLoadIdentity();
+    // init modelview matrix
     m_modelView = glm::mat4();
 
+
+    glMatrixMode(GL_PROJECTION);
+    glLoadIdentity();
+    glMatrixMode(GL_MODELVIEW);
+    glLoadIdentity();
+
+
     // set light source
-
-
     GLfloat lAmbient[4] = {.2f, .2f, .2f, 1.0f};
     glLightfv(GL_LIGHT0, GL_AMBIENT, lAmbient);
 
@@ -153,10 +155,6 @@ void GraphicsGL::setupGLMatrices() {
 
     GLfloat mShininess[1] = {100};
     glMaterialfv(GL_FRONT_AND_BACK, GL_SHININESS, mShininess);
-
-
-
-
 }
 
 void GraphicsGL::setCamera(GLdouble fovy, GLdouble nearClipping, GLdouble farClipping) {
@@ -185,33 +183,19 @@ void GraphicsGL::lookAt(GLdouble eyex, GLdouble eyey, GLdouble eyez,
 
 
 void GraphicsGL::updateCamera() {
-    glMatrixMode(GL_PROJECTION);
-    glLoadIdentity();
-
     m_projection = glm::perspective(
                 glm::radians(openGLCamera.fovy),
                 (double)this->screenWidth / this->screenHeight,
                 openGLCamera.nearClipping,
                 openGLCamera.farClipping);
 
-
-    gluPerspective(openGLCamera.fovy,  (double)this->screenWidth / this->screenHeight, openGLCamera.nearClipping, openGLCamera.farClipping);
-    glMatrixMode(GL_MODELVIEW);
-    glLoadIdentity();
-
     m_modelView = glm::lookAt(
             glm::vec3(openGLCamera.eye[0], openGLCamera.eye[1], openGLCamera.eye[2]),
             glm::vec3(openGLCamera.center[0], openGLCamera.center[1], openGLCamera.center[2]),
             glm::vec3(openGLCamera.up[0], openGLCamera.up[1], openGLCamera.up[2]));
 
-    gluLookAt(openGLCamera.eye[0], openGLCamera.eye[1], openGLCamera.eye[2],
-              openGLCamera.center[0], openGLCamera.center[1], openGLCamera.center[2],
-              openGLCamera.up[0], openGLCamera.up[1], openGLCamera.up[2]);
-
     GLfloat pos[4] = {10,10,20,1};
     glLightfv(GL_LIGHT0, GL_POSITION, pos);
-
-    // glMatrixMode(GL_MODELVIEW);
 }
 
 void GraphicsGL::initGL() {
@@ -258,19 +242,6 @@ void GraphicsGL::initGL() {
 
 }
 
-//void GraphicsGL::loadShaders() {
-//  auto safePrepareShaders = [&](std::vector<GraphicsObject>& objs) {
-//      for(GraphicsObject& obj: objs) {
-//          shared_ptr<ShaderProgramGL> shader = models[obj.modelHandle]->getShaderProgram();
-//          if (shader) {
-//              shader->prepareShaders();
-//          }
-//      }
-//  };
-//
-//  safePrepareShaders(this->perspectiveObjs);
-//  safePrepareShaders(this->orthographicObjs);
-//}
 
 size_t GraphicsGL::addModel(std::shared_ptr<ShadedModel> model) {
     if (model) {
@@ -296,8 +267,6 @@ size_t GraphicsGL::addModel(std::shared_ptr<ShadedModel> model) {
 }
 
 size_t GraphicsGL::addModel(std::shared_ptr<ObjModel> model) {
-    // models.push_back(model);
-
     if (model) {
         InternalModelReference ref;
         ref.name = model->name;
@@ -408,7 +377,6 @@ void GraphicsGL::draw() {
 
     auto drawObj = [&](GraphicsObject &obj, glm::mat4 projection, glm::mat4 modelView) {
         InternalModelReference& model = (models[obj.modelHandle]);
-        glPushMatrix();
 
         modelView = glm::translate(
                     modelView,
@@ -473,8 +441,6 @@ void GraphicsGL::draw() {
                 glDrawArrays(GL_TRIANGLES, 0, part.triangles->getSize());
             }
         }
-
-        glPopMatrix();
     };
 
     // first draw the perspective objects
@@ -483,26 +449,13 @@ void GraphicsGL::draw() {
     }
 
     // now draw orthographic objects
-    glMatrixMode(GL_PROJECTION);
-    glPushMatrix();
-    glLoadIdentity();
-    glOrtho(0.0 ,this->screenWidth, 0.0, this->screenHeight, 1.0, -1.0);
-
     glm::mat4 orthoProjection = glm::ortho(0.0f, (float)this->screenWidth, 0.0f, (float)this->screenHeight, 1.0f, -1.0f);
-
-    glMatrixMode(GL_MODELVIEW);
-    glPushMatrix();
-    glLoadIdentity();
     glDisable(GL_DEPTH_TEST); // disable depth buffering
     for(size_t &obj: orthographicObjs) {
         drawObj(objs[obj], orthoProjection, glm::mat4());
     }
-    glPopMatrix();
-    glEnable(GL_DEPTH_TEST); // enable depth buffering
-    glMatrixMode(GL_PROJECTION);
-    glPopMatrix();
-    glMatrixMode(GL_MODELVIEW);
 
+    glEnable(GL_DEPTH_TEST); // enable depth buffering
 #if SDL_VERSION_ATLEAST(2,0,0)
     SDL_GL_SwapWindow(mainwindow);
 #else
