@@ -178,9 +178,9 @@ GLint ShaderProgramGL::getUniformHandle(const std::string& name)
     if (m_uniformHandles.count(name) == 0)
     {
         handle = glGetUniformLocation(m_shaderProgramHandle, name.c_str());
-//        if (handle < 0) {
-//            THROW_BLOBBY_EXCEPTION("Could not get uniform location with given name: ", name);
-//        }
+        if (handle < 0) {
+            THROW_BLOBBY_EXCEPTION("Could not get uniform location with given name: ", name);
+        }
         m_uniformHandles[name] = handle;
     } else {
         handle = m_uniformHandles.at(name);
