@@ -15,6 +15,7 @@
 #include "benchmarking.h"
 
 #include <algorithm>
+#include <sstream>
 
 GraphicsGL::GraphicsGL(uint32_t screenWidth, uint32_t screenHeight, uint32_t colorDepth, std::string windowName) {
     this->screenWidth = screenWidth;
@@ -188,7 +189,7 @@ void GraphicsGL::updateCamera() {
     glLoadIdentity();
 
     m_projection = glm::perspective(
-                openGLCamera.fovy,
+                glm::radians(openGLCamera.fovy),
                 (double)this->screenWidth / this->screenHeight,
                 openGLCamera.nearClipping,
                 openGLCamera.farClipping);
@@ -418,10 +419,32 @@ void GraphicsGL::draw() {
                     (obj.rotationAngle / 180.0f) * 3.1415f,
                     glm::vec3(obj.rotationVector[0], obj.rotationVector[1], obj.rotationVector[2]));
 
-        LOG("rot: ", obj.rotationVector[0], obj.rotationVector[1], obj.rotationVector[2]);
-
         glTranslatef(obj.translation[0], obj.translation[1], obj.translation[2]);
         glRotatef(obj.rotationAngle, obj.rotationVector[0], obj.rotationVector[1], obj.rotationVector[2]);
+
+//        GLfloat projMatrix[16] = {0};
+//        GLfloat modelMatrix[16] = {0};
+//        glGetFloatv(GL_PROJECTION_MATRIX, projMatrix);
+//        glGetFloatv(GL_MODELVIEW_MATRIX, modelMatrix);
+
+//        std::stringstream glMat;
+//        std::stringstream glmMat;
+//        for (size_t i = 0; i < 16; ++i)
+//        {
+//            glMat << projMatrix[i] << ",";
+//            glmMat << projection[i/4][i%4] << ",";
+
+//            // modelView[i/4][i%4] = modelMatrix[i];
+//            // projection[i/4][i%4] = projMatrix[i];
+//        }
+
+//        LOG("name: ", model.name);
+//        LOG("glMat:  ", glMat.str());
+//        LOG("glmMat: ", glmMat.str());
+
+//        LOG("rot: ", obj.rotationVector[0], obj.rotationVector[1], obj.rotationVector[2]);
+
+
 
         for(auto& part: model.modelParts) {
             // bind texture
