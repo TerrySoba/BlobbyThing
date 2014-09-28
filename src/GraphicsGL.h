@@ -20,6 +20,12 @@
 #include "ShadedModel.h"
 #include "WavefrontOBJLoader.h"
 
+#define GLM_FORCE_RADIANS
+
+#include "glm/glm.hpp"
+#include "glm/gtc/type_ptr.hpp"
+#include "glm/gtc/matrix_transform.hpp"
+
 struct GraphicsObject {
     std::string name;
     size_t modelHandle;
@@ -93,7 +99,7 @@ public:
      */
     // size_t addGfxObjects(GraphicsObject& gfxObject);
 
-    size_t addGfxObjects(size_t modelHandle, std::string name, Vector3f translation = Vector3f(0,0,0), Vector3f rotationVector = Vector3f(0,0,0), GLfloat rotationAngle = 0.0);
+    size_t addGfxObjects(size_t modelHandle, std::string name, Vector3f translation = Vector3f(0,0,0), Vector3f rotationVector = Vector3f(1,0,0), GLfloat rotationAngle = 0.0);
 
     /*! \brief add GraphicsObject to orthigraphic draw list
      *
@@ -101,7 +107,7 @@ public:
      *
      *  \param gfxObject reference to the GraphicsObject to be added
      */
-    size_t addOrthoGfxObject(size_t modelHandle, std::string name, Vector3f translation = Vector3f(0,0,0), Vector3f rotationVector = Vector3f(0,0,0), GLfloat rotationAngle = 0.0);
+    size_t addOrthoGfxObject(size_t modelHandle, std::string name, Vector3f translation = Vector3f(0,0,0), Vector3f rotationVector = Vector3f(1,0,0), GLfloat rotationAngle = 0.0);
 
     /*! \brief get handle to model by name.
      *
@@ -197,6 +203,8 @@ private:
         GLdouble up[3];        // up vector of camera
     } openGLCamera;
 
+    glm::mat4 m_projection;
+    glm::mat4 m_modelView;
 };
 
 #endif /* GRAPHICSGL_H_ */

@@ -14,12 +14,6 @@
 #include "SDLTextureObject.h"
 #include "benchmarking.h"
 
-#define GLM_FORCE_RADIANS
-
-#include "glm/glm.hpp"
-#include "glm/gtc/type_ptr.hpp"
-#include "glm/gtc/matrix_transform.hpp"
-
 #include <algorithm>
 
 GraphicsGL::GraphicsGL(uint32_t screenWidth, uint32_t screenHeight, uint32_t colorDepth, std::string windowName) {
@@ -135,7 +129,9 @@ void GraphicsGL::setupGLMatrices() {
     // init modelview matrix
     glMatrixMode(GL_MODELVIEW);
     glEnable(GL_TEXTURE_2D);
+
     glLoadIdentity();
+    m_modelView = glm::mat4();
 
     // set light source
 
@@ -190,9 +186,22 @@ void GraphicsGL::lookAt(GLdouble eyex, GLdouble eyey, GLdouble eyez,
 void GraphicsGL::updateCamera() {
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
+
+    m_projection = glm::perspective(
+                openGLCamera.fovy,
+                (double)this->screenWidth / this->screenHeight,
+                openGLCamera.nearClipping,
+                openGLCamera.farClipping);
+
+
     gluPerspective(openGLCamera.fovy,  (double)this->screenWidth / this->screenHeight, openGLCamera.nearClipping, openGLCamera.farClipping);
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
+
+    m_modelView = glm::lookAt(
+            glm::vec3(openGLCamera.eye[0], openGLCamera.eye[1], openGLCamera.eye[2]),
+            glm::vec3(openGLCamera.center[0], openGLCamera.center[1], openGLCamera.center[2]),
+            glm::vec3(openGLCamera.up[0], openGLCamera.up[1], openGLCamera.up[2]));
 
     gluLookAt(openGLCamera.eye[0], openGLCamera.eye[1], openGLCamera.eye[2],
               openGLCamera.center[0], openGLCamera.center[1], openGLCamera.center[2],
@@ -396,9 +405,20 @@ void GraphicsGL::prepareScene() {
 void GraphicsGL::draw() {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    auto drawObj = [&](GraphicsObject &obj) {
+    auto drawObj = [&](GraphicsObject &obj, glm::mat4 projection, glm::mat4 modelView) {
         InternalModelReference& model = (models[obj.modelHandle]);
         glPushMatrix();
+
+        modelView = glm::translate(
+                    modelView,
+                    glm::vec3(obj.translation[0], obj.translation[1], obj.translation[2]));
+
+        modelView = glm::rotate(
+                    modelView,
+                    (obj.rotationAngle / 180.0f) * 3.1415f,
+                    glm::vec3(obj.rotationVector[0], obj.rotationVector[1], obj.rotationVector[2]));
+
+        LOG("rot: ", obj.rotationVector[0], obj.rotationVector[1], obj.rotationVector[2]);
 
         glTranslatef(obj.translation[0], obj.translation[1], obj.translation[2]);
         glRotatef(obj.rotationAngle, obj.rotationVector[0], obj.rotationVector[1], obj.rotationVector[2]);
@@ -411,9 +431,12 @@ void GraphicsGL::draw() {
             part.shader->useProgram();
             // glUseProgram(0);
 
-            auto modelView = glm::mat4();
-
             part.shader->setUniformMatrix4fv("projection",
+                                             1,
+                                             false,
+                                             glm::value_ptr(projection));
+
+            part.shader->setUniformMatrix4fv("modelView",
                                              1,
                                              false,
                                              glm::value_ptr(modelView));
@@ -433,7 +456,7 @@ void GraphicsGL::draw() {
 
     // first draw the perspective objects
     for(size_t &obj: perspectiveObjs) {
-        drawObj(objs[obj]);
+        drawObj(objs[obj], m_projection, m_modelView);
     }
 
     // now draw orthographic objects
@@ -441,12 +464,15 @@ void GraphicsGL::draw() {
     glPushMatrix();
     glLoadIdentity();
     glOrtho(0.0 ,this->screenWidth, 0.0, this->screenHeight, 1.0, -1.0);
+
+    glm::mat4 orthoProjection = glm::ortho(0.0f, (float)this->screenWidth, 0.0f, (float)this->screenHeight, 1.0f, -1.0f);
+
     glMatrixMode(GL_MODELVIEW);
     glPushMatrix();
     glLoadIdentity();
     glDisable(GL_DEPTH_TEST); // disable depth buffering
     for(size_t &obj: orthographicObjs) {
-        drawObj(objs[obj]);
+        drawObj(objs[obj], orthoProjection, glm::mat4());
     }
     glPopMatrix();
     glEnable(GL_DEPTH_TEST); // enable depth buffering
