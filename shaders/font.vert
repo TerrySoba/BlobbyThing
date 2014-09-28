@@ -6,7 +6,6 @@ uniform mat4 projection;                // shader projection matrix uniform
 void main()
 {	
 	gl_FrontColor = gl_Color;
-	gl_TexCoord[0] = gl_MultiTexCoord0;
-        // gl_Position = ftransform();
+        gl_TexCoord[0] = gl_MultiTexCoord0;
         gl_Position = projection * modelView * gl_Vertex;
 }
