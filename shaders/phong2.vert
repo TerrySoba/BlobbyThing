@@ -18,7 +18,8 @@ const vec4 lightPosition = vec4(10.0,10.0,20.0,1);
 void main()
 {
   gl_Position = projection * modelView * position;
-  normalInterp = vec3(normalize(normalMat * normal));
+  vec4 tmpNormal = normalMat * normal;
+  normalInterp = tmpNormal.xyz / tmpNormal.w;
   vec4 vVertex = modelView * position;
   eyeVec = -vVertex.xyz / vVertex.w;
   lightDir = vec3(vec4(modelView * lightPosition).xyz - vVertex.xyz);
