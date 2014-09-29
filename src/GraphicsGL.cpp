@@ -168,8 +168,6 @@ void GraphicsGL::updateCamera() {
             glm::vec3(openGLCamera.eye[0], openGLCamera.eye[1], openGLCamera.eye[2]),
             glm::vec3(openGLCamera.center[0], openGLCamera.center[1], openGLCamera.center[2]),
             glm::vec3(openGLCamera.up[0], openGLCamera.up[1], openGLCamera.up[2]));
-
-    // GLfloat pos[4] = {10,10,20,1};
 }
 
 void GraphicsGL::initGL() {

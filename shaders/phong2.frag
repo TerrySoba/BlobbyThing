@@ -1,45 +1,50 @@
 #version 330 core
 
-in vec2 uv;
 uniform sampler2D tex;
 
-//void main (void)
-//{
-//    color = texture2D(tex, uv);
-//}
-
+in vec2 uv;
 in vec3 normalInterp;
-in vec3 vertPos;
+in vec3 eyeVec;
+in vec3 lightDir;
+
 out vec4 color;
 
-const vec3 lightPos = vec3(1.0,1.0,1.0);
-// const vec3 diffuseColor = vec3(0.5, 0.0, 0.0);
-const vec3 specColor = vec3(1.0, 1.0, 1.0);
+const float materialEmission = 0.0;
+const float lightAmbient = 0.2;
+const float lightDiffuse = 1;
+const float materialShininess = 100;
+const float lightSpecular = 1;
+const float materialSpecular = 1;
 
-void main() {
-
-  vec3 diffuseColor = texture2D(tex, uv).rgb;
-  float alpha = texture2D(tex, uv).a;
-
-  vec3 normal = normalize(normalInterp);
-  vec3 lightDir = normalize(lightPos - vertPos);
-
-  float lambertian = max(dot(lightDir,normal), 0.0);
-  float specular = 0.0;
-
-  if(lambertian > 0.0) {
-
-    vec3 reflectDir = reflect(-lightDir, normal);
-    vec3 viewDir = normalize(-vertPos);
-
-    float specAngle = max(dot(reflectDir, viewDir), 0.0);
-    specular = pow(specAngle, 4.0);
-
-    // the exponent controls the shininess
-    specular = pow(specAngle, 16.0);
+void main (void)
+{
+  vec4 texColor = texture2D(tex, uv);
+  float alpha = texColor.a;
+  float ambient_factor = 0.9;
+  vec4 final_color = materialEmission + (texColor * ambient_factor) * lightAmbient;
+  vec3 N = normalize(normalInterp);
+  vec3 L = normalize(lightDir);
+  float lambertTerm = dot(N,L);
+  if (lambertTerm > 0.0)
+  {
+    final_color +=
+      lightDiffuse *
+      texColor *
+      lambertTerm;
+    vec3 E = normalize(eyeVec);
+    vec3 R = reflect(-L, N);
+    float specular = pow(max(dot(R, E), 0.0),
+                         materialShininess);
+    final_color +=
+      lightSpecular *
+      materialSpecular *
+      specular;
+    alpha += specular;
   }
-
-  color = vec4( lambertian*diffuseColor +
-                specular*specColor, alpha);
+  color = vec4(final_color.rgb, alpha);
 }
+
+
+
+
 
