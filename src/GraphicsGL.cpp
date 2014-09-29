@@ -381,6 +381,13 @@ void GraphicsGL::draw() {
                                              false,
                                              glm::value_ptr(modelView));
 
+            glm::mat4 normalMatrix = glm::transpose(glm::inverse(modelView));
+
+            part.shader->setUniformMatrix4fv("normalMat",
+                                             1,
+                                             false,
+                                             glm::value_ptr(normalMatrix));
+
 
             auto attribLoc = [&](const std::string& name)
             {
@@ -400,6 +407,9 @@ void GraphicsGL::draw() {
 
                 glVertexAttribPointer(attribLoc("texCoord"), 2, GL_FLOAT, false, sizeof(MyGLVertex), POINTER_DIFF(&dummy.vt, &dummy));
                 glEnableVertexAttribArray(attribLoc("texCoord"));
+
+                glVertexAttribPointer(attribLoc("normal"), 3, GL_FLOAT, false, sizeof(MyGLVertex), POINTER_DIFF(&dummy.n, &dummy));
+                glEnableVertexAttribArray(attribLoc("normal"));
 
                 glDrawArrays(GL_TRIANGLES, 0, part.triangles->getSize());
             }
