@@ -20,7 +20,8 @@
 #include "ShadedModel.h"
 #include "WavefrontOBJLoader.h"
 
-#define GLM_FORCE_RADIANS
+// #define GLM_FORCE_CXX98
+// #define GLM_FORCE_RADIANS
 
 #include "glm/glm.hpp"
 #include "glm/gtc/type_ptr.hpp"

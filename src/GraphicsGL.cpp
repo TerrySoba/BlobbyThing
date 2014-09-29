@@ -346,8 +346,11 @@ void GraphicsGL::prepareScene() {
 void GraphicsGL::draw() {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    auto drawObj = [&](GraphicsObject &obj, glm::mat4 projection, glm::mat4 modelView) {
+    auto drawObj = [&](GraphicsObject &obj, glm::mat4& projectionMat, glm::mat4& modelViewMat) {
         InternalModelReference& model = (models[obj.modelHandle]);
+
+        glm::mat4 projection = projectionMat;
+        glm::mat4 modelView = modelViewMat;
 
         modelView = glm::translate(
                     modelView,

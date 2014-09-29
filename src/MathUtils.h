@@ -58,10 +58,4 @@ inline int32_t positiveModulo(int32_t value, int32_t modulo) {
     }
 }
 
-#ifdef _MSC_VER
-#define round(X) static_cast<int64_t>(X+0.5)
-#endif
-
-
-
 #endif /* MATHUTILS_H_ */
