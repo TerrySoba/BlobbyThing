@@ -189,6 +189,28 @@ GLint ShaderProgramGL::getUniformHandle(const std::string& name)
     return handle;
 }
 
+GLint ShaderProgramGL::getAttribHandle(const std::string& name)
+{
+    if (!m_ready)
+    {
+        THROW_BLOBBY_EXCEPTION("prepareShaders() has to be called before this method.");
+    }
+
+    GLint handle = 0;
+    if (m_attribHandles.count(name) == 0)
+    {
+        handle = glGetAttribLocation(m_shaderProgramHandle, name.c_str());
+        if (handle < 0) {
+            THROW_BLOBBY_EXCEPTION("Could not get attrib location with given name: ", name);
+        }
+        m_attribHandles[name] = handle;
+    } else {
+        handle = m_attribHandles.at(name);
+    }
+
+    return handle;
+}
+
 void ShaderProgramGL::setUniformMatrix4fv(const std::string& name,
                                           GLsizei count,
                                           GLboolean transpose,

@@ -1,8 +1,11 @@
-#version 120
-varying vec3 normal, eyeVec, lightDir;
+#version 330 core
+
+in vec2 uv;
 uniform sampler2D tex;
+
+out vec4 color;
 
 void main (void)
 {
-    gl_FragColor = texture2D(tex, gl_TexCoord[0].st);
+    color = texture2D(tex, uv);
 }

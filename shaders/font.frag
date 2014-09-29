@@ -1,10 +1,12 @@
-#version 120
+#version 330 core
 
+in vec2 uv;
 uniform sampler2D tex;
-	
-void main()
+
+out vec4 color;
+
+void main (void)
 {
-	vec4 texel;
-	texel = texture2D(tex,gl_TexCoord[0].st);
-	gl_FragColor = vec4(gl_Color.rgb, texel.a);
+    vec3 textColor = vec3(1.0,1.0,1.0);
+    color = vec4(textColor, texture2D(tex, uv).a);
 }
