@@ -56,6 +56,8 @@ public:
                              GLboolean transpose,
                              const GLfloat *value);
 
+    GLint getAttribHandle(const std::string& name);
+
 private: // methods
     GLint getUniformHandle(const std::string& name);
 
@@ -70,6 +72,7 @@ private: // variables
     bool m_ready; //!< true if shaderProgramHandle is ready to be used
 
     std::map<std::string, GLint> m_uniformHandles;
+    std::map<std::string, GLint> m_attribHandles;
 };
 
 #endif /* SHADERPROGRAMGL_H_ */

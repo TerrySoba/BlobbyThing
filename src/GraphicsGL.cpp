@@ -130,31 +130,6 @@ void GraphicsGL::setupGLMatrices() {
     glEnable(GL_TEXTURE_2D);
     // init modelview matrix
     m_modelView = glm::mat4();
-
-
-    glMatrixMode(GL_PROJECTION);
-    glLoadIdentity();
-    glMatrixMode(GL_MODELVIEW);
-    glLoadIdentity();
-
-
-    // set light source
-    GLfloat lAmbient[4] = {.2f, .2f, .2f, 1.0f};
-    glLightfv(GL_LIGHT0, GL_AMBIENT, lAmbient);
-
-    GLfloat lDiffuse[4] = {1.0f, 1.0f, 1.0f, 1.0f};
-    glLightfv(GL_LIGHT0, GL_DIFFUSE, lDiffuse);
-
-    GLfloat lSpecular[4] = {1.0f, 1.0f, 0.8f, 1.0f};
-    glLightfv(GL_LIGHT0, GL_SPECULAR, lSpecular);
-
-
-    // set material parameters
-    GLfloat mSpecular[4] = {1.0f, 1.0f, 1.0f, 1.0f};
-    glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, mSpecular);
-
-    GLfloat mShininess[1] = {100};
-    glMaterialfv(GL_FRONT_AND_BACK, GL_SHININESS, mShininess);
 }
 
 void GraphicsGL::setCamera(GLdouble fovy, GLdouble nearClipping, GLdouble farClipping) {
@@ -194,8 +169,7 @@ void GraphicsGL::updateCamera() {
             glm::vec3(openGLCamera.center[0], openGLCamera.center[1], openGLCamera.center[2]),
             glm::vec3(openGLCamera.up[0], openGLCamera.up[1], openGLCamera.up[2]));
 
-    GLfloat pos[4] = {10,10,20,1};
-    glLightfv(GL_LIGHT0, GL_POSITION, pos);
+    // GLfloat pos[4] = {10,10,20,1};
 }
 
 void GraphicsGL::initGL() {
@@ -212,11 +186,6 @@ void GraphicsGL::initGL() {
     SDL_GL_SetAttribute(SDL_GL_ACCUM_BLUE_SIZE, 8);
     SDL_GL_SetAttribute(SDL_GL_ACCUM_ALPHA_SIZE, 8);
 
-    SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, 1);
-    SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, 2);
-
-    SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
-
     // now print OpenGL Version string
     LOG("glversion: ", glGetString(GL_VERSION));
 
@@ -225,12 +194,6 @@ void GraphicsGL::initGL() {
     glGetIntegerv(GL_MINOR_VERSION, &OpenGLVersion[1]);
 
     LOG("OpenGL major:", OpenGLVersion[0], " minor:", OpenGLVersion[1]);
-    glEnableClientState (GL_VERTEX_ARRAY);
-    glEnableClientState (GL_NORMAL_ARRAY);
-    glEnableClientState (GL_TEXTURE_COORD_ARRAY);
-
-    glEnable (GL_LIGHTING);
-    glEnable (GL_LIGHT0);
 
     glEnable (GL_DEPTH_TEST); // use depth buffering
     glCullFace (GL_BACK); // select backside of polygons for culling
@@ -240,6 +203,17 @@ void GraphicsGL::initGL() {
     glEnable( GL_BLEND );
     glClearColor(0.0,0.0,0.0,0.0);
 
+    /// We have to create a VertexArray in order to be able to use buffers
+    // @todo Is this true?
+    GLuint vertexArrayID;
+    glGenVertexArrays(1, &vertexArrayID);
+    glBindVertexArray(vertexArrayID);
+
+    /// create buffer
+    // @todo maybe use the buffer in a more efficient way...
+    GLuint bufferId;
+    glGenBuffers(1, &bufferId);
+    glBindBuffer(GL_ARRAY_BUFFER, bufferId);
 }
 
 
@@ -369,7 +343,6 @@ void GraphicsGL::prepareScene() {
     std::stable_sort(perspectiveObjs.begin(), perspectiveObjs.end(), [&](const size_t& a, const size_t& b) {
         return models[objs[a].modelHandle].transparency > models[objs[b].modelHandle].transparency;
     });
-
 }
 
 void GraphicsGL::draw() {
@@ -390,30 +363,6 @@ void GraphicsGL::draw() {
         glTranslatef(obj.translation[0], obj.translation[1], obj.translation[2]);
         glRotatef(obj.rotationAngle, obj.rotationVector[0], obj.rotationVector[1], obj.rotationVector[2]);
 
-//        GLfloat projMatrix[16] = {0};
-//        GLfloat modelMatrix[16] = {0};
-//        glGetFloatv(GL_PROJECTION_MATRIX, projMatrix);
-//        glGetFloatv(GL_MODELVIEW_MATRIX, modelMatrix);
-
-//        std::stringstream glMat;
-//        std::stringstream glmMat;
-//        for (size_t i = 0; i < 16; ++i)
-//        {
-//            glMat << projMatrix[i] << ",";
-//            glmMat << projection[i/4][i%4] << ",";
-
-//            // modelView[i/4][i%4] = modelMatrix[i];
-//            // projection[i/4][i%4] = projMatrix[i];
-//        }
-
-//        LOG("name: ", model.name);
-//        LOG("glMat:  ", glMat.str());
-//        LOG("glmMat: ", glmMat.str());
-
-//        LOG("rot: ", obj.rotationVector[0], obj.rotationVector[1], obj.rotationVector[2]);
-
-
-
         for(auto& part: model.modelParts) {
             // bind texture
             part.texture->bindTexture();
@@ -432,12 +381,26 @@ void GraphicsGL::draw() {
                                              false,
                                              glm::value_ptr(modelView));
 
+
+            auto attribLoc = [&](const std::string& name)
+            {
+                return part.shader->getAttribHandle(name);
+            };
+
             // now draw triangle data
             if (part.triangles->getSize() > 0) {
+                MyGLVertex dummy;
                 MyGLVertex* data = part.triangles->getGLVertexes();
-                glVertexPointer(3, GL_FLOAT, sizeof(MyGLVertex), &data->v);
-                glTexCoordPointer(2, GL_FLOAT, sizeof(MyGLVertex), &data->vt);
-                glNormalPointer(GL_FLOAT, sizeof(MyGLVertex), &data->n);
+                glBufferData(GL_ARRAY_BUFFER, part.triangles->getSize() * sizeof(MyGLVertex), data, GL_STATIC_DRAW);
+
+#define POINTER_DIFF(p1, p2) (const GLvoid *)(reinterpret_cast<uint8_t*>(p1) - reinterpret_cast<const uint8_t*>(p2))
+
+                glVertexAttribPointer(attribLoc("position"), 3, GL_FLOAT, false, sizeof(MyGLVertex), POINTER_DIFF(&dummy.v, &dummy));
+                glEnableVertexAttribArray(attribLoc("position"));
+
+                glVertexAttribPointer(attribLoc("texCoord"), 2, GL_FLOAT, false, sizeof(MyGLVertex), POINTER_DIFF(&dummy.vt, &dummy));
+                glEnableVertexAttribArray(attribLoc("texCoord"));
+
                 glDrawArrays(GL_TRIANGLES, 0, part.triangles->getSize());
             }
         }
