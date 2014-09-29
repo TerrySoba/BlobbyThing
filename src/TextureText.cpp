@@ -91,8 +91,7 @@ void TextureText::setText(const char* text) {
             v.vt = texTopRight;
             this->triangleObject->addVertex(v);
 
-            this->left += round(info->horiAdvance);
-
+            this->left += roundf(static_cast<float>(info->horiAdvance));
         }
     }
 }
