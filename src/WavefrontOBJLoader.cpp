@@ -22,7 +22,8 @@
 using blobby::string::format;
 
 #ifdef _MSC_VER
-#define strtok_r(tok, delim, state) strtok(tok, delim)
+
+#define strtok_r strtok_s
 
 std::string dirname(std::string path) {
     char drive[_MAX_DRIVE];
@@ -30,10 +31,19 @@ std::string dirname(std::string path) {
     char fname[_MAX_FNAME];
     char ext[_MAX_EXT];
 
-    _splitpath( path.c_str(), drive, dir, fname, ext );
+    errno_t ret = _splitpath_s<_MAX_DRIVE, _MAX_DIR, _MAX_FNAME, _MAX_EXT>(path.c_str(), drive, dir, fname, ext);
+
+    if (ret != 0)
+    {
+        THROW_BLOBBY_EXCEPTION("_splitpath_s failed, error:", ret);
+    }
 
     return std::string(dir);
 }
+
+#else
+
+#define sscanf_s sscanf
 
 #endif
 
@@ -177,7 +187,7 @@ std::map<std::string, ObjMaterial> WavefrontOBJLoader::loadMaterial(const std::s
             token = strtok_r(NULL, "\n\r", &saveptr);
             if (token) {
                 float specular;
-                if (sscanf(token, "%f", &specular) == 1) {
+                if (sscanf_s(token, "%f", &specular) == 1) {
                     mtl[mtlname].specular = specular;
                 } else {
                     THROW_BLOBBY_EXCEPTION(format("%1%:%2% Invalid format of specular value.", path, lineNumber));
@@ -190,7 +200,7 @@ std::map<std::string, ObjMaterial> WavefrontOBJLoader::loadMaterial(const std::s
             token = strtok_r(NULL, "\n\r", &saveptr);
             if (token) {
                 float transparency;
-                if (sscanf(token, "%f", &transparency) == 1) {
+                if (sscanf_s(token, "%f", &transparency) == 1) {
                     mtl[mtlname].transparency = transparency;
                 } else {
                     THROW_BLOBBY_EXCEPTION(format("%1%:%2% Invalid format of transparency value.", path, lineNumber));
@@ -203,7 +213,7 @@ std::map<std::string, ObjMaterial> WavefrontOBJLoader::loadMaterial(const std::s
             token = strtok_r(NULL, "\n\r", &saveptr);
             if (token) {
                 float color[3];
-                if (sscanf(token, "%f %f %f", &(color[0]), &(color[1]), &(color[2])) == 3) {
+                if (sscanf_s(token, "%f %f %f", &(color[0]), &(color[1]), &(color[2])) == 3) {
                     for (int i = 0; i < 3; i++) {
                         mtl[mtlname].ambientColor[i] = color[i];
                     }
@@ -218,7 +228,7 @@ std::map<std::string, ObjMaterial> WavefrontOBJLoader::loadMaterial(const std::s
             token = strtok_r(NULL, "\n\r", &saveptr);
             if (token) {
                 float color[3];
-                if (sscanf(token, "%f %f %f", &(color[0]), &(color[1]), &(color[2])) == 3) {
+                if (sscanf_s(token, "%f %f %f", &(color[0]), &(color[1]), &(color[2])) == 3) {
                     for (int i = 0; i < 3; i++) {
                         mtl[mtlname].diffuseColor[i] = color[i];
                     }
@@ -233,7 +243,7 @@ std::map<std::string, ObjMaterial> WavefrontOBJLoader::loadMaterial(const std::s
             token = strtok_r(NULL, "\n\r", &saveptr);
             if (token) {
                 float color[3];
-                if (sscanf(token, "%f %f %f", &(color[0]), &(color[1]), &(color[2])) == 3) {
+                if (sscanf_s(token, "%f %f %f", &(color[0]), &(color[1]), &(color[2])) == 3) {
                     for (int i = 0; i < 3; i++) {
                         mtl[mtlname].specularColor[i] = color[i];
                     }
@@ -324,7 +334,7 @@ std::vector<std::shared_ptr<ObjModel>> WavefrontOBJLoader::load(const std::strin
                 for (int i = 0; i < 3; i++) {
                     token = strtok_r(NULL, " \n\r", &saveptr);
                     if (token) {
-                        int foundValues = sscanf(token, "%f", &vertex[i]);
+                        int foundValues = sscanf_s(token, "%f", &vertex[i]);
                         if (foundValues != 1) { // check if conversion worked
                             THROW_BLOBBY_EXCEPTION(format("%1%:%2% Invalid float format.", path, lineNumber));
                         }
@@ -340,7 +350,7 @@ std::vector<std::shared_ptr<ObjModel>> WavefrontOBJLoader::load(const std::strin
                 Face face;
                 while ((token = strtok_r(NULL, " \n\r", &saveptr))) {
                     FaceIndex faceIndex;
-                    int foundValues = sscanf(token, "%d/%d/%d",
+                    int foundValues = sscanf_s(token, "%d/%d/%d",
                             &faceIndex.vertexIndex, &faceIndex.textureIndex,
                             &faceIndex.normalIndex);
                     if (foundValues != 3) {
@@ -364,7 +374,7 @@ std::vector<std::shared_ptr<ObjModel>> WavefrontOBJLoader::load(const std::strin
                 for (int i = 0; i < 2; i++) {
                     token = strtok_r(NULL, " \n\r", &saveptr);
                     if (token) {
-                        int foundValues = sscanf(token, "%f", &texCoord[i]);
+                        int foundValues = sscanf_s(token, "%f", &texCoord[i]);
                         if (foundValues != 1) { // check if conversion worked
                             THROW_BLOBBY_EXCEPTION(format("%1%:%2% Invalid float format.", path, lineNumber));
                         }
@@ -381,7 +391,7 @@ std::vector<std::shared_ptr<ObjModel>> WavefrontOBJLoader::load(const std::strin
                 for (int i = 0; i < 3; i++) {
                     token = strtok_r(NULL, " \n\r", &saveptr);
                     if (token) {
-                        int foundValues = sscanf(token, "%f", &normal[i]);
+                        int foundValues = sscanf_s(token, "%f", &normal[i]);
                         if (foundValues != 1) { // check if conversion worked
                             THROW_BLOBBY_EXCEPTION(format("%1%:%2% Invalid float format.", path, lineNumber));
                         }
