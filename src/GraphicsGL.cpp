@@ -426,7 +426,8 @@ void GraphicsGL::draw() {
     glm::mat4 orthoProjection = glm::ortho(0.0f, (float)this->screenWidth, 0.0f, (float)this->screenHeight, 1.0f, -1.0f);
     glDisable(GL_DEPTH_TEST); // disable depth buffering
     for(size_t &obj: orthographicObjs) {
-        drawObj(objs[obj], orthoProjection, glm::mat4());
+        auto identity = glm::mat4();
+        drawObj(objs[obj], orthoProjection, identity);
     }
 
     glEnable(GL_DEPTH_TEST); // enable depth buffering
