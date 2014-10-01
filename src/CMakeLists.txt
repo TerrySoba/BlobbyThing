@@ -40,4 +40,5 @@ add_library(
     StringTools.h
     DecodeUtf8.h
     DecodeUtf8.cpp
+    GameStateMachine.h
 )
