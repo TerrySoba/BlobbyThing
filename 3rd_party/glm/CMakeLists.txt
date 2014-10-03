@@ -1,0 +1,2 @@
+set (GLM_INCLUDE_DIRS  ${CMAKE_CURRENT_SOURCE_DIR}/glm
+        CACHE INTERNAL "GLM Include Dir")
