@@ -17,10 +17,12 @@
 #include <algorithm>
 #include <sstream>
 
-GraphicsGL::GraphicsGL(uint32_t screenWidth, uint32_t screenHeight, uint32_t colorDepth, std::string windowName) {
+GraphicsGL::GraphicsGL(uint32_t screenWidth, uint32_t screenHeight, uint32_t colorDepth, bool fullscreen, std::string windowName)
+{
     this->screenWidth = screenWidth;
     this->screenHeight = screenHeight;
     this->colorDepth = colorDepth;
+    this->fullscreen = fullscreen;
     this->windowName = windowName;
 }
 
@@ -38,9 +40,15 @@ GraphicsGL::~GraphicsGL() {
 bool GraphicsGL::init() {
 
 #if SDL_VERSION_ATLEAST(2,0,0)
+
+    Uint32 flags = SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN;
+    if (fullscreen) {
+        flags |= SDL_WINDOW_FULLSCREEN;
+    }
+
     mainwindow = SDL_CreateWindow(windowName.c_str(), SDL_WINDOWPOS_CENTERED,
             SDL_WINDOWPOS_CENTERED, screenWidth, screenHeight,
-            SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN);
+            flags);
 
     if (!mainwindow) {
         ERR("Can't set video mode: ", SDL_GetError());
