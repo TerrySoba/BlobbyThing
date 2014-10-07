@@ -11,7 +11,7 @@ set MSVC_INSTALL_PATH=C:\Program Files ^(x86^)\Microsoft Visual Studio 12.0
 
 call "%MSVC_INSTALL_PATH%\VC\vcvarsall.bat" x86
 
-cmake .. -G Ninja -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX:PATH=%CD%/install -DBLOBBY_VERSION="Build ${MERCURIAL_REVISION_SHORT}:${BUILD_NUMBER}"
+cmake .. -G Ninja -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX:PATH=%CD%/install -DBLOBBY_VERSION="%MERCURIAL_REVISION_SHORT%:%BUILD_NUMBER%"
 rem cmake .. -G "Visual Studio 12 2013" -DCMAKE_INSTALL_PREFIX:PATH=%CD%/install
 ninja
 ninja install
