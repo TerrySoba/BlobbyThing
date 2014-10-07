@@ -26,7 +26,8 @@ include_directories(
     ${OPENGL_INCLUDE_DIR}
     ${GLEW_INCLUDE_DIR}
     ${EIGEN_INCLUDE_DIRS}
-    ${GLM_INCLUDE_DIRS})
+    ${GLM_INCLUDE_DIRS}
+    ${TCLAP_INCLUDE_DIRS})
 
 add_definitions(-DEIGEN_DONT_ALIGN_STATICALLY)
 
