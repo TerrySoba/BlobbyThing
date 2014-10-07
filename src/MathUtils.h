@@ -19,20 +19,6 @@ using Eigen::Vector2d;
 typedef Eigen::Matrix<double, 4, 1> Vector4d;
 typedef Eigen::Matrix<float, 4, 1> Vector4f;
 
-template <typename T>
-inline T sgn(T value) {
-    return (value >= 0)?1:-1;
-}
-
-template <typename T>
-inline T abs(T value) {
-    return (value >= 0)?value:-value;
-}
-
-template <typename T>
-inline T min(T a, T b) {
-    return (a < b)?a:b;
-}
 
 /*! \brief calculates positive modulus
  *

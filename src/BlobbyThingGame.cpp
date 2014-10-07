@@ -16,8 +16,8 @@
 #include "Exception.h"
 #include "MultiSpline.h"
 
-BlobbyThingGame::BlobbyThingGame(uint32_t screenWidth, uint32_t screenHeight, uint32_t colorDepth, std::string windowName)
-                            : gl(screenWidth, screenHeight, colorDepth, windowName) {
+BlobbyThingGame::BlobbyThingGame(uint32_t screenWidth, uint32_t screenHeight, uint32_t colorDepth, bool fullscreen, std::string windowName)
+                            : gl(screenWidth, screenHeight, colorDepth, fullscreen, windowName) {
 
 }
 

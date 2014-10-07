@@ -45,7 +45,7 @@ public:
      *  \param colorDepth bits per pixel (e.g. 24 for truecolor)
      *  \param windowname name to be shown as window title
      */
-    GraphicsGL(uint32_t screenWidth, uint32_t screenHeight, uint32_t colorDepth, std::string windowName);
+    GraphicsGL(uint32_t screenWidth, uint32_t screenHeight, uint32_t colorDepth, bool fullscreen, std::string windowName);
     virtual ~GraphicsGL();
 
     /*! \brief Initialize OpenGL system
@@ -152,6 +152,7 @@ private:
     uint32_t screenWidth;
     uint32_t screenHeight;
     uint32_t colorDepth;
+    bool fullscreen;
     std::string windowName;
 
 #if SDL_VERSION_ATLEAST(2,0,0)

@@ -25,7 +25,7 @@ enum class GameState {
 
 class BlobbyThingGame {
 public:
-    BlobbyThingGame(uint32_t screenWidth, uint32_t screenHeight, uint32_t colorDepth, std::string windowName = "BlobbyThing");
+    BlobbyThingGame(uint32_t screenWidth, uint32_t screenHeight, uint32_t colorDepth, bool fullscreen, std::string windowName = "BlobbyThing");
     virtual ~BlobbyThingGame();
 
     int run();
