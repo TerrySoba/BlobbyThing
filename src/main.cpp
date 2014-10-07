@@ -9,13 +9,14 @@
 #include "Exception.h"
 #include "tclap/CmdLine.h"
 
+#include "blobby_version.h"
 
 #ifndef DO_UNIT_TESTS
 
 int main(int argc, char* argv[]) {
     try {
 
-        TCLAP::CmdLine cmd("BlobbyThing, a simple volley ball game.", ' ', "0.9");
+        TCLAP::CmdLine cmd("BlobbyThing, a simple volley ball game.", ' ', BLOBBY_VERSION_STRING);
 
         TCLAP::ValueArg<uint32_t> horizontalRes("x", "horizontal", "Horizontal screen resolution in pixels",false,1280,"integer");
         TCLAP::ValueArg<uint32_t> verticalRes("y","vertical", "Vertical screen resolution in pixels",false,720,"integer");

@@ -45,6 +45,18 @@ link_libraries(${PROJECT_NAME}_lib
     ${GLEW_LIBRARY}
     ${OPENGL_LIBRARIES})
 
+if(NOT DEFINED BLOBBY_VERSION)
+    set(BLOBBY_VERSION "Local Build")
+endif()
+
+
+configure_file (
+  "src/blobby_version.h.in"
+  "${PROJECT_BINARY_DIR}/blobby_version.h"
+  )
+
+include_directories("${PROJECT_BINARY_DIR}")
+
 add_executable(
     ${PROJECT_NAME}
     src/main.cpp)
