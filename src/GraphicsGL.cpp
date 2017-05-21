@@ -259,7 +259,7 @@ size_t GraphicsGL::addModel(std::shared_ptr<ObjModel> model) {
 
             // check if shader path is given. If not use default shaders
             if (!(part.material.fragmentShaderPath.size() && part.material.vertexShaderPath.size())) {
-                shader->setShaders("shaders/phong2.vert", "shaders/phong2.frag");
+                shader->setShaders("../BlobbyThing/shaders/phong2.vert", "../BlobbyThing/shaders/phong2.frag");
             } else {
                 shader->setShaders(part.material.vertexShaderPath, part.material.fragmentShaderPath);
             }

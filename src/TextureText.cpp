@@ -20,7 +20,7 @@ TextureText::TextureText(std::shared_ptr<TextureFont> font, std::string name) {
     top = 0;
 
     shader = std::make_shared<ShaderProgramGL>();
-    shader->setShaders("shaders/font.vert", "shaders/font.frag");
+    shader->setShaders("../BlobbyThing/shaders/font.vert", "../BlobbyThing/shaders/font.frag");
 
 }
 

@@ -52,10 +52,10 @@ int BlobbyThingGame::run() {
     // gl.lookAt(-x / 30.0 + 10, y / 30.0 - 10, 14, 0, 3, 0, 0, 1, 0);
 
     auto font = std::make_shared<TextureFont>();
-    font->load("fonts/font.ytf");
+    font->load("../BlobbyThing/fonts/font.ytf");
 
     auto titleFont = std::make_shared<TextureFont>();
-    titleFont->load("fonts/test_font.ytf");
+    titleFont->load("../BlobbyThing/fonts/test_font.ytf");
 
     auto playerAScoreText = std::make_shared<TextureText>(font, "playerAScoreText");
     auto playerBScoreText = std::make_shared<TextureText>(font, "playerBScoreText");
@@ -69,8 +69,8 @@ int BlobbyThingGame::run() {
     startText->setText(titleStr);
     PhysicsSimulation2D physics(1e-2f / 4.0f);
 
-    std::vector<std::shared_ptr<ObjModel>> ballShadow = WavefrontOBJLoader::load("models/shadow.obj");
-    std::vector<std::shared_ptr<ObjModel>> beach = WavefrontOBJLoader::load("models/beach_background_export.obj");
+    std::vector<std::shared_ptr<ObjModel>> ballShadow = WavefrontOBJLoader::load("../BlobbyThing/models/shadow.obj");
+    std::vector<std::shared_ptr<ObjModel>> beach = WavefrontOBJLoader::load("../BlobbyThing/models/beach_background_export.obj");
 
     if (SDL_Init(SDL_INIT_VIDEO) == -1) {
         ERR("Can't init SDL: ", SDL_GetError());
